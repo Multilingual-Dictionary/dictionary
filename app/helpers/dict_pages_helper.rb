@@ -1,0 +1,2 @@
+module DictPagesHelper
+end
