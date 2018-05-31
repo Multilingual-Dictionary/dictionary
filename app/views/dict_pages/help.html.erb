@@ -1,2 +1,13 @@
-<h1>DictPages#help</h1>
-<p>Find me in app/views/dict_pages/help.html.erb</p>
+<% provide(:title, "Help") %>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= yield(:title) %> | Dictionary App</title>
+  </head>
+  <body>
+    <h1>Sample App</h1>
+    <p>
+      <h2><%= :title %></h2>
+    </p>
+  </body>
+</html>
