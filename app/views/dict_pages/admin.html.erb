@@ -1,13 +1,11 @@
- provide(:title, "Admin") %>
+<% provide(:title, "Admin") %>
 <!DOCTYPE html>
 <html>
   <head>
     <title><%= yield(:title) %> | Dictionary App</title>
   </head>
   <body>
-    <h1>Sample App</h1>
-    <p>
-      <h2><%= :title %></h2>
-    </p>
+    <%= render 'layouts/sub_header' %>
+
   </body>
 </html>

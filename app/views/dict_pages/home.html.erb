@@ -1,13 +1,9 @@
-<% provide(:title, "Home") %>
-<!DOCTYPE html>
-<html>
-  <head>
-    <title><%= yield(:title) %> | Dictionary App</title>
-  </head>
-  <body>
-    <h1>Sample App</h1>
-    <p>
-      <h2><%= :title %></h2>
-    </p>
-  </body>
-</html>
+<div class="center jumbotron">
+  <h1>Welcome to the Dictionary </h1>
+  <h2>
+    This is the home page for the Dictionary App
+  </h2>
+  <%= link_to image_tag("dict_ima.jpg", alt: "Dictionary logo" , :size => "260x180"), '#' %>
+  <br/>
+  <%= link_to "Sign up now!", '#', class: "btn btn-lg btn-primary" %>
+</div>
