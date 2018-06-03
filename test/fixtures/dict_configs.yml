@@ -1,0 +1,23 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  dict_sys_name: MyString
+  dict_name: MyText
+  lang: MyString
+  xlate_lang: MyString
+  desc: MyText
+  protocol: MyString
+  url: MyString
+  syntax: MyString
+  ext_infos: MyText
+
+two:
+  dict_sys_name: MyString
+  dict_name: MyText
+  lang: MyString
+  xlate_lang: MyString
+  desc: MyText
+  protocol: MyString
+  url: MyString
+  syntax: MyString
+  ext_infos: MyText

@@ -1,0 +1,49 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Dict sys name:</strong>
+  <%= @dict_config.dict_sys_name %>
+</p>
+
+<p>
+  <strong>Dict name:</strong>
+  <%= @dict_config.dict_name %>
+</p>
+
+<p>
+  <strong>Lang:</strong>
+  <%= @dict_config.lang %>
+</p>
+
+<p>
+  <strong>Xlate lang:</strong>
+  <%= @dict_config.xlate_lang %>
+</p>
+
+<p>
+  <strong>Desc:</strong>
+  <%= @dict_config.desc %>
+</p>
+
+<p>
+  <strong>Protocol:</strong>
+  <%= @dict_config.protocol %>
+</p>
+
+<p>
+  <strong>Url:</strong>
+  <%= @dict_config.url %>
+</p>
+
+<p>
+  <strong>Syntax:</strong>
+  <%= @dict_config.syntax %>
+</p>
+
+<p>
+  <strong>Ext infos:</strong>
+  <%= @dict_config.ext_infos %>
+</p>
+
+<%= link_to 'Edit', edit_dict_config_path(@dict_config) %> |
+<%= link_to 'Back', dict_configs_path %>

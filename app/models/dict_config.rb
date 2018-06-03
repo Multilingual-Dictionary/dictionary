@@ -1,0 +1,2 @@
+class DictConfig < ApplicationRecord
+end

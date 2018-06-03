@@ -1,0 +1,62 @@
+<%= form_with(model: dict_config, local: true) do |form| %>
+  <% if dict_config.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(dict_config.errors.count, "error") %> prohibited this dict_config from being saved:</h2>
+
+      <ul>
+      <% dict_config.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :dict_sys_name %>
+    <%= form.text_field :dict_sys_name, id: :dict_config_dict_sys_name %>
+  </div>
+
+  <div class="field">
+    <%= form.label :dict_name %>
+    <%= form.text_area :dict_name, id: :dict_config_dict_name %>
+  </div>
+
+  <div class="field">
+    <%= form.label :lang %>
+    <%= form.text_field :lang, id: :dict_config_lang %>
+  </div>
+
+  <div class="field">
+    <%= form.label :xlate_lang %>
+    <%= form.text_field :xlate_lang, id: :dict_config_xlate_lang %>
+  </div>
+
+  <div class="field">
+    <%= form.label :desc %>
+    <%= form.text_area :desc, id: :dict_config_desc %>
+  </div>
+
+  <div class="field">
+    <%= form.label :protocol %>
+    <%= form.text_field :protocol, id: :dict_config_protocol %>
+  </div>
+
+  <div class="field">
+    <%= form.label :url %>
+    <%= form.text_field :url, id: :dict_config_url %>
+  </div>
+
+  <div class="field">
+    <%= form.label :syntax %>
+    <%= form.text_field :syntax, id: :dict_config_syntax %>
+  </div>
+
+  <div class="field">
+    <%= form.label :ext_infos %>
+    <%= form.text_area :ext_infos, id: :dict_config_ext_infos %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

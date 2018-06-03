@@ -1,11 +1,9 @@
 Rails.application.routes.draw do
-  get 'admin_pages/admin_home'
-
-  get 'admin_pages/config_dict'
-
-  get 'admin_pages/config_user'
-
+  resources :dict_configs
   root 'dict_pages#home'
+  get 'admin_pages/admin_home'
+  get 'admin_pages/config_dict'
+  get 'admin_pages/config_user'
   get  '/home',    to: 'dict_pages#home'
   get  '/help',    to: 'dict_pages#help'
   get  '/about',   to: 'dict_pages#about'
