@@ -8,5 +8,6 @@ Rails.application.routes.draw do
   get  '/help',    to: 'dict_pages#help'
   get  '/about',   to: 'dict_pages#about'
   get  '/admin',   to: 'dict_pages#admin'
+  get  '/dict_lookup',   to: 'dict_pages#dict_lookup'
 end
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html

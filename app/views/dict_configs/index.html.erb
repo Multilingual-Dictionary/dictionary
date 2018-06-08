@@ -1,6 +1,7 @@
 <p id="notice"><%= notice %></p>
-
-<h1>Dict Configs</h1>
+<% provide(:title,"Cau hinh Tu Dien") %>
+<% @navlinks= [['Them tu dien', new_dict_config_path]] %>
+<%= render 'layouts/admin_header' %>
 
 <table class="table table-hover table-bordered ">
   <thead>
@@ -42,4 +43,3 @@
 
 <br>
 
-<%= link_to 'New Dict Config', new_dict_config_path %>

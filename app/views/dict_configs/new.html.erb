@@ -1,5 +1,7 @@
-<h1>New Dict Config</h1>
+<p id="notice"><%= notice %></p>
+<% provide(:title,"Them tu dien") %>
+<% @navlinks= [['Back', dict_configs_path]] %>
+<%= render 'layouts/admin_header' %>
 
 <%= render 'form', dict_config: @dict_config %>
 
-<%= link_to 'Back', dict_configs_path %>

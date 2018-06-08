@@ -4,43 +4,25 @@
   <head>
     <title><%= yield(:title) %> | Dictionary App</title>
   </head>
+
   <body>
-    <h1><%= yield(:title) %></h1>
 
-<div class="container">
-  <h2>Hover Rows</h2>
-  <p>The .table-hover class enables a hover state on table rows:</p>            
-  <table class="table table-hover table-bordered">
-    <thead>
-      <tr>
-        <th>Firstname</th>
-        <th>Lastname</th>
-        <th>Email</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>John</td>
-        <td>Doe</td>
-        <td>john@example.com</td>
-      </tr>
-      <tr>
-        <td>Mary</td>
-        <td>Moe</td>
-        <td>mary@example.com</td>
-      </tr>
-      <tr>
-        <td>July</td>
-        <td>Dooley</td>
-        <td>july@example.com</td>
-      </tr>
-    </tbody>
-  </table>
+<%= "abcd " + @dictLookup %>
+
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#lookup_by_dict">Tra theo tu dien</a></li>
+    <li><a data-toggle="tab" href="#lookup_by_lang">Tra theo ngon ngu</a></li>
+  </ul>
+  <div class="tab-content">
+    <div id="lookup_by_dict" class="tab-pane fade in active">
+      <h3>TRA THEO TU DIEN</h3>
+
+    </div>
+    <div id="lookup_by_lang" class="tab-pane fade">
+      <h3>TRA THEO NGON NGU</h3>
+    </div>
+  </div>
 </div>
-
-
-
-
 
   </body>
 </html>

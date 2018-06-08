@@ -1,6 +1,4 @@
-<h1>Editing Dict Config</h1>
-
+<% provide(:title,"Cap nhat") %>
+<% @navlinks= [['Back', dict_configs_path]] %>
+<%= render 'layouts/admin_header' %>
 <%= render 'form', dict_config: @dict_config %>
-
-<%= link_to 'Show', @dict_config %> |
-<%= link_to 'Back', dict_configs_path %>

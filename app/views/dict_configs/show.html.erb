@@ -1,49 +1,55 @@
 <p id="notice"><%= notice %></p>
+<% provide(:title,"Tu Dien") %>
+<% @navlinks= [['Back', dict_configs_path]] %>
+<%= render 'layouts/admin_header' %>
 
-<p>
-  <strong>Dict sys name:</strong>
-  <%= @dict_config.dict_sys_name %>
-</p>
 
-<p>
-  <strong>Dict name:</strong>
-  <%= @dict_config.dict_name %>
-</p>
+<p id="notice"><%= notice %></p>
+<table class="table table-hover table-bordered table-sm">
 
-<p>
-  <strong>Lang:</strong>
-  <%= @dict_config.lang %>
-</p>
+  <tr>
+    <td bgcolor=tabhead_color><strong>Dict sys name:</strong> </td>
+    <td><%= @dict_config.dict_sys_name %> </td>
+  </tr>
+  <tr>
+    <td bgcolor=tabhead_color><strong>Dict name:</strong> </td>
+    <td><%= @dict_config.dict_name %> </td>
+  </tr>
 
-<p>
-  <strong>Xlate lang:</strong>
-  <%= @dict_config.xlate_lang %>
-</p>
+  <tr>
+    <td bgcolor=tabhead_color><strong>Lang:</strong> </td>
+    <td><%= @dict_config.lang %> </td>
+  </tr>
 
-<p>
-  <strong>Desc:</strong>
-  <%= @dict_config.desc %>
-</p>
+  <tr>
+    <td bgcolor=tabhead_color><strong>Xlate lang:</strong> </td>
+    <td><%= @dict_config.xlate_lang %> </td>
+  </tr>
 
-<p>
-  <strong>Protocol:</strong>
-  <%= @dict_config.protocol %>
-</p>
+  <tr>
+    <td bgcolor=tabhead_color><strong>Desc:</strong> </td>
+    <td><%= @dict_config.desc %> </td>
+  </tr>
 
-<p>
-  <strong>Url:</strong>
-  <%= @dict_config.url %>
-</p>
+  <tr>
+    <td bgcolor=tabhead_color><strong>Protocol:</strong> </td>
+    <td><%= @dict_config.protocol %> </td>
+  </tr>
 
-<p>
-  <strong>Syntax:</strong>
-  <%= @dict_config.syntax %>
-</p>
+  <tr>
+    <td bgcolor=tabhead_color><strong>Url:</strong> </td>
+    <td><%= @dict_config.url %> </td>
+  </tr>
 
-<p>
-  <strong>Ext infos:</strong>
-  <%= @dict_config.ext_infos %>
-</p>
+  <tr>
+    <td bgcolor=tabhead_color><strong>Syntax:</strong> </td>
+    <td><%= @dict_config.syntax %> </td>
+  </tr>
+
+  <tr>
+    <td bgcolor=tabhead_color><strong>Ext infos:</strong> </td>
+    <td><%= @dict_config.ext_infos %> </td>
+  </tr>
+</table>
 
 <%= link_to 'Edit', edit_dict_config_path(@dict_config) %> |
-<%= link_to 'Back', dict_configs_path %>

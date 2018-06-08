@@ -1,0 +1,48 @@
+<% provide(:title, "lookup") %>
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= yield(:title) %> | Dictionary App</title>
+  </head>
+
+  <body>
+
+<% 
+	tab=[['lookup_dict','Tra theo tu dien'],
+	     ['lookup_lang','Tra theo ngon ngu']]
+%>
+
+
+  <ul class="nav nav-tabs">
+<% tab.each{|t| 			%>
+<% if t[0]==params[:lookup_type] %>
+    <li class="active">
+<% else %>
+    <li>
+<% end %>
+    <a data-toggle="tab" href="<%="#"+t[0]%>"> <%=t[1]%></a></li>
+<% }					%>
+  </ul>
+
+  <div class="tab-content">
+
+<% tab.each{|t| 			%>
+	<% if t[0]==params[:lookup_type] %>
+    	<%	tab_class="tab-pane fade in active" %>
+	<% else %>
+    	<%	tab_class="tab-pane fade in " %>
+	<% end %>
+    	<div id="<%=t[0]%>" class="<%=tab_class%>">
+	<%= render t[0] %>
+    	</div>
+<% }					%>
+  </div>
+
+<% if @result != nil %>
+<%= @result.inspect() %>
+<% end %>
+
+
+  </body>
+</html>

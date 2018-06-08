@@ -1,4 +1,4 @@
-<%= form_with(model: dict_config, local: true) do |form| %>
+<%= form_with(model: dict_config, local: true  ) do |form| %>
   <% if dict_config.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(dict_config.errors.count, "error") %> prohibited this dict_config from being saved:</h2>
@@ -10,53 +10,52 @@
       </ul>
     </div>
   <% end %>
+<table class="table table-bordered ">
+  <tr>
+    <td bgcolor=tabhead_color><strong>Dict sys name:</strong> </td>
+    <td><%= form.text_field :dict_sys_name, id: :dict_config_dict_sys_name, size: "100" %> </td>
+  </tr>
+  <tr>
+    <td bgcolor=tabhead_color><strong>Dict name:</strong> </td>
+    <td><%= form.text_field :dict_name, id: :dict_config_dict_name, size: "100" %> </td>
+  </tr>
+  <tr>
+    <td bgcolor=tabhead_color><strong>Lang:</strong> </td>
+    <td><%= form.text_field :lang, id: :dict_config_lang, size: "100" %></td>
+  </tr>
+  <tr>
+    <td bgcolor=tabhead_color><strong>Xlate lang:</strong> </td>
+    <td><%= form.text_field :xlate_lang, id: :dict_config_xlate_lang, size: "100" %> </td>
+  </tr>
 
-  <div class="field">
-    <%= form.label :dict_sys_name %>
-    <%= form.text_field :dict_sys_name, id: :dict_config_dict_sys_name %>
-  </div>
+  <tr>
+    <td bgcolor=tabhead_color><strong>Desc:</strong> </td>
+    <td><%= form.text_area :desc, id: :dict_config_desc, size: "100" %> </td>
+  </tr>
 
-  <div class="field">
-    <%= form.label :dict_name %>
-    <%= form.text_area :dict_name, id: :dict_config_dict_name %>
-  </div>
+  <tr>
+    <td bgcolor=tabhead_color><strong>Protocol:</strong> </td>
+    <td><%= form.text_field :protocol, id: :dict_config_protocol, size: "100" %> </td>
+  </tr>
 
-  <div class="field">
-    <%= form.label :lang %>
-    <%= form.text_field :lang, id: :dict_config_lang %>
-  </div>
+  <tr>
+    <td bgcolor=tabhead_color><strong>Url:</strong> </td>
+    <td><%= form.text_field :url, id: :dict_config_url, size: "100" %> </td>
+  </tr>
 
-  <div class="field">
-    <%= form.label :xlate_lang %>
-    <%= form.text_field :xlate_lang, id: :dict_config_xlate_lang %>
-  </div>
+  <tr>
+    <td bgcolor=tabhead_color><strong>Syntax:</strong> </td>
+    <td><%= form.text_field :syntax, id: :dict_config_syntax, size: "100" %> </td>
+  </tr>
+  <tr>
+    <td bgcolor=tabhead_color><strong>Ext infos:</strong> </td>
+    <td><%= form.text_area :ext_infos, id: :dict_config_ext_infos, size: "100" %> </td>
+  </tr>
+</table>
 
-  <div class="field">
-    <%= form.label :desc %>
-    <%= form.text_area :desc, id: :dict_config_desc %>
-  </div>
-
-  <div class="field">
-    <%= form.label :protocol %>
-    <%= form.text_field :protocol, id: :dict_config_protocol %>
-  </div>
-
-  <div class="field">
-    <%= form.label :url %>
-    <%= form.text_field :url, id: :dict_config_url %>
-  </div>
-
-  <div class="field">
-    <%= form.label :syntax %>
-    <%= form.text_field :syntax, id: :dict_config_syntax %>
-  </div>
-
-  <div class="field">
-    <%= form.label :ext_infos %>
-    <%= form.text_area :ext_infos, id: :dict_config_ext_infos %>
-  </div>
-
-  <div class="actions">
+<div class="actions">
     <%= form.submit %>
-  </div>
+</div>
+
+
 <% end %>
