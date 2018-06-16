@@ -1,0 +1,6 @@
+<h1>Editing Davkhkt Dict</h1>
+<% provide(:title,"Cap nhat") %>
+<% @navlinks= [['Back', davkhkt_dicts_path]] %>
+<% @admin_job = "davdict" %>
+<%= render 'layouts/admin_header' %>
+<%= render 'form', davkhkt_dict: @davkhkt_dict %>

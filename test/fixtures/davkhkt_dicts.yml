@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  key_words: MyString
+  type: 
+  category: MyString
+  english: MyString
+  viet: MyString
+
+two:
+  key_words: MyString
+  type: 
+  category: MyString
+  english: MyString
+  viet: MyString

@@ -1,0 +1,59 @@
+<p id="notice"><%= notice %></p>
+<% @navlinks= [['Thêm từ mới', new_davkhkt_dict_path],['Nhập Từ File', '/dict_import']] %>
+<%= @admin_job= 'glossary' %>
+<%= render 'layouts/admin_header' %>
+
+<% options = [] 
+   @all_glossaries_configs.each {|inf|
+		options << [ inf.dict_name , inf.dict_sys_name ]
+   } 
+%>
+
+<%= form_with url: '/glossaries', method: :put, local: true, multipart: true do |f| %>
+<%= hidden_field_tag('dict_id',params[:dict_id]) %>
+
+  <%= f.select(
+	"dict_id", options, selected: params[:dict_id] ) %> 
+  <%= f.label :q, "Tra tu dien :" %>
+  <%= f.text_field :to_search, id: :to_search , value:  params[:to_search] %>
+  <%= f.submit "Search" %>
+
+<table class="table table-hover table-bordered ">
+
+  <thead>
+    <tr>
+ 	<td><%= f.text_field :to_search, id: :to_search , value:  params[:to_search] %></td>
+	<td><%= f.submit "Search" %><td> 
+	<td/>
+	<td/>
+	<td/>
+	<td/>
+    </tr>
+	
+    <tr bgcolor=tabhead_color>
+      <th><%=@key_lang%></th>
+	  <th>'Từ loại'</th>
+	  <th>'Lĩnh vực'</th>
+	  <th><%=@prim_lang%></th>
+	  <th><%=@sec_lang%></th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @glossaries.each do |glossary| %>
+      <tr>
+        <td><%= glossary.key_words %></td>
+        <td><%= glossary.word_type %></td>
+        <td><%= glossary.category %></td>
+        <td><%= glossary.primary_xlate %></td>
+        <td><%= glossary.secondary_xlate %></td>
+        <td><%= link_to 'Show', glossary %></td>
+        <td><%= link_to 'Edit', edit_glossary_path(glossary) %></td>
+        <td><%= link_to 'Destroy', glossary, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<% end %>
+

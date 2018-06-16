@@ -1,0 +1,10 @@
+<% @admin_job = "davdict" %>
+<%= render 'layouts/admin_header' %>
+
+<%= puts("HELLO"+@params.inspect()) %>
+
+<%= form_with url: '/dict_import', method: :put, dict_id: params[:dict_id] , local: true, multipart: true do |f| %>
+  <%= f.text_field :to_search, id: :to_search , value:  params[:to_search] %>
+  <%= f.file_field :import_file %>
+  <%= f.submit "Search" %>
+<% end %>

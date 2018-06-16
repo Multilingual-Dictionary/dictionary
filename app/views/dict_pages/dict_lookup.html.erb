@@ -9,8 +9,8 @@
   <body>
 
 <% 
-	tab=[['lookup_dict','Tra theo tu dien'],
-	     ['lookup_lang','Tra theo ngon ngu']]
+	tab=[['lookup_dict','Tra theo tư điển'],
+	     ['lookup_lang','Tra theo ngôn ngữ']]
 %>
 
 
@@ -40,7 +40,7 @@
   </div>
 
 <% if @result != nil %>
-<%= @result.inspect() %>
+	<%= render "render_results" %>
 <% end %>
 
 

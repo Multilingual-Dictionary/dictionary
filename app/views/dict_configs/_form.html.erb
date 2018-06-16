@@ -13,7 +13,7 @@
 <table class="table table-bordered ">
   <tr>
     <td bgcolor=tabhead_color><strong>Dict sys name:</strong> </td>
-    <td><%= form.text_field :dict_sys_name, id: :dict_config_dict_sys_name, size: "100" %> </td>
+    <td><%= form.text_field :dict_sys_name, id: :dict_config_dict_sys_name,size:100 %> </td>
   </tr>
   <tr>
     <td bgcolor=tabhead_color><strong>Dict name:</strong> </td>
@@ -42,10 +42,13 @@
     <td bgcolor=tabhead_color><strong>Url:</strong> </td>
     <td><%= form.text_field :url, id: :dict_config_url, size: "100" %> </td>
   </tr>
-
   <tr>
     <td bgcolor=tabhead_color><strong>Syntax:</strong> </td>
     <td><%= form.text_field :syntax, id: :dict_config_syntax, size: "100" %> </td>
+  </tr>
+  <tr>
+    <td bgcolor=tabhead_color><strong>CFG:</strong> </td>
+    <td><%= form.text_area :cfg, id: :dict_config_cfg, size: "100" %> </td>
   </tr>
   <tr>
     <td bgcolor=tabhead_color><strong>Ext infos:</strong> </td>

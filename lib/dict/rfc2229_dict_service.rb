@@ -28,12 +28,12 @@ class RFC2229DictService < DictService
   					name = "#{wd.database}-#{wd.name}"
 					i = 0
 					k = ''
-					t = ''
+					t = []
        		         		wd.each {|line| 
 						if i == 0
 							k = line
 						else
-							t << line + "\n"
+							t << line 
 						end
 						i += 1
 					}

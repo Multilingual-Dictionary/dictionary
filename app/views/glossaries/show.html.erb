@@ -1,0 +1,37 @@
+<%= @admin_job= 'glossary' %>
+<%= render 'layouts/admin_header' %>
+
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Dict:</strong>
+  <%= @glossary.dict_id %>
+</p>
+
+<p>
+  <strong>Key words:</strong>
+  <%= @glossary.key_words %>
+</p>
+
+<p>
+  <strong>Word type:</strong>
+  <%= @glossary.word_type %>
+</p>
+
+<p>
+  <strong>Category:</strong>
+  <%= @glossary.category %>
+</p>
+
+<p>
+  <strong>Primary xlate:</strong>
+  <%= @glossary.primary_xlate %>
+</p>
+
+<p>
+  <strong>Secodary xlate:</strong>
+  <%= @glossary.secondary_xlate %>
+</p>
+
+<%= link_to 'Edit', edit_glossary_path(@glossary) %> |
+<%= link_to 'Back', glossaries_path %>

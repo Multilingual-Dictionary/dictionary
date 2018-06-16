@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  dict_id: MyString
+  key_words: MyString
+  word_type: MyString
+  category: MyString
+  primary_xlate: MyText
+  secondary_xlate: MyText
+
+two:
+  dict_id: MyString
+  key_words: MyString
+  word_type: MyString
+  category: MyString
+  primary_xlate: MyText
+  secondary_xlate: MyText

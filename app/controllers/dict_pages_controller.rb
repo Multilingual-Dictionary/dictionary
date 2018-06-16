@@ -6,6 +6,7 @@ class DictPagesController < ApplicationController
   end
 
   def help
+	puts(params.inspect())
   end
 
   def about

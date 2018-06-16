@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+
+  <% require 'cgi' %>
+  <h2> Ket qua </h2>
+  <% @result.each{|r| 	%>
+  	<h3><%=r[:dict_name]%><h3>
+	<% r[:entries].each{|e| %>
+		<h2><%=e[:key].html_safe%></h2>
+		<% e[:text].each{|t| %>
+			<p><%=t%></p>
+		<% }%>
+	<% }%>
+  <% } %>
+
+</html>
+
+

@@ -5,6 +5,7 @@ class DictConfigsController < ApplicationController
   # GET /dict_configs.json
   def index
     @dict_configs = DictConfig.all
+    puts(@dict_configs.inspect())
   end
 
   # GET /dict_configs/1
@@ -15,6 +16,7 @@ class DictConfigsController < ApplicationController
   # GET /dict_configs/new
   def new
     @dict_config = DictConfig.new
+    puts(@dict_config.inspect())
   end
 
   # GET /dict_configs/1/edit
@@ -40,6 +42,8 @@ class DictConfigsController < ApplicationController
   # PATCH/PUT /dict_configs/1
   # PATCH/PUT /dict_configs/1.json
   def update
+puts("UPDATE")
+puts(@dict_config)
     respond_to do |format|
       if @dict_config.update(dict_config_params)
         format.html { redirect_to @dict_config, notice: 'Dict config was successfully updated.' }
@@ -69,6 +73,6 @@ class DictConfigsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def dict_config_params
-      params.require(:dict_config).permit(:dict_sys_name, :dict_name, :lang, :xlate_lang, :desc, :protocol, :url, :syntax, :ext_infos)
+      params.require(:dict_config).permit(:dict_sys_name, :dict_name, :lang, :xlate_lang, :desc, :protocol, :url, :syntax, :ext_infos,:cfg)
     end
 end

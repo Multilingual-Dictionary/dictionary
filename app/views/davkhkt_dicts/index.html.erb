@@ -1,0 +1,47 @@
+<p id="notice"><%= notice %></p>
+<% provide(:title,"Tự điển KHKT Đức Anh Việt") %>
+<% @navlinks= [['Thêm từ mới', new_davkhkt_dict_path],['Nhập Từ File', 'dav_dict_pages/import']] %>
+<% @admin_job = "davdict" %>
+<%= render 'layouts/admin_header' %>
+
+<%= form_with url: '/davkhkt_dicts', method: :put, local: true, multipart: true do |f| %>
+
+<table class="table table-hover table-bordered ">
+
+  <thead>
+    <tr>
+ 	<td><%= f.text_field :to_search, id: :to_search , value:  params[:to_search] %></td>
+	<td><%= f.submit "Search" %><td> 
+	<td/>
+	<td/>
+	<td/>
+	<td/>
+    </tr>
+	
+    <tr bgcolor=tabhead_color>
+      <th>Key words</th>
+      <th>Type</th>
+      <th>Category</th>
+      <th>English</th>
+      <th>Viet</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @davkhkt_dicts.each do |davkhkt_dict| %>
+      <tr>
+        <td><%= davkhkt_dict.key_words %></td>
+        <td><%= davkhkt_dict.wtype %></td>
+        <td><%= davkhkt_dict.category %></td>
+        <td><%= davkhkt_dict.english %></td>
+        <td><%= davkhkt_dict.viet %></td>
+        <td><%= link_to 'Show', davkhkt_dict %></td>
+        <td><%= link_to 'Edit', edit_davkhkt_dict_path(davkhkt_dict) %></td>
+        <td><%= link_to 'Destroy', davkhkt_dict, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<% end %>
+

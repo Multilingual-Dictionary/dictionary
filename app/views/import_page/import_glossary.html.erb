@@ -1,0 +1,9 @@
+
+<% @admin_job = "davdict" %>
+<%= render 'layouts/admin_header' %>
+<h2>IMPORT + <%=@dict_id %></h2>
+<%= form_with url: '/dict_import', method: :put, local: true, multipart: true do |f| %>
+  <%= hidden_field_tag('dict_id', @dict_id ) %>
+  <%= f.file_field :import_file %>
+  <%= f.submit "Import" %>
+<% end %>

@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
 <%= form_with url: '/dict_lookup', method: :get, local: true do |f| %>
-  <%= f.label :q, "Ngon ngu goc:" %>
+  <%= f.label :q, "Ngôn ngữ gốc:" %>
   <%= f.select(
 	"src_lang", ["EN","DE","VI"], selected: params[:src_lang]) %>
-  <%= f.label :q, "Ngon ngu dich:" %>
+  <%= f.label :q, "Ngôn ngữ dịch:" %>
   <%= f.select(
 	"tgt_lang", ["EN","DE","VI"], selected: params[:tgt_lang]) %>
-  <%= f.label :q, "Tra tu dien :" %>
+  <%= f.label :q, "Nhập từ ngữ:" %>
   <%= f.text_field :to_search, id: :to_search , value:  params[:to_search] %>
   <%= hidden_field_tag('lookup_type','lookup_lang') %>
-  <%= f.submit "Search" %>
+  <%= f.submit "Tìm kiếm" %>
 <% end %>
 
 

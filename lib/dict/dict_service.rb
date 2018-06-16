@@ -20,6 +20,7 @@ class DictService
 			return  ret
 		end
 		@res.each_value {|r|
+			
 			ret << r
 		}
 		return ret
@@ -30,10 +31,13 @@ class DictService
 				{ :dict_name => dict_name ,
 				  :entries   => [] }
 		end
-		##puts(@res[dict_name][:entries].inspect())
+		txt=[]
+		text.each{|t|
+			txt << t.force_encoding(Encoding::UTF_8)
+		}
 		@res[dict_name][:entries] << 
-			{ :key => key ,
-			  :text=> text,
-			  :infos => infos }
+			{ :key => key.force_encoding(Encoding::UTF_8),
+			  :text=> txt,
+			  :infos => infos}
 	end
 end
