@@ -1,5 +1,4 @@
 
-require 'tempfile'
 require 'iconv'
 require 'roo'
 require 'roo-xls'
@@ -95,9 +94,7 @@ class ImportPageController < ApplicationController
     end
   end
 
-
   def import_glossary
-
     err = init_var()
     if err != ""
 	   puts(err)

@@ -8,11 +8,18 @@
 
 
 <%= form_with url: '/dict_lookup', method: :get, local: true do |f| %>
+<%= f.label :q, "Nhập từ" %>
   <%= f.select(
 	"selected_dict", options, selected: params[:selected_dict] ) %> 
-  <%= f.label :q, "Tra tu dien :" %>
+<br/>
+  <%= f.label :q, "Nhập từ" %>
   <%= f.text_field :to_search, id: :to_search , value:  params[:to_search] %>
-  <%= f.submit "Search" %>
+<br/>
+  <%= f.label :q, "Cách tìm" %>
+  <%= f.select(
+	"search_mode", @search_opts , selected: params[:search_mode]) %>
+<br/>
+  <%= f.submit "Tìm kiếm" %>
   <%= hidden_field_tag('lookup_type','lookup_dict') %>
 <% end %>
 

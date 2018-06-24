@@ -1,15 +1,26 @@
 <!DOCTYPE html>
 <html>
+<% opt = []
+   @languages.each{|k,v|
+      opt << [v,k]
+   }
+%>
 <%= form_with url: '/dict_lookup', method: :get, local: true do |f| %>
-  <%= f.label :q, "Ngôn ngữ gốc:" %>
-  <%= f.select(
-	"src_lang", ["EN","DE","VI"], selected: params[:src_lang]) %>
-  <%= f.label :q, "Ngôn ngữ dịch:" %>
-  <%= f.select(
-	"tgt_lang", ["EN","DE","VI"], selected: params[:tgt_lang]) %>
-  <%= f.label :q, "Nhập từ ngữ:" %>
-  <%= f.text_field :to_search, id: :to_search , value:  params[:to_search] %>
   <%= hidden_field_tag('lookup_type','lookup_lang') %>
+  <%= f.label :q, "Ngôn ngữ gốc" %>
+  <%= f.select(
+	"src_lang", opt, selected: params[:src_lang]) %>
+<br/>
+  <%= f.label :q, "Ngôn ngữ dịch" %>
+  <%= f.select(
+	"tgt_lang", opt , selected: params[:tgt_lang]) %>
+<br/>
+  <%= f.label :q, "Nhập từ" %>
+  <%= f.text_field :to_search, id: :to_search , value:  params[:to_search] %>
+<br/>
+  <%= f.label :q, "Cách tìm" %>
+  <%= f.select(
+	"search_mode", @search_opts , selected: params[:search_mode]) %>
   <%= f.submit "Tìm kiếm" %>
 <% end %>
 

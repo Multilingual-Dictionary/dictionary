@@ -14,22 +14,13 @@
 
   <%= f.select(
 	"dict_id", options, selected: params[:dict_id] ) %> 
-  <%= f.label :q, "Tra tu dien :" %>
+  <%= f.label :q, "Tìm từ:" %>
   <%= f.text_field :to_search, id: :to_search , value:  params[:to_search] %>
   <%= f.submit "Search" %>
 
 <table class="table table-hover table-bordered ">
 
   <thead>
-    <tr>
- 	<td><%= f.text_field :to_search, id: :to_search , value:  params[:to_search] %></td>
-	<td><%= f.submit "Search" %><td> 
-	<td/>
-	<td/>
-	<td/>
-	<td/>
-    </tr>
-	
     <tr bgcolor=tabhead_color>
       <th><%=@key_lang%></th>
 	  <th>'Từ loại'</th>

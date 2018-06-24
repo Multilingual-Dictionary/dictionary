@@ -49,3 +49,18 @@ $tabhead_color: DarkGreen;
   background-repeat: no-repeat;
   filter: none;
 }
+
+p.dict_text {
+    font-weight: normal;
+}
+p.bold_text {
+    font-weight: bold;
+}
+
+p.dict_key {
+    font-weight: normal;
+}
+.indented {
+  padding-left: 50pt;
+  padding-right: 50pt;
+}

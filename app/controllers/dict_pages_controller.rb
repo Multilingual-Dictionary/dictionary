@@ -22,6 +22,8 @@ class DictPagesController < ApplicationController
 		params[:lookup_type]= 'lookup_dict' 
 		@result= nil
 	else
+		@dictionaries.set_search_mode(params[:search_mode])
+		@dictionaries.set_search_key(params[:to_search])
 		case params[:lookup_type]
 		when 'lookup_dict' 
 			@result = @dictionaries.lookup_using_dict(

@@ -6,10 +6,16 @@
   <% @result.each{|r| 	%>
   	<h3><%=r[:dict_name]%><h3>
 	<% r[:entries].each{|e| %>
-		<h2><%=e[:key].html_safe%></h2>
+    <div class="indented">
+		<p class="dict_key">
+		<%=e[:key].html_safe%>
+		</p>
+		<ul>
 		<% e[:text].each{|t| %>
-			<p><%=t%></p>
+			<li><p class=dict_text><%=t%></p></li>
 		<% }%>
+		</ul>
+    </div>
 	<% }%>
   <% } %>
 

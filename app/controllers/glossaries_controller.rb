@@ -12,12 +12,14 @@ class GlossariesController < ApplicationController
   #
   def init_var
 	@all_glossaries_configs = []
+	@dict_id = params[:dict_id]
 	DictConfig.all().each {|d|
 		if d.protocol=='glossary' 
 			@all_glossaries_configs << d
+			@dict_id = d['dict_sys_name'] if @dict_id == nil
 		end
 	}
-    
+	params[:dict_id] = @dict_id 
 puts("ALL ")
 puts(DictConfig.where(protocol: 'glossary').inspect())
     @key_lang  = "?"
@@ -29,10 +31,13 @@ puts(DictConfig.where(protocol: 'glossary').inspect())
     if params[:dict_id]==nil
       return
     end
+	
     @dict_config=DictConfig.find_by( dict_sys_name: params[:dict_id])
+puts("dict_config"+@dict_config.inspect())
     if @dict_config==nil
       return
     end
+puts("OK")
     begin
       @dict_ext_cfg = JSON.parse(@dict_config.cfg)
     rescue Exception => e
@@ -58,7 +63,7 @@ puts(DictConfig.where(protocol: 'glossary').inspect())
 		   params[:to_search] == '' 
 		   @glossaries = Glossary.where(
 		   			  [ "dict_id = :dict_id ",
-				{ dict_id: @dict_id } ] )
+				{ dict_id: @dict_id } ] ).limit(100)
 		else
 		   @glossaries = Glossary.where(
 			  [ "dict_id = :dict_id and key_words = :key_words ",
