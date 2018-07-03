@@ -37,7 +37,8 @@ class Wiktionary
   end
   def wiki_parse(txt,lang)
     in_trans = 0
-    results=[]
+    tmp=[]
+    
     txt.split("\n").each{|l|
       l = l.strip
       if(l.index("=Translations=")!=nil)
@@ -47,12 +48,21 @@ class Wiktionary
           in_trans = 0
         else
           if in_trans == 1
-            if l.index(@lang_map[lang])==2 
-                 parse_entries(l,results)
+            idx=  l.index(@lang_map[lang])
+            if idx !=nil and idx == 2
+                 parse_entries(l,tmp)
 	    end
           end
         end
       end
+    }
+    r = Hash.new
+    tmp.each(){|rs|
+	r[rs.upcase]=rs
+    }
+    results = []
+    r.each(){|k,v|
+       results << v
     }
     return results
   end

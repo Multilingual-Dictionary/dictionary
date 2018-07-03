@@ -1,8 +1,8 @@
-<%= @admin_job= 'glossary' %>
+<% @admin_job= 'glossary' %>
 <%= render 'layouts/admin_header' %>
-<h1>Editing Glossary</h1>
+<h2>Thay đổi</h2>
 
 <%= render 'form', glossary: @glossary %>
 
 <%= link_to 'Show', @glossary %> |
-<%= link_to 'Back', glossaries_path %>
+<%= link_to 'Trở lại', glossaries_path(:dict_id =>@glossary.dict_id) %>

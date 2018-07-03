@@ -17,11 +17,18 @@ class DictPagesController < ApplicationController
 
   def dict_lookup
 
-	@dictionaries=Dictionaries.new(DictConfig.all)
+	@dictionaries=Dictionaries.new(DictConfig.where("priority>0").order(priority: :desc))
+	@key_words = []
 	if params[:lookup_type] == nil
 		params[:lookup_type]= 'lookup_dict' 
 		@result= nil
 	else
+	
+		if params[:commit]=="Tìm từ khóa" and params[:search_key] != "" 
+			params[:search_mode] = "search_exact" 
+			params[:to_search] = params[:search_key] 
+		end
+	
 		@dictionaries.set_search_mode(params[:search_mode])
 		@dictionaries.set_search_key(params[:to_search])
 		case params[:lookup_type]
@@ -38,6 +45,7 @@ class DictPagesController < ApplicationController
 			@result = nil
 		end
 	end
+        @key_words_list =  @dictionaries.get_key_words(@result)
   end
 
 end

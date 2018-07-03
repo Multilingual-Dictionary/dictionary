@@ -12,25 +12,28 @@
   <% end %>
 <table class="table table-bordered ">
   <tr>
-    <td bgcolor=tabhead_color><strong>Dict sys name:</strong> </td>
+    <td bgcolor=tabhead_color><strong>Dict_ID:</strong> </td>
     <td><%= form.text_field :dict_sys_name, id: :dict_config_dict_sys_name,size:100 %> </td>
   </tr>
   <tr>
-    <td bgcolor=tabhead_color><strong>Dict name:</strong> </td>
+    <td bgcolor=tabhead_color><strong>Tên tự điển:</strong> </td>
     <td><%= form.text_field :dict_name, id: :dict_config_dict_name, size: "100" %> </td>
   </tr>
   <tr>
-    <td bgcolor=tabhead_color><strong>Lang:</strong> </td>
+    <td bgcolor=tabhead_color><strong>Ngôn ngữ gốc:</strong> </td>
     <td><%= form.text_field :lang, id: :dict_config_lang, size: "100" %></td>
   </tr>
   <tr>
-    <td bgcolor=tabhead_color><strong>Xlate lang:</strong> </td>
+    <td bgcolor=tabhead_color><strong>Ngôn ngữ đích:</strong> </td>
     <td><%= form.text_field :xlate_lang, id: :dict_config_xlate_lang, size: "100" %> </td>
   </tr>
-
   <tr>
-    <td bgcolor=tabhead_color><strong>Desc:</strong> </td>
-    <td><%= form.text_area :desc, id: :dict_config_desc, size: "100" %> </td>
+    <td bgcolor=tabhead_color><strong>Mô tả:</strong> </td>
+    <td><%= form.text_area :desc, id: :desc, size: "100" %> </td>
+  </tr>
+  <tr>
+    <td bgcolor=tabhead_color><strong>Priority:</strong> </td>
+    <td><%= form.text_field :priority, id: :priority, size: "10" %> </td>
   </tr>
 
   <tr>
@@ -43,16 +46,10 @@
     <td><%= form.text_field :url, id: :dict_config_url, size: "100" %> </td>
   </tr>
   <tr>
-    <td bgcolor=tabhead_color><strong>Syntax:</strong> </td>
-    <td><%= form.text_field :syntax, id: :dict_config_syntax, size: "100" %> </td>
-  </tr>
+
   <tr>
     <td bgcolor=tabhead_color><strong>CFG:</strong> </td>
     <td><%= form.text_area :cfg, id: :dict_config_cfg, size: "100" %> </td>
-  </tr>
-  <tr>
-    <td bgcolor=tabhead_color><strong>Ext infos:</strong> </td>
-    <td><%= form.text_area :ext_infos, id: :dict_config_ext_infos, size: "100" %> </td>
   </tr>
 </table>
 

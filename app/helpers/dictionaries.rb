@@ -1,6 +1,7 @@
 require "./lib/dict/rfc2229_dict_service"
 require "./lib/dict/glossary_dict_service"
 require "./lib/dict/wiktionary_dict_service"
+require 'whitesimilarity'
 class Dictionaries
   def initialize(dict_infos)
     @search_mode='search_exact'
@@ -13,11 +14,9 @@ class Dictionaries
 
   def set_search_mode(mode='search_exact')
     @search_mode = mode
-    puts("DICT SET " + @search_mode)
   end
   def set_search_key(key=nil)
     @search_key = key
-    puts("DICT SET " + @search_key)
   end
   
   def dict_infos_by_sys_name(name)
@@ -30,19 +29,18 @@ class Dictionaries
   end
   def dict_name(sys_name)
     @dict_infos.each { |inf|
-      puts ( inf.dict_sys_name + " NAME " + sys_name )
       if inf.dict_sys_name.casecmp(sys_name)==0
         return inf.dict_name
       end
     }
-    puts ( " NOTFOUND " + sys_name )
     return sys_name
   end
   ###########    LOOKUP ###########################################
   def lookup(to_search,dict_infos)
-    puts("LOOKUP INFOS "+ dict_infos.inspect())
-    puts("LOOKUP USING DICT "+ dict_infos.dict_sys_name)
-    puts("LOOKUP USING PROTOCOL"+ dict_infos.protocol.upcase )
+    puts("LOOKUP INFOS ")
+    puts(dict_infos.inspect())
+    printf("LOOKUP USING DICT %s\n", dict_infos.dict_sys_name)
+    printf("LOOKUP USING PROTOCOL %s\n", dict_infos.protocol.upcase )
     case dict_infos.protocol.upcase
     when "RFC2229"
       service= RFC2229DictService.new()
@@ -51,6 +49,7 @@ class Dictionaries
     when "WIKTIONARY"
       service= WiktionaryDictService.new(dict_infos)
     else
+      puts("NOT SUPPORTED")
       return []
     end
    service.set_search_mode(@search_mode)
@@ -74,11 +73,9 @@ class Dictionaries
   end
 
   def lookup_using_dict(to_search,dict)
-    puts("lookup_using_dict ")
     return lookup_using_dicts(to_search,[dict])
   end
   def lookup_by_lang(to_search,src_lang,tgt_lang)
-    puts("lookup_by_lang ")
     dicts =  []
     @dict_infos.each { |inf|
       if (
@@ -92,6 +89,39 @@ class Dictionaries
     return lookup_using_dicts(to_search,dicts)
   end
   ###########    END-LOOKUP ###########################################
+  def get_key_words(result)
+    return [] if result==nil
+    k = Hash.new
+    result.each(){|r|
+      r[:entries].each{|entry|
+        key =  entry[:key]
+        index = nil
+        ['[',']','/','\\','{','}','(',')'].each{|a|
+	  idx = key.index(a.to_s) 
+	  if idx != nil 
+		  if index == nil or idx < index 
+			  index = idx 
+		  end
+	  end	
+        }
+        if index != nil
+          key  = key[0,index]
+        end
+	key = key.strip
+        k[key.upcase]=key
+      }
+    }
+    ret = []
+    scores=[]
+    k.each{|k,v|
+        scores<< [v,WhiteSimilarity.similarity(@search_key,v)]
+    }
+    sorted = scores.sort{|p1,p2| p2[1]<=>p1[1]}
+    sorted.each{|i|
+	ret << i[0]
+    }
+    return ret
+  end
   ###########    RENDER ###########################################
   def render_result(result)
     html = ""

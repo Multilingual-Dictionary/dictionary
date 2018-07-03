@@ -11,37 +11,48 @@
     </div>
   <% end %>
 
+<% if params[:dict_id] == nil or params[:dict_id] == "" %>
+<%   params[:dict_id] = @glossary.dict_id %> 
+<% end %>
+
   <div class="field">
     <%= form.label :dict_id %>
-    <%= form.text_field :dict_id, id: :glossary_dict_id %>
+    <%= form.text_field :dict_id, id: :glossary_dict_id , value: params[:dict_id] , :readonly => true %>
   </div>
 
-  <div class="field">
-    <%= form.label :key_words %>
-    <%= form.text_field :key_words, id: :glossary_key_words %>
-  </div>
+<table class="table table-bordered ">
 
+<tr>
   <div class="field">
-    <%= form.label :word_type %>
-    <%= form.text_field :word_type, id: :glossary_word_type %>
+    <td bgcolor=tabhead_color>Từ khóa</td>
+    <td><%= form.text_field :key_words, id: :glossary_key_words %> </td>
   </div>
+</tr><tr>
+  <div class="field">
+    <td bgcolor=tabhead_color>Từ loại</td>
+    <td><%= form.text_field :word_type, id: :glossary_word_type %> </td>
+  </div>
+</tr><tr>
+  <div class="field">
+    <td bgcolor=tabhead_color>Lĩnh vực</td>
+    <td><%= form.text_field :category, id: :glossary_category %> </td>
+  </div>
+</tr><tr>
+  <div class="field">
+    <td bgcolor=tabhead_color>Ngôn ngữ 1</td>
+    <td><%= form.text_area :primary_xlate, id: :glossary_primary_xlate %> </td>
+  </div>
+</tr><tr>
+  <div class="field">
+    <td bgcolor=tabhead_color>Ngôn ngữ 2</td>
+    <td><%= form.text_area :secondary_xlate, id: :glossary_secondary_xlate %> </td>
+  </div>
+</tr>
 
-  <div class="field">
-    <%= form.label :category %>
-    <%= form.text_field :category, id: :glossary_category %>
-  </div>
-
-  <div class="field">
-    <%= form.label :primary_xlate %>
-    <%= form.text_area :primary_xlate, id: :glossary_primary_xlate %>
-  </div>
-
-  <div class="field">
-    <%= form.label :secondary_xlate %>
-    <%= form.text_area :secondary_xlate, id: :glossary_secondary_xlate %>
-  </div>
+</table>
 
   <div class="actions">
     <%= form.submit %>
   </div>
+
 <% end %>

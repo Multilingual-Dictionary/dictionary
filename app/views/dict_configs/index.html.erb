@@ -6,15 +6,13 @@
 <table class="table table-hover table-bordered ">
   <thead>
     <tr bgcolor=tabhead_color>
-      <th>Dict sys name</th>
-      <th>Dict name</th>
-      <th>Lang</th>
-      <th>Xlate lang</th>
-      <th>Desc</th>
+      <th>Dict_ID</th>
+      <th>Tên tự điển</th>
+      <th>Ngôn ngữ gốc</th>
+      <th>Ngôn ngữ đích</th>
       <th>Protocol</th>
       <th>Url</th>
-      <th>Syntax</th>
-      <th>Ext infos</th>
+      <th>Priority</th>
       <th colspan="4"></th>
     </tr>
   </thead>
@@ -26,17 +24,15 @@
         <td><%= dict_config.dict_name %></td>
         <td><%= dict_config.lang %></td>
         <td><%= dict_config.xlate_lang %></td>
-        <td><%= dict_config.desc %></td>
         <td><%= dict_config.protocol %></td>
         <td><%= dict_config.url %></td>
-        <td><%= dict_config.syntax %></td>
-        <td><%= dict_config.ext_infos %></td>
+        <td><%= dict_config.priority %></td>
 <div class="btn-group">
-        <td><%= link_to 'Show', dict_config %></td>
-        <td><%= link_to 'Edit', edit_dict_config_path(dict_config) %></td>
-        <td><%= link_to 'Destroy', dict_config, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Chi tiết', dict_config %></td>
+        <td><%= link_to 'Thay đổi', edit_dict_config_path(dict_config) %></td>
+        <td><%= link_to 'Hủy', dict_config, method: :delete, data: { confirm: 'Are you sure?' } %></td>
 	<% if dict_config.protocol=='glossary' %>
-        	<td><%= link_to 'Edit-data',dict_import_path(:dict_id=>dict_config.dict_sys_name) %></td>
+        	<td><%= link_to 'Nhập liệu',dict_import_path(:dict_id=>dict_config.dict_sys_name) %></td>
 	<% end %>
 </div>
       </tr>

@@ -22,6 +22,13 @@
   <%= f.select(
 	"search_mode", @search_opts , selected: params[:search_mode]) %>
   <%= f.submit "Tìm kiếm" %>
+  <% if @key_words_list.length>1 %>
+<br/>
+     <%= f.label :q, "Các từ khóa:" %>
+     <%= f.select(
+	     "search_key", @key_words_list, selected: [:search_key]) %>
+	 <%= f.submit "Tìm từ khóa" %>
+  <% end %>
 <% end %>
 
 

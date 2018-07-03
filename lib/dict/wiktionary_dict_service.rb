@@ -23,7 +23,7 @@ class CFG
 	end
 end
 
-#TEST#cfg = CFG.new("WIKI","en.wiktionary.org","DE")
-#TEST#s = WiktionaryDictService.new(cfg)
-#TEST#r = s.lookup("love")
-#TEST#puts(r.inspect())
+#cfg = CFG.new("WIKI","en.wiktionary.org","DE")
+#s = WiktionaryDictService.new(cfg)
+#r = s.lookup("love")
+#puts(r.inspect())

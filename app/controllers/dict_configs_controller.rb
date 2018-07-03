@@ -4,8 +4,7 @@ class DictConfigsController < ApplicationController
   # GET /dict_configs
   # GET /dict_configs.json
   def index
-    @dict_configs = DictConfig.all
-    puts(@dict_configs.inspect())
+    @dict_configs = DictConfig.order(priority: :desc, dict_name: :asc) 
   end
 
   # GET /dict_configs/1
@@ -16,7 +15,6 @@ class DictConfigsController < ApplicationController
   # GET /dict_configs/new
   def new
     @dict_config = DictConfig.new
-    puts(@dict_config.inspect())
   end
 
   # GET /dict_configs/1/edit
@@ -29,7 +27,12 @@ class DictConfigsController < ApplicationController
     @dict_config = DictConfig.new(dict_config_params)
 
     respond_to do |format|
-      if @dict_config.save
+      ok = 1
+      if @dict_config.find_by_sys_name() != nil
+        @dict_config.errors.add(:dict_sys_name, :invalid, message: "dict_sys_name already used!")
+        ok = 0
+      end
+      if ok == 1 and @dict_config.save
         format.html { redirect_to @dict_config, notice: 'Dict config was successfully created.' }
         format.json { render :show, status: :created, location: @dict_config }
       else
@@ -42,10 +45,14 @@ class DictConfigsController < ApplicationController
   # PATCH/PUT /dict_configs/1
   # PATCH/PUT /dict_configs/1.json
   def update
-puts("UPDATE")
-puts(@dict_config)
     respond_to do |format|
-      if @dict_config.update(dict_config_params)
+      ok = 1
+      rec=@dict_config.find_by_sys_name(dict_config_params[:dict_sys_name])
+      if rec != nil and rec.id != @dict_config.id 
+        @dict_config.errors.add(:dict_sys_name, :invalid, message: "dict_sys_name already used!")
+        ok = 0
+      end
+      if ok==1 and @dict_config.update(dict_config_params)
         format.html { redirect_to @dict_config, notice: 'Dict config was successfully updated.' }
         format.json { render :show, status: :ok, location: @dict_config }
       else
@@ -73,6 +80,6 @@ puts(@dict_config)
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def dict_config_params
-      params.require(:dict_config).permit(:dict_sys_name, :dict_name, :lang, :xlate_lang, :desc, :protocol, :url, :syntax, :ext_infos,:cfg)
+      params.require(:dict_config).permit(:dict_sys_name, :dict_name, :lang, :xlate_lang, :desc, :protocol, :url, :syntax, :ext_infos,:cfg,:priority)
     end
 end

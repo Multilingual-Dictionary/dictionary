@@ -1,37 +1,39 @@
-<%= @admin_job= 'glossary' %>
+<% @admin_job= 'glossary' %>
 <%= render 'layouts/admin_header' %>
 
 <p id="notice"><%= notice %></p>
 
-<p>
-  <strong>Dict:</strong>
-  <%= @glossary.dict_id %>
-</p>
+<table class="table table-hover table-bordered table-sm">
+<tr>
+  <td bgcolor=tabhead_color><strong>Dict_id</strong> </td>
+  <td><%= @glossary.dict_id %> </td>
+</tr>
 
-<p>
-  <strong>Key words:</strong>
-  <%= @glossary.key_words %>
-</p>
+<tr>
+  <td bgcolor=tabhead_color><strong>Từ khóa</strong> </td>
+  <td><%= @glossary.key_words %> </td>
+</tr>
 
-<p>
-  <strong>Word type:</strong>
-  <%= @glossary.word_type %>
-</p>
+<tr>
+  <td bgcolor=tabhead_color><strong>Từ loại</strong> </td>
+  <td><%= @glossary.word_type %> </td>
+</tr>
 
-<p>
-  <strong>Category:</strong>
-  <%= @glossary.category %>
-</p>
+<tr>
+  <td bgcolor=tabhead_color><strong>Lĩnh vực</strong> </td>
+  <td><%= @glossary.category %> </td>
+</tr>
 
-<p>
-  <strong>Primary xlate:</strong>
-  <%= @glossary.primary_xlate %>
-</p>
+<tr>
+  <td bgcolor=tabhead_color><strong>Ngôn ngữ 1</strong> </td>
+  <td><%= @glossary.primary_xlate %> </td>
+</tr>
 
-<p>
-  <strong>Secodary xlate:</strong>
-  <%= @glossary.secondary_xlate %>
-</p>
+<tr>
+  <td bgcolor=tabhead_color><strong>Ngôn ngữ 2</strong> </td>
+  <td><%= @glossary.secondary_xlate %> </td>
+</tr>
+</table>
 
-<%= link_to 'Edit', edit_glossary_path(@glossary) %> |
-<%= link_to 'Back', glossaries_path %>
+<%= link_to 'Thay đổi', edit_glossary_path(@glossary) %> 
+<%= link_to 'Trở lại', glossaries_path %>

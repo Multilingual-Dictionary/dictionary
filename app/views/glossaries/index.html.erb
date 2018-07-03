@@ -1,6 +1,7 @@
 <p id="notice"><%= notice %></p>
-<% @navlinks= [['Thêm từ mới', new_davkhkt_dict_path],['Nhập Từ File', '/dict_import']] %>
-<%= @admin_job= 'glossary' %>
+<% @navlinks= [['Thêm từ mới', new_glossary_path(:dict_id =>params[:dict_id])],
+               ['Nhập Từ File', dict_import_path(:dict_id =>params[:dict_id])] ] %>
+<% @admin_job= 'glossary' %>
 <%= render 'layouts/admin_header' %>
 
 <% options = [] 
@@ -12,8 +13,9 @@
 <%= form_with url: '/glossaries', method: :put, local: true, multipart: true do |f| %>
 <%= hidden_field_tag('dict_id',params[:dict_id]) %>
 
-  <%= f.select(
-	"dict_id", options, selected: params[:dict_id] ) %> 
+<%= select_tag(
+	"dict_id", options_for_select(options,params[:dict_id]), onchange: "this.form.submit();" ) %> 
+
   <%= f.label :q, "Tìm từ:" %>
   <%= f.text_field :to_search, id: :to_search , value:  params[:to_search] %>
   <%= f.submit "Search" %>

@@ -1,5 +1,8 @@
 Rails.application.routes.draw do
 
+  resources :progress_bars
+  get 'export_glossary/export'
+
   resources :glossaries
   resources :davkhkt_dicts
   resources :dict_configs
@@ -18,5 +21,8 @@ Rails.application.routes.draw do
   put  '/glossaries',   to: 'glossaries#index'
   put  '/dict_import',   to: 'import_page#import_glossary'
   get  '/dict_import',   to: 'import_page#import_glossary'
+  put  '/dict_import_commit',   to: 'import_page#import_glossary_commit'
+  get  '/dict_import_commit',   to: 'import_page#import_glossary_commit'
+  get 'export_glossaries' => 'exports#export_glossaries', as: :export_glossaries
 end
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html

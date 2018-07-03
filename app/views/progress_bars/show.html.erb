@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Message:</strong>
+  <%= @progress_bar.message %>
+</p>
+
+<p>
+  <strong>Percent:</strong>
+  <%= @progress_bar.percent %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= @progress_bar.user_id %>
+</p>
+
+<%= link_to 'Edit', edit_progress_bar_path(@progress_bar) %> |
+<%= link_to 'Back', progress_bars_path %>

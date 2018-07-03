@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<% @admin_job= 'export_glossary' %>
+<%= render 'layouts/admin_header' %>
+<html>
+<% opt = []
+   @languages.each{|k,v|
+      opt << [v,k]
+   }
+%>
+<%= form_with url: '/export_glossary/export', method: :get, local: true do |f| %>
+
+<% n_checked=@checked.length %>
+<% if n_checked > 0 %>
+<%= f.submit "Kết xuất" %>
+<%= n_checked.to_s + " tự điển " %>
+<hr/>
+<% end %>
+  <%= f.submit "Chọn" %>
+</br>
+  <%= f.label :q, "Ngôn ngữ gốc" %>
+  <%= select_tag(
+	"src_lang", options_for_select(opt,params[:src_lang]), 
+	{ "selected" => params[:src_lang],
+	                   "onchange" => "this.form.submit();"} ) %>
+  <%= f.label :q, "Ngôn ngữ dịch" %>
+  <%= select_tag(
+	"tgt_lang", options_for_select(opt,params[:tgt_lang]), 
+	{ "selected" => params[:src_lang],
+	                   "onchange" => "this.form.submit();"} ) %>
+<hr/>
+
+
+<% @dictionaries.each(){|d| %>
+   <div class="form-check">
+     <input class="form-check-input" type="checkbox" value="ON" 
+	    name="<%="CHK"+d.dict_sys_name%>"
+	    id="<%=d.dict_sys_name%>" 
+		<% if @checked.has_key?(d.dict_sys_name) %>
+		CHECKED
+		<% end %>
+     >
+     <label class="form-check-label" for="<%=d.dict_sys_name%>">
+        <%=d.dict_name%>
+     </label>
+   </div>
+<% } %>
+  
+  
+<% end %>
