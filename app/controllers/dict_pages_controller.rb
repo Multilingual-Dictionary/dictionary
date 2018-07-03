@@ -46,6 +46,16 @@ class DictPagesController < ApplicationController
 		end
 	end
         @key_words_list =  @dictionaries.get_key_words(@result)
+        @translated_words_list =  @dictionaries.get_translated_words(@result)
+        @translated_words_list.each{|lang,xlate|
+		printf("LANG : %s\n",lang)
+		printf("XLATE : %s\n",xlate.inspect())
+		xlate.each{|x|
+			printf("xlate: %s simi: %s dict %s\n",x["xlate"],
+			 x["simi"],
+			 x["dict"].inspect())
+		}
+	}
   end
 
 end
