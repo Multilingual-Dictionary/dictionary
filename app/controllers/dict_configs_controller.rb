@@ -24,7 +24,9 @@ class DictConfigsController < ApplicationController
   # POST /dict_configs
   # POST /dict_configs.json
   def create
-    @dict_config = DictConfig.new(dict_config_params)
+    cfg_params= dict_config_params
+    cfg_params[:dict_sys_name]=cfg_params[:dict_sys_name].strip()
+    @dict_config = DictConfig.new(cfg_params)
 
     respond_to do |format|
       ok = 1
@@ -47,12 +49,14 @@ class DictConfigsController < ApplicationController
   def update
     respond_to do |format|
       ok = 1
-      rec=@dict_config.find_by_sys_name(dict_config_params[:dict_sys_name])
+      cfg_params= dict_config_params
+      cfg_params[:dict_sys_name]=cfg_params[:dict_sys_name].strip()
+      rec=@dict_config.find_by_sys_name(cfg_params[:dict_sys_name])
       if rec != nil and rec.id != @dict_config.id 
         @dict_config.errors.add(:dict_sys_name, :invalid, message: "dict_sys_name already used!")
         ok = 0
       end
-      if ok==1 and @dict_config.update(dict_config_params)
+      if ok==1 and @dict_config.update(cfg_params)
         format.html { redirect_to @dict_config, notice: 'Dict config was successfully updated.' }
         format.json { render :show, status: :ok, location: @dict_config }
       else
