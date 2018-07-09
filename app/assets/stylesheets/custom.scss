@@ -43,13 +43,6 @@ textarea {
 
 $tabhead_color: DarkGreen;
 
-.navbar-inner {
-  background-color: white; /* background color will be black for all browsers */
-  background-image: none;
-  background-repeat: no-repeat;
-  filter: none;
-}
-
 p.dict_text {
     font-weight: normal;
 }
@@ -63,4 +56,14 @@ p.dict_key {
 .indented {
   padding-left: 50pt;
   padding-right: 50pt;
+}
+//navbar
+$navbar-inverse-bg: #f49542;
+$navbar-inverse-border: #f49542;
+
+// Inverse navbar
+
+.navbar-inverse {
+background-color: $navbar-inverse-bg;
+border-color: $navbar-inverse-border;
 }

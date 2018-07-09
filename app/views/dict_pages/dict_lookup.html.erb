@@ -13,7 +13,7 @@
 
 <!-- RENDER LOOKUP - METHODS  -->
 <%    
-	tab=[['lookup_dict','Tra theo tư điển'],
+	tab=[['lookup_dict','Tra theo tự điển'],
 	     ['lookup_lang','Tra theo ngôn ngữ']]
 %>
 <!--    TABS                         -->
@@ -48,16 +48,13 @@
 
 <!--    TABS                         -->
 <% @result = [] if @result == nil%>
+
 <ul class="nav nav-pills"> 
-<% i = 0 
-   @result.each{|res|
-   if i == 0  %>
-      <li class="active">
-<% else %>
-      <li>
-<% end  
-   i = i + 1
-%>
+    <li class="active">
+    <a data-toggle="pill" href="#summary">Kết quả tổng hợp</a></li>
+
+<% @result.each{|res| %>
+    <li>
     <a data-toggle="pill" href="<%="#"+res[:dict_name]%>"> <%=@dictionaries.dict_name(res[:dict_name])%></a></li>
 <% }%> 
 </ul>
@@ -67,18 +64,14 @@
 <!--    TAB - CONTENT                     -->
 <div class="container" >
   <div class="tab-content">
-<% i = 0 
-   @result.each{|res|
-     if i == 0  %>
-<%	tab_class="tab-pane fade in active" %>
-<%   else   %>
-<%	tab_class="tab-pane fade in " %>
-<%   end	%>
-   	<div id="<%=res[:dict_name]%>" class="<%=tab_class%>">
+   	<div id="summary" class="tab-pane fade in active">
+	    <%= @dictionaries.render_summary(@result).html_safe %>
+	</div>
+<% @result.each{|res| %>
+   	<div id="<%=res[:dict_name]%>" class="tab-pane fade in ">
 		<%= @dictionaries.render_result(res).html_safe %>
 	</div>
-<% i = i + 1
-   } %>
+<% } %>
   </div>
 </div>
 <!--    END TAB - CONTENT                     -->

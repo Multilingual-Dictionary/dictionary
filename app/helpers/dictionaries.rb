@@ -233,19 +233,24 @@ class Dictionaries
     return translated if result==nil
     result.each(){|r|
       r[:entries].each{|entry|
+        next if entry[:infos] == nil
+        next if entry[:infos][:xlate]==nil
         entry[:infos][:xlate].each{|lang,xl|
 	  if translated[lang] == nil
             translated[lang]=Hash.new
           end
 	  xl.each{|x|
-            x_u = x.upcase
+            x_u = x.upcase + entry[:infos][:key_words].upcase
             if translated[lang][x_u]==nil
               translated[lang][x_u]={
                 "xlate"  =>x,
                 "dict"   => [r[:dict_name]],
-                "simi"   => entry[:infos][:key_similarity]
+                "simi"   => entry[:infos][:key_similarity],
+				"key"   => entry[:infos][:key_words]
               }
             else
+			  simi = entry[:infos][:key_similarity]
+			  translated[lang][x_u]["simi"]= simi if translated[lang][x_u]["simi"] < simi
               translated[lang][x_u]["simi"] += entry[:infos][:key_similarity]
               translated[lang][x_u]["dict"] << r[:dict_name]
             end
@@ -282,30 +287,14 @@ class Dictionaries
     html = ""
     result[:entries].each{|entry|
 
-       key = entry[:infos][:key_words]
-       attr= entry[:infos][:key_attr]
-#      key =  entry[:key]
-#      index = nil
-#      ['[',']','/','\\','{','}','(',')'].each{|a|
-#	idx = key.index(a.to_s) 
-#	if idx != nil 
-#		if index == nil or idx < index 
-#			index = idx 
-#		end
-#	end	
-#      }
-#      if index == nil
-#        attr = ""
-#      else
-#        attr = key[index,key.length]
-#        key  = key[0,index]
-#      end
+      key = entry[:infos][:key_words]
+      attr= entry[:infos][:key_attr]
 
-      html << '<div class="indented">'
+      html << '<div >'
       html << '<p class="dict_key">'
       html <<  "<b>" << key.html_safe  << "</b>"
       html <<  "&nbsp;<i>" << attr.html_safe << "</i>"  if attr != ""
-      html << '<p>'
+      html << '</p>'
       html << '<ul>'
       entry[:text].each{|t|
         html << '<li><p class=dict_text>'
@@ -315,6 +304,66 @@ class Dictionaries
       html << '</ul>'
       html << '</div>'
     }
+    return html
+  end
+  def get_dict_name(short_name)
+    @dict_infos.each(){|inf|
+	  if inf.dict_sys_name == short_name
+	    return inf.dict_name
+	  end
+	}
+	return short_name
+  end
+  def show_dicts(dicts)
+    html = "<select>"
+	dicts.each{|d|
+		html << sprintf('<option value="%s">%s</option>',d,get_dict_name(d))
+	}
+	html << "</select>"
+	return html
+  end
+  def render_summary(result)
+    if result.length == 0
+       return "Không tìm thấy kết quả"
+    end
+    html = ""
+    html << '<div >'
+	languages = {"VI"=>"Tiếng Việt",
+				  "EN"=>"Tiếng Anh",
+				  "DE"=>"Tiếng Đức" }
+    trans = get_translated_words(result)
+    languages.each{|lang,lang_txt|
+      next if trans[lang] == nil
+	  
+      html << '<p class="dict_key">'
+      html <<  "<b>" << "Các từ tìm thấy trong :" + lang_txt << "</b>"
+      html << '</p>'
+      html << '<table class="table table-hover table-bordered ">'
+
+	  html << '<tr>'
+      ["Từ khóa","Từ dịch","Trong","Tự điển"].each{|label|
+	    html << "<th>" + label + "</th>"
+	  }
+	  html << '</tr>'
+
+      trans[lang].each{|x|
+	  puts(x.inspect())
+          dicts = ""
+          n = 0
+          x["dict"].each{|d|
+             dicts << d << ","
+             n = n + 1 
+          }
+          html << "<tr>"
+		html << "<td>" + x["key"] + "</td>"
+	    html << "<td>" + x["xlate"].sub(/>/,"]").sub(/</,"[").html_safe  + "</td>"
+	    html << "<td>" + n.to_s + "</td>"
+	    html << "<td>" + show_dicts(x["dict"]) + "</td>"
+          html << "</tr>"
+      }
+      html << '</table>'
+     }
+    html << '</div>'
     return html
   end
   #####################################################################
