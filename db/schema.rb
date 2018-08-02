@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180702092407) do
+ActiveRecord::Schema.define(version: 20180728000620) do
 
   create_table "davkhkt_dicts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci" do |t|
     t.string "key_words"
@@ -68,8 +68,21 @@ ActiveRecord::Schema.define(version: 20180702092407) do
     t.text "secondary_xlate"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "digest", limit: 32
+    t.index ["dict_id"], name: "dict_id"
     t.index ["dict_id"], name: "dict_id_index"
+    t.index ["digest"], name: "digest"
+    t.index ["key_words"], name: "key_words"
     t.index ["key_words"], name: "key_words_index"
+  end
+
+  create_table "glossary_indices", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.text "dict_id"
+    t.text "lang"
+    t.text "key_words"
+    t.text "digest"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "progress_bars", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci" do |t|

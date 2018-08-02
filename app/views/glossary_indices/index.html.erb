@@ -1,0 +1,33 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Glossary Indices</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Dict</th>
+      <th>Lang</th>
+      <th>Key words</th>
+      <th>Digest</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @glossary_indices.each do |glossary_index| %>
+      <tr>
+        <td><%= glossary_index.dict_id %></td>
+        <td><%= glossary_index.lang %></td>
+        <td><%= glossary_index.key_words %></td>
+        <td><%= glossary_index.digest %></td>
+        <td><%= link_to 'Show', glossary_index %></td>
+        <td><%= link_to 'Edit', edit_glossary_index_path(glossary_index) %></td>
+        <td><%= link_to 'Destroy', glossary_index, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Glossary Index', new_glossary_index_path %>

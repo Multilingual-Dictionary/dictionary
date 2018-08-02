@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <% options = [] 
-   @dictionaries.dict_infos().each {|inf|
-     options << [ inf.dict_name , inf.dict_sys_name ]
+   @dictionaries.dict_infos().each {|n,inf|
+     options << [ inf["dict_name"] , inf["dict_sys_name"] ]
    } 
 %>
 

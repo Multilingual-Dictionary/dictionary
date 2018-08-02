@@ -1,0 +1,24 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Dict:</strong>
+  <%= @glossary_index.dict_id %>
+</p>
+
+<p>
+  <strong>Lang:</strong>
+  <%= @glossary_index.lang %>
+</p>
+
+<p>
+  <strong>Key words:</strong>
+  <%= @glossary_index.key_words %>
+</p>
+
+<p>
+  <strong>Digest:</strong>
+  <%= @glossary_index.digest %>
+</p>
+
+<%= link_to 'Edit', edit_glossary_index_path(@glossary_index) %> |
+<%= link_to 'Back', glossary_indices_path %>

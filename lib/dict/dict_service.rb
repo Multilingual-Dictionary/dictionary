@@ -9,7 +9,7 @@ class DictResults
 	end
 end
 class DictService
-	attr_accessor :res , :error , :search_mode, :search_key
+	attr_accessor :res , :error , :search_mode, :search_key, :src_lang, :tgt_lang
 	def lookup_init()
 		@res = Hash.new
 		@error= nil
@@ -23,6 +23,10 @@ class DictService
 	def set_search_mode(mode)
 		@search_mode=mode
 		puts ( "DICT SERVICE MODE "+ @search_mode)
+	end
+	def set_languages(src_lang,tgt_lang)
+		@src_lang=src_lang.upcase
+		@tgt_lang=tgt_lang.upcase
 	end
 	def sorted_result(r)
 		return r if @search_key==nil

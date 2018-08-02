@@ -90,6 +90,7 @@ puts("OK")
   # POST /glossaries.json
   def create
     @glossary = Glossary.new(glossary_params)
+    @glossary.setup_record()
 
     respond_to do |format|
       if @glossary.save
@@ -106,7 +107,11 @@ puts("OK")
   # PATCH/PUT /glossaries/1.json
   def update
     respond_to do |format|
-      if @glossary.update(glossary_params)
+      puts(glossary_params)
+      tmp = Glossary.new(glossary_params)
+      tmp.setup_record()
+      if @glossary.update(tmp.params())
+      ##if @glossary.update(glossary_params)
         format.html { redirect_to @glossary, notice: 'Glossary was successfully updated.' }
         format.json { render :show, status: :ok, location: @glossary }
       else
@@ -134,7 +139,7 @@ puts("OK")
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def glossary_params
-      params.require(:glossary).permit(:dict_id, :key_words, :word_type, :category, :primary_xlate, :secondary_xlate)
+      params.require(:glossary).permit(:dict_id, :key_words, :word_type, :category, :primary_xlate, :secondary_xlate,:digest)
     end
 end
 

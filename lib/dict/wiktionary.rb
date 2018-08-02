@@ -9,6 +9,7 @@ class Wiktionary
   	"/w/api.php?format=xml&action=query&rvprop=content&prop=revisions&redirects=1"
     @lang_map = { "ENG" => "English",
 	          "DE"  => "German" ,
+	          "FR"  => "French" ,
 	          "VI"  => "Vietnamese" }
   end
 
@@ -30,15 +31,21 @@ class Wiktionary
 			i  = i + 1
 		}
 		if(lang !=  "" and trans != "" and trans != "null")
-			results << trans
+                        trans.gsub!(/[\[\]{}\(\)]/,"")
+			results[trans]=trans if trans != ""
 		end
 	}
 	return results
   end
-  def wiki_parse(txt,lang)
+  def wiki_parse(txt,languages)
+
     in_trans = 0
-    tmp=[]
-    
+    tmp=Hash.new
+    languages.split(",").each{|l|
+      l.strip!
+      next if l==""
+      tmp[l]=Hash.new
+    }
     txt.split("\n").each{|l|
       l = l.strip
       if(l.index("=Translations=")!=nil)
@@ -48,21 +55,22 @@ class Wiktionary
           in_trans = 0
         else
           if in_trans == 1
-            idx=  l.index(@lang_map[lang])
-            if idx !=nil and idx == 2
-                 parse_entries(l,tmp)
-	    end
+            tmp.each{|lang,a|
+              idx=  l.index(@lang_map[lang])
+              if idx !=nil and idx == 2
+                   parse_entries(l,tmp[lang])
+	      end
+            }
           end
         end
       end
     }
-    r = Hash.new
-    tmp.each(){|rs|
-	r[rs.upcase]=rs
-    }
-    results = []
-    r.each(){|k,v|
-       results << v
+    results=Hash.new
+    tmp.each{|l,r|
+       results[l]=[]
+       r.each{|k,v|
+          results[l] << v
+       }
     }
     return results
   end
@@ -70,11 +78,10 @@ class Wiktionary
     uri = @uri + "&titles="+URI.escape(q)
     doc = Nokogiri::HTML(open(uri))
     return wiki_parse(doc.content,lang)
-    puts(uri)
   end
 end
 
-#w =  Wiktionary.new
-#puts(w.query(ARGV[0],"DE").inspect())
+##w =  Wiktionary.new
+##puts(w.query(ARGV[0],"DE,FR,VI").inspect())
 
 

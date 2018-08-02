@@ -2,12 +2,50 @@ require "./lib/dict/rfc2229_dict_service"
 require "./lib/dict/glossary_dict_service"
 require "./lib/dict/wiktionary_dict_service"
 require 'whitesimilarity'
+
 class Dictionaries
+
   def initialize(dict_infos)
     @search_mode='search_exact'
     @search_key=nil
-    @dict_infos=dict_infos;  
+
+    @dict_infos=Hash.new
+
+    dict_infos.each{|inf|
+
+      if inf.cfg != ""
+        begin 
+          tmp = JSON.parse(inf.cfg)
+	  ext_cfg = tmp["config"]
+        rescue
+          ext_cfg = Hash.new
+        end
+      else
+          ext_cfg = Hash.new
+      end
+ 
+      @dict_infos[inf.dict_sys_name.upcase]=
+        {
+          "dict_sys_name" => inf.dict_sys_name,
+          "dict_name" => inf.dict_name,
+          "protocol" => inf.protocol,
+          "url" => inf.url,
+          "ext_cfg" => ext_cfg,
+          "src_languages" => to_set_of(inf.lang),
+          "tgt_languages" => to_set_of(inf.xlate_lang)
+        }
+    }
+    puts(@dict_infos)
   end
+
+  def to_set_of(txt)
+    s = []
+    txt.upcase.split(",").each{|l|
+      s << l.strip
+    }
+    return s
+  end
+
   def dict_infos()
     return @dict_infos
   end
@@ -20,19 +58,11 @@ class Dictionaries
   end
   
   def dict_infos_by_sys_name(name)
-    @dict_infos.each { |inf|
-      if inf.dict_sys_name.casecmp(name)==0
-        return inf
-      end
-    }
-    return nil
+    return @dict_infos[name.upcase]
   end
   def dict_name(sys_name)
-    @dict_infos.each { |inf|
-      if inf.dict_sys_name.casecmp(sys_name)==0
-        return inf.dict_name
-      end
-    }
+    inf =  @dict_infos[sys_name.upcase]
+    return inf["dict_name"] if inf != nil
     return sys_name
   end
   ###################################################################
@@ -70,6 +100,8 @@ class Dictionaries
      return txt.gsub(/;/,",").split(',')
   end
   def process_xlate(dict_infos,entry)
+printf("Process Xlate %s\n",entry.inspect())
+return ## TODO
     xlate_lang=dict_infos.xlate_lang.upcase
     lang = dict_infos.lang.upcase
     return if xlate_lang == lang ## only one language!
@@ -139,12 +171,13 @@ class Dictionaries
   ##
   ##  Call dict-servce to looup now!
   ##
-  def lookup(to_search,dict_infos)
-    ##puts("LOOKUP INFOS ")
-    ##puts(dict_infos.inspect())
-    ##printf("LOOKUP USING DICT %s\n", dict_infos.dict_sys_name)
-    ##printf("LOOKUP USING PROTOCOL %s\n", dict_infos.protocol.upcase )
-    case dict_infos.protocol.upcase
+  def lookup(to_search,dict_infos,src_lang,tgt_lang)
+    puts("LOOKUP INFOS ")
+    
+    puts(dict_infos.inspect())
+    printf("LOOKUP USING DICT %s src_lang %s tgt_lang %s\n", dict_infos["dict_sys_name"],src_lang,tgt_lang)
+    ##printf("LOOKUP USING PROTOCOL %s\n", dict_infos["protocol"].upcase )
+    case dict_infos["protocol"].upcase
     when "RFC2229"
       service= RFC2229DictService.new()
     when "GLOSSARY"
@@ -157,19 +190,20 @@ class Dictionaries
     end
    service.set_search_mode(@search_mode)
    service.set_search_key(to_search)
+   service.set_languages(src_lang,tgt_lang)
    return process_result(dict_infos,
-		service.lookup(to_search,dict_infos.dict_sys_name))
+		service.lookup(to_search,dict_infos["dict_sys_name"]))
   end
 
   ##
   ##  using many dictionaries .. do lookup
   ##
-  def lookup_using_dicts(to_search,dicts)
+  def lookup_using_dicts(to_search,dicts,src_lang,tgt_lang)
     ret = []
     dicts.each{|n|
       inf = dict_infos_by_sys_name(n)
       if inf != nil
-        res = lookup(to_search,inf)
+        res = lookup(to_search,inf,src_lang,tgt_lang)
         if res != nil 
           res.each{|tmp|
             ret << tmp
@@ -182,25 +216,32 @@ class Dictionaries
   ##
   ##  using one dictionary .. do lookup
   ##
-  def lookup_using_dict(to_search,dict)
-    return lookup_using_dicts(to_search,[dict])
+  def lookup_using_dict(to_search,dict,src_lang="ALL",tgt_lang="ALL")
+    return lookup_using_dicts(to_search,[dict],src_lang,tgt_lang)
   end
   ##
   ##  lookup by languages
   ##    check what lang is supported , use it if matched
   ##
+
+  def lang_matched(lang_supported, lang )
+    lang = lang.upcase.strip
+    return true if lang == "ALL"
+    lang_supported.each{|l|
+      return true if l.strip==lang
+    }
+    return false
+  end
+
   def lookup_by_lang(to_search,src_lang,tgt_lang)
     dicts =  []
-    @dict_infos.each { |inf|
-      if (
-	  ( inf.lang.upcase==src_lang.upcase or
-	    "ALL"==src_lang.upcase ) and
-          ( inf.xlate_lang.upcase==tgt_lang.upcase or
-            "ALL"==tgt_lang.upcase ) )
-        dicts << inf.dict_sys_name 
-      end
+    @dict_infos.each { |k,inf|
+	if lang_matched(inf["src_languages"],src_lang) and 
+           lang_matched(inf["tgt_languages"],tgt_lang)
+          dicts << inf["dict_sys_name"]
+        end
     }
-    return lookup_using_dicts(to_search,dicts)
+    return lookup_using_dicts(to_search,dicts,src_lang,tgt_lang)
   end
   #################################################################
   ###########    GET-KEY-WORDS ####################################
@@ -229,18 +270,21 @@ class Dictionaries
   ###########    GET-TRANSLATED-WORDS #############################
   #################################################################
   def get_translated_words(result)
+printf("GET-TRANSLATED %s\n",result.inspect())
     translated=Hash.new
     return translated if result==nil
     result.each(){|r|
       r[:entries].each{|entry|
         next if entry[:infos] == nil
-        next if entry[:infos][:xlate]==nil
-        entry[:infos][:xlate].each{|lang,xl|
+        next if entry[:infos][:xlated_word]==nil
+printf("GET-TRANSLATED-XLATED %s\n",entry[:infos][:xlated_word].inspect())
+        entry[:infos][:xlated_word].each{|lang,xl|
+          next if xl == nil
 	  if translated[lang] == nil
             translated[lang]=Hash.new
           end
 	  xl.each{|x|
-            x_u = x.upcase + entry[:infos][:key_words].upcase
+            x_u = x.upcase + entry[:infos][:key_words].upcase 
             if translated[lang][x_u]==nil
               translated[lang][x_u]={
                 "xlate"  =>x,
@@ -249,10 +293,18 @@ class Dictionaries
 				"key"   => entry[:infos][:key_words]
               }
             else
-			  simi = entry[:infos][:key_similarity]
-			  translated[lang][x_u]["simi"]= simi if translated[lang][x_u]["simi"] < simi
-              translated[lang][x_u]["simi"] += entry[:infos][:key_similarity]
-              translated[lang][x_u]["dict"] << r[:dict_name]
+              exists=false
+              translated[lang][x_u]["dict"].each{|dn|
+                if dn == r[:dict_name]
+                  exists=true
+                end
+              }
+              if not exists
+	        simi = entry[:infos][:key_similarity]
+	        translated[lang][x_u]["simi"]= simi if translated[lang][x_u]["simi"] < simi
+                translated[lang][x_u]["simi"] += entry[:infos][:key_similarity]
+                translated[lang][x_u]["dict"] << r[:dict_name]
+              end
             end
           }
 	}
@@ -307,9 +359,9 @@ class Dictionaries
     return html
   end
   def get_dict_name(short_name)
-    @dict_infos.each(){|inf|
-	  if inf.dict_sys_name == short_name
-	    return inf.dict_name
+    @dict_infos.each(){|n,inf|
+	  if inf["dict_sys_name"] == short_name
+	    return inf["dict_name"]
 	  end
 	}
 	return short_name
@@ -330,7 +382,8 @@ class Dictionaries
     html << '<div >'
 	languages = {"VI"=>"Tiếng Việt",
 				  "EN"=>"Tiếng Anh",
-				  "DE"=>"Tiếng Đức" }
+				  "DE"=>"Tiếng Đức",
+				  "FR"=>"Tiếng Pháp"}
     trans = get_translated_words(result)
     languages.each{|lang,lang_txt|
       next if trans[lang] == nil

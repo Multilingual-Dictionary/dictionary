@@ -111,7 +111,10 @@ puts(params.inspect())
       sheet.each {|r|
 		record= get_from_excel(r)
 		record.dict_id = @dict_id
-		record.add_if_not_exists()
+		record.setup_record()
+		if ( record.add_if_not_exists() == 1)
+			record.index_keys(@dict_ext_cfg['config'])
+		end
       }
     rescue Exception => e
         puts e.message

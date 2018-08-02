@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  dict_id: MyText
+  lang: MyText
+  key_words: MyText
+  digest: MyText
+
+two:
+  dict_id: MyText
+  lang: MyText
+  key_words: MyText
+  digest: MyText

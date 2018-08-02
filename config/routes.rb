@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+  resources :glossary_indices
   resources :progress_bars
   get 'export_glossary/export'
 

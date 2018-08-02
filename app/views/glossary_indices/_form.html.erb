@@ -1,0 +1,37 @@
+<%= form_with(model: glossary_index, local: true) do |form| %>
+  <% if glossary_index.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(glossary_index.errors.count, "error") %> prohibited this glossary_index from being saved:</h2>
+
+      <ul>
+      <% glossary_index.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :dict_id %>
+    <%= form.text_area :dict_id, id: :glossary_index_dict_id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :lang %>
+    <%= form.text_area :lang, id: :glossary_index_lang %>
+  </div>
+
+  <div class="field">
+    <%= form.label :key_words %>
+    <%= form.text_area :key_words, id: :glossary_index_key_words %>
+  </div>
+
+  <div class="field">
+    <%= form.label :digest %>
+    <%= form.text_area :digest, id: :glossary_index_digest %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
