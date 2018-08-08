@@ -1,0 +1,118 @@
+<style>
+ #select_dicts {
+    margin-left:+50px;
+	background-color:#99ccff;
+ }
+</style>
+
+<script>
+function check_all(id) {
+    var all_dicts;
+	if(document.getElementById(id).checked != true){
+	  to_set=false
+	} else {
+	  to_set=true
+	}
+	all_dicts=document.getElementById("all_dicts").value.split(";") ;
+	for(index=0;index<all_dicts.length-1;++index){
+		document.getElementById(all_dicts[index]).checked = to_set; 
+	}
+}
+function myFunction(id) {
+    var x = document.getElementById("select_dicts");
+	if(document.getElementById(id).checked != true){
+	  to_set="none"
+	} else {
+	  to_set="block"
+	}
+	console.log(to_set)
+	console.log(id)
+	console.log(x)
+    x.style.display = to_set;
+}
+</script>
+
+<% src_lang_opt = []
+   tgt_lang_opt = []
+   ref_lang_opt = []
+   @dictionaries.src_lang_supported.each{|k,v|
+      src_lang_opt << [v,k]
+   }
+   ref_lang_opt << ["Mặc định","ALL"]
+   @dictionaries.tgt_lang_supported.each{|k,v|
+      tgt_lang_opt << [v,k]
+	  ref_lang_opt << [v,k]
+   }
+%>
+
+  <label>Ngôn ngữ gốc</label>
+  <%= select_tag(
+	"src_lang", options_for_select(src_lang_opt,params[:src_lang]), 
+	{ "selected" => params[:src_lang],
+	                   "onchange" => "this.form.submit();"} ) %>
+
+  <label> Ngôn ngữ đích</label>
+    <%= select_tag(
+	"tgt_lang", options_for_select(tgt_lang_opt,params[:tgt_lang]), 
+	{ "selected" => params[:tgt_lang],
+	                   "onchange" => "this.form.submit();"} ) %>
+
+  <label> Ngôn ngữ tham khảo</label>
+    <%= select_tag(
+	"ref_lang", options_for_select(ref_lang_opt,params[:ref_lang]), 
+	{ "selected" => params[:ref_lang],
+	                   "onchange" => "this.form.submit();"} ) %>
+<br/>
+
+
+
+
+<input class="form-check-input" type="checkbox" value="ON" 
+	    name="show_select_dicts"
+	    id="show_select_dicts"
+		onchange="myFunction('show_select_dicts')" 
+	<% if @show_select_dicts %>
+		CHECKED
+	<% end %>
+>
+
+<label class="form-check-label" for="dicts_check">
+        Chọn tự điển
+</label>
+
+<% if @show_select_dicts %>
+  <div id="select_dicts" style="display: block" >
+<% else %>
+  <div id="select_dicts" style="display: none" >
+<% end %>
+
+<% all_dicts="" %>
+<input class="form-check-input" type="checkbox" value="ON" 
+	    name="dicts_check"
+	    id="dicts_check"
+		onchange="check_all('dicts_check')" 
+<% if @selected_dicts.length>1 %>
+        CHECKED
+<% end %>
+		
+     >
+<label class="form-check-label" for="dicts_check">
+        Chọn tất cả các tự điển [ hay bỏ chọn ] 
+</label>
+<% @dict_list.each(){|n,inf| %>
+<% all_dicts << n << ";" %>
+   <div class="form-check">
+     <input class="form-check-input" type="checkbox" value="ON" 
+	    name="<%="CHK"+inf["dict_sys_name"]%>"
+	    id="<%=inf["dict_sys_name"]%>"
+		<% if @selected_dicts.has_key?(inf["dict_sys_name"]) %>
+		CHECKED
+		<% end %>
+     >
+     <label class="form-check-label" for="<%=inf["dict_sys_name"]%>">
+        <%=inf["dict_name"]%>
+     </label>
+   </div>
+<% } %>
+<%=hidden_field_tag 'all_dicts',all_dicts %>
+</div>

@@ -31,7 +31,11 @@ class WiktionaryDictService < DictService
 		   cnt += 1
                 }
 		add_entry(@cfg["dict_sys_name"],to_search,txt,infos) if cnt > 0
-		return result()
+		ret= result()
+printf("WIKI %s\n",wik_res.inspect())
+printf("WIKIRET %s\n",ret.inspect())
+ 
+		return ret
 	end
 end 
 

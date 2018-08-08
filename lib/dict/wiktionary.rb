@@ -7,7 +7,7 @@ class Wiktionary
   def initialize (url="en.wiktionary.org")
     @uri = "https://" + url +
   	"/w/api.php?format=xml&action=query&rvprop=content&prop=revisions&redirects=1"
-    @lang_map = { "ENG" => "English",
+    @lang_map = { "EN" => "English",
 	          "DE"  => "German" ,
 	          "FR"  => "French" ,
 	          "VI"  => "Vietnamese" }
@@ -66,13 +66,17 @@ class Wiktionary
       end
     }
     results=Hash.new
+    found = false
     tmp.each{|l,r|
        results[l]=[]
        r.each{|k,v|
+          next if v==""
+          found = true
           results[l] << v
        }
     }
-    return results
+    return results if found
+    return []
   end
   def query(q,lang)
     uri = @uri + "&titles="+URI.escape(q)

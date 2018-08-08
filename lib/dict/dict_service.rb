@@ -66,8 +66,10 @@ class DictService
 		text.each{|t|
 			txt << t.force_encoding(Encoding::UTF_8) if t != ""
 		}
+                k_e = key.dup
+		k_e = k_e.force_encoding(Encoding::UTF_8),
 		@res[dict_name][:entries] << 
-			{ :key => key.force_encoding(Encoding::UTF_8),
+			{ :key => k_e,
 			  :text=> txt,
 			  :infos => infos}
 	end

@@ -1,0 +1,29 @@
+<% @result = [] if @result == nil%>
+
+
+<div class="container">
+
+  <ul class="nav nav-pills">
+    <li class="active"><a data-toggle="pill" href="#summary">Kết quả tổng hợp</a></li>	
+<% i = 0 %>	
+<% @result.each{|res| %>
+    <li>
+    <a data-toggle="pill" href="<%='#R'+i.to_s%>"> 
+	  <%=@dictionaries.dict_name(res[:dict_name])%></a></li>
+	<% i = i + 1 %>
+<% }%>
+  </ul>
+  
+  <div class="tab-content">
+    <div id="summary" class="tab-pane fade in active">
+      <%= @dictionaries.render_summary(@result).html_safe %>
+    </div>
+<% i = 0 %>
+<% @result.each{|res| %>
+   	<div id="<%="R"+i.to_s%>" class="tab-pane fade">
+	  <%= @dictionaries.render_result(res).html_safe %>
+	</div>
+<% i = i + 1 %>
+<% } %>
+  </div>
+</div>

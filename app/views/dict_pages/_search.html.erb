@@ -1,0 +1,17 @@
+<br/>
+  <label>Nhập từ</label>
+  <%= text_field_tag 'to_search' , params[:to_search] %>
+  <label>Cách tìm</label>
+  <%= select_tag(
+	"search_mode", options_for_select(@search_opts,params[:search_mode]), 
+	{ "selected" => params[:search_mode] } ) %> 
+  <%= submit_tag( "Tìm kiếm") %>
+<% if @key_words_list.length>1 %>
+     <label>Các từ khóa:</label>
+     <%= select_tag(
+	     "search_key", options_for_select(@key_words_list,params[:search_key]),
+		{ "selected" => params[:search_key] } ) %> 
+	 <%= submit_tag "Tìm từ khóa" %>
+
+<% end %>
+
