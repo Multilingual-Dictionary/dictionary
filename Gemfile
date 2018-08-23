@@ -9,7 +9,7 @@ end
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.1.4'
 # Use Bootstrap
-gem 'bootstrap-sass', '3.3.7'
+gem 'bootstrap-sass'
 # Use jquery
 gem 'jquery-rails'
 # Use mysql as the database for Active Record
@@ -67,3 +67,6 @@ gem 'csv'
 gem 'progress_job'
 gem 'delayed_job_progress'
 gem 'google-cloud-translate'
+gem 'sidekiq'
+gem 'sinatra'
+

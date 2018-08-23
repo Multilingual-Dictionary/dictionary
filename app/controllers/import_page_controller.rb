@@ -101,7 +101,7 @@ puts(params.inspect())
   #
   # IMPORT Glossary
   #
-  def import_glossary_file()
+  def import_glossary_file_old()
     puts("IMPORT NOW")
     begin
       workbook = Roo::Excel.new(params[:tmp_file_name])
@@ -119,6 +119,25 @@ puts(params.inspect())
     rescue Exception => e
         puts e.message
     end
+  end
+  
+  def import_glossary_file()
+	dict_job = DictJob.new()
+	id = dict_job.create_new()
+	ret = ImportGlossaryJob.perform_later(
+			id,
+			@dict_id,
+			params[:tmp_file_name],
+			{
+				"key_words"=>@key_words,
+				"word_type"=>@word_type,
+				"category"=>@category,
+				"primary_xlate"=>@primary_xlate,
+				"secondary_xlate"=>@secondary_xlate,
+				"config"=>@dict_ext_cfg['config']
+			} )
+	dict_job.update(job_id: ret.job_id)
+	params[:job_id] = id
   end
   #
   # READ Glossary
@@ -154,6 +173,8 @@ puts(params.inspect())
   ##
 
   def import_glossary
+    params[:job_id]='0' if params[:job_id] == nil
+    params[:job_status]='' if params[:job_status] == nil
     err = init_var()
     if err != ""
 	   puts(err)

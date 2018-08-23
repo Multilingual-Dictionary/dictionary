@@ -1,0 +1,23 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  job_id: MyString
+  job_name: MyString
+  in_data: MyText
+  out_data: MyText
+  stage: MyString
+  percent: MyString
+  status: MyString
+  message: MyString
+  notes: MyString
+
+two:
+  job_id: MyString
+  job_name: MyString
+  in_data: MyText
+  out_data: MyText
+  stage: MyString
+  percent: MyString
+  status: MyString
+  message: MyString
+  notes: MyString

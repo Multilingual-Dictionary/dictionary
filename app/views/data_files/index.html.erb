@@ -1,0 +1,35 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Data Files</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Notes</th>
+      <th>Filename</th>
+      <th>Job</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @data_files.each do |data_file| %>
+      <tr>
+        <td><%= data_file.name %></td>
+        <td><%= data_file.type %></td>
+        <td><%= data_file.notes %></td>
+        <td><%= data_file.filename %></td>
+        <td><%= data_file.job_id %></td>
+        <td><%= link_to 'Show', data_file %></td>
+        <td><%= link_to 'Edit', edit_data_file_path(data_file) %></td>
+        <td><%= link_to 'Destroy', data_file, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Data File', new_data_file_path %>

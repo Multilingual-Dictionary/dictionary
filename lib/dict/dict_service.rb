@@ -9,13 +9,14 @@ class DictResults
 	end
 end
 class DictService
-	attr_accessor :res , :error , :search_mode, :search_key, :src_lang, :tgt_lang
+	attr_accessor :res , :error , :search_mode, :search_key, :src_lang, :tgt_lang , :parser
 	def lookup_init()
 		@res = Hash.new
 		@error= nil
 	end
 	def initialize()
 		@search_key=nil
+		@parser=nil
 	end
 	def set_search_key(key)
 		@search_key=key
@@ -23,6 +24,9 @@ class DictService
 	def set_search_mode(mode)
 		@search_mode=mode
 		puts ( "DICT SERVICE MODE "+ @search_mode)
+	end
+	def set_parser(name)
+		@parser= DictResultParser.new(name)
 	end
 	def set_languages(src_lang,tgt_lang)
 		@src_lang=src_lang.upcase
@@ -57,6 +61,14 @@ class DictService
 	end
 	def add_entry( dict_name, key , text , infos=nil )
 		return if text.empty?
+		if @parser != nil
+			res = @parser.parse(key,text,infos)
+			if res != nil
+				key = res["key"] if res.has_key?("key")
+				text = res["text"] if res.has_key?("text")
+				key = res["infos"] if res.has_key?("infos")
+			end
+		end
 		if !@res.has_key?dict_name 
 			@res [dict_name] = 
 				{ :dict_name => dict_name ,
@@ -74,3 +86,54 @@ class DictService
 			  :infos => infos}
 	end
 end
+
+class DictResultParser
+	def initialize(name)
+		if name != nil
+			@name=name.strip.upcase
+		else
+			@name=""
+		end
+	end
+	def tokenize(txt)
+     		return []  if txt == nil
+     		return txt.gsub(/;/,",").split(',')
+  	end
+	def remove_notes(txt,open,close)
+		is_in = false
+		res = ""
+		txt.each_char{|c|
+			if c==open
+				is_in = true
+        			next
+     			end
+     			if c == close
+        			is_in = false
+        			next
+     			end
+     			if not is_in
+        			res << c
+     			end
+   		}
+   		return res
+  	end
+	def parse(key,text,infos)
+		case @name
+		when "HND"
+			new_text = []
+			text.each{|txt|
+				next if txt[0] != "-"
+				txt=txt.gsub("-","").strip
+				new_text << remove_notes(txt,"{","}")
+			}
+			return {
+				"key" => key.gsub('@','').strip,
+				"text" => new_text
+			}
+		else
+			return nil
+		end
+	end
+end
+
+

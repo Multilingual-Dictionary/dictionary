@@ -1,0 +1,118 @@
+<style>
+ #select_dicts {
+    margin-left:+2px;
+	background-color:#99ccff;
+ }
+</style>
+<!-- LANGUAGE OPTIONS -------------------------------------------- -->
+<% src_lang_opt = []
+   tgt_lang_opt = []
+   ref_lang_opt = []
+   @dictionaries.src_lang_supported.each{|k,v|
+      src_lang_opt << [v,k]
+   }
+   ref_lang_opt << ["Mặc định","ALL"]
+   @dictionaries.tgt_lang_supported.each{|k,v|
+      tgt_lang_opt << [v,k]
+	  ref_lang_opt << [v,k]
+   }
+%>
+
+<div class=container-fluid>
+  <label class="left_side" >Ngôn ngữ gốc</label>
+  <%= select_tag(
+	"src_lang", options_for_select(src_lang_opt,params[:src_lang]), 
+	{ "selected" => params[:src_lang],
+	  "class" =>"right_side" ,
+	  "onchange" => "this.form.submit();"} ) %>
+</div>
+
+<div class=container-fluid>
+  <label class="left_side" > Ngôn ngữ đích</label>
+    <%= select_tag(
+	"tgt_lang", options_for_select(tgt_lang_opt,params[:tgt_lang]), 
+	{ "selected" => params[:tgt_lang],
+	  "class" =>"right_side" ,
+	  "onchange" => "this.form.submit();"} ) %>
+</div>
+<div class=container-fluid>
+  <label class="left_side">Tham khảo</label>
+    <%= select_tag(
+	"ref_lang", options_for_select(ref_lang_opt,params[:ref_lang]), 
+	{ "selected" => params[:ref_lang],
+	  "class" =>"right_side" ,
+	  "onchange" => "this.form.submit();"} ) %>
+</div>
+<!-- SEARCH -------------------------------------------- -->
+<div class=container-fluid>
+  <label>Cách tìm</label>
+  <%= select_tag(
+	"search_mode", options_for_select(@search_opts,params[:search_mode]), 
+	{ "selected" => params[:search_mode] ,
+	  "class" =>"right_side" } ) %> 
+</div>
+<div class=container-fluid>
+  <label>Tra từ</label>
+  <%= text_field_tag 'to_search' , params[:to_search] , {"class"=>"right_side"} %>
+</div>
+
+<div class=container-fluid>
+	<%= submit_tag( "Tìm kiếm", {"class"=>"right_side"}) %>
+</div>
+<div class=container-fluid>
+<% if @key_words_list.length>1 %>
+     <label>Các từ khóa:</label>
+     <%= select_tag(
+	     "search_key", options_for_select(@key_words_list,params[:search_key]),
+		{ "selected" => params[:search_key] } ) %> 
+	 <%= submit_tag "Tìm từ khóa" %>
+<% end %>
+</div>
+
+<!-- DICTIONARIES OPTIONS -------------------------------------------- -->
+<% all_dicts="" %>
+<div class="container">
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="button-group">
+				<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-book"></span> <span class="caret"></span></button>
+			<ul class="dropdown-menu">
+				<li>
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" value="ON" 
+							name="all"
+							id="all"
+							<% if @selected_dicts.length>0 %>
+								CHECKED
+							<% end %>
+							onchange="check_all('all')"
+						>
+						<label class="form-check-label">
+							Tất cả
+						</label>
+					</div>
+				</li>
+<% @dict_list.each(){|n,inf| %>
+<% all_dicts << n << ";" %>
+				<li>
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" value="ON" 
+							name="<%="CHK"+inf["dict_sys_name"]%>"
+							id="<%=inf["dict_sys_name"]%>"
+							<% if @selected_dicts.has_key?(inf["dict_sys_name"]) %>
+							CHECKED
+							<% end %>
+						>
+						<label class="form-check-label" for="<%=inf["dict_sys_name"]%>">
+							<%=inf["dict_name"]%>
+						</label>
+					</div>
+				</li>
+<% } %>
+<%=hidden_field_tag 'all_dicts',all_dicts %>
+			</ul>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- -------------------------------------------- -->

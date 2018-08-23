@@ -1,8 +1,9 @@
 @import "bootstrap-sprockets";
 @import "bootstrap";
 /* universal */
+
 body {
-  padding-top: 60px;
+  padding-top: 0px;
 }
 
 section {
@@ -26,7 +27,7 @@ textarea {
 #logo {
   float: left;
   margin-right: 10px;
-  font-size: 1.7em;
+  font-size: 1em;
   color: #fff;
   text-transform: uppercase;
   letter-spacing: -1px;
@@ -45,13 +46,22 @@ $tabhead_color: DarkGreen;
 
 p.dict_text {
     font-weight: normal;
+    font-size: 8px;
+    margin-left: 10px;
+    margin-right: 0;
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
 }
 p.bold_text {
     font-weight: bold;
 }
-
 p.dict_key {
-    font-weight: normal;
+    font-weight: bold;
+    font-size: 8px;
+}
+p.dict_label {
+    font-weight: bold;
+    font-size: 10px;
 }
 .indented {
   padding-left: 50pt;
@@ -67,3 +77,34 @@ $navbar-inverse-border: #f49542;
 background-color: $navbar-inverse-bg;
 border-color: $navbar-inverse-border;
 }
+
+label {
+  font-size: 10px;
+}
+form {
+  font-size: 10px;
+}
+thead > tr > th {
+  font-size: 10px;
+}
+tbody > tr > td {
+  font-size: 10px;
+}
+.right_side {
+    float: right;
+}
+.left_side {
+    float: left;
+}
+
+/** comment out
+.navbar {min-height:20px;max-height:30px;}
+.navbar .navbar-brand{ padding: 5 5px;font-size: 17px;line-height: 10px;height: 20px; }
+.navbar .navbar-nav > li > a {  padding-top: 25px; 
+				padding-bottom: 5px; 
+				font-size: 14px;
+				line-height: 0px; }
+.navbar .navbar-toggle {  margin-top: 3px; margin-bottom: 0px; padding: 1px 1px; }
+.navbar .navbar-form { margin-top: 2px; margin-bottom: 0px }
+.navbar .navbar-collapse {border-color: #A40203;}
+**/

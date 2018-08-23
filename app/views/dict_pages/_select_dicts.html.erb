@@ -1,36 +1,11 @@
 <style>
  #select_dicts {
-    margin-left:+50px;
+    margin-left:+2px;
 	background-color:#99ccff;
  }
 </style>
 
-<script>
-function check_all(id) {
-    var all_dicts;
-	if(document.getElementById(id).checked != true){
-	  to_set=false
-	} else {
-	  to_set=true
-	}
-	all_dicts=document.getElementById("all_dicts").value.split(";") ;
-	for(index=0;index<all_dicts.length-1;++index){
-		document.getElementById(all_dicts[index]).checked = to_set; 
-	}
-}
-function myFunction(id) {
-    var x = document.getElementById("select_dicts");
-	if(document.getElementById(id).checked != true){
-	  to_set="none"
-	} else {
-	  to_set="block"
-	}
-	console.log(to_set)
-	console.log(id)
-	console.log(x)
-    x.style.display = to_set;
-}
-</script>
+
 
 <% src_lang_opt = []
    tgt_lang_opt = []
@@ -64,55 +39,29 @@ function myFunction(id) {
 	                   "onchange" => "this.form.submit();"} ) %>
 <br/>
 
-
-
-
-<input class="form-check-input" type="checkbox" value="ON" 
-	    name="show_select_dicts"
-	    id="show_select_dicts"
-		onchange="myFunction('show_select_dicts')" 
-	<% if @show_select_dicts %>
-		CHECKED
-	<% end %>
->
-
-<label class="form-check-label" for="dicts_check">
-        Chọn tự điển
-</label>
-
-<% if @show_select_dicts %>
-  <div id="select_dicts" style="display: block" >
-<% else %>
-  <div id="select_dicts" style="display: none" >
-<% end %>
-
 <% all_dicts="" %>
-<input class="form-check-input" type="checkbox" value="ON" 
-	    name="dicts_check"
-	    id="dicts_check"
-		onchange="check_all('dicts_check')" 
-<% if @selected_dicts.length>1 %>
-        CHECKED
-<% end %>
-		
-     >
-<label class="form-check-label" for="dicts_check">
-        Chọn tất cả các tự điển [ hay bỏ chọn ] 
-</label>
+<div class="container">
+  <div class="row">
+       <div class="col-lg-12">
+     <div class="button-group">
+        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">Chọn TĐ &nbsp;<span class="glyphicon glyphicon-book"></span> <span class="caret"></span></button>
+<ul class="dropdown-menu">
+
 <% @dict_list.each(){|n,inf| %>
 <% all_dicts << n << ";" %>
-   <div class="form-check">
-     <input class="form-check-input" type="checkbox" value="ON" 
-	    name="<%="CHK"+inf["dict_sys_name"]%>"
-	    id="<%=inf["dict_sys_name"]%>"
-		<% if @selected_dicts.has_key?(inf["dict_sys_name"]) %>
-		CHECKED
-		<% end %>
-     >
-     <label class="form-check-label" for="<%=inf["dict_sys_name"]%>">
-        <%=inf["dict_name"]%>
-     </label>
-   </div>
-<% } %>
-<%=hidden_field_tag 'all_dicts',all_dicts %>
+   <li><a href="<%="CHK"+inf["dict_sys_name"]%>"  data-value="<%="CHK"+inf["dict_sys_name"]%>"
+      type="checkbox"/>&nbsp;"<%=inf["dict_name"]%></a></li>
+<% end %>
+  <li><a href="#" class="small" data-value="option1" tabIndex="-1"><input type="checkbox"/>&nbsp;Option 1</a></li>
+  <li><a href="#" class="small" data-value="option2" tabIndex="-1"><input type="checkbox"/>&nbsp;Option 2</a></li>
+  <li><a href="#" class="small" data-value="option3" tabIndex="-1"><input type="checkbox"/>&nbsp;Option 3</a></li>
+  <li><a href="#" class="small" data-value="option4" tabIndex="-1"><input type="checkbox"/>&nbsp;Option 4</a></li>
+  <li><a href="#" class="small" data-value="option5" tabIndex="-1"><input type="checkbox"/>&nbsp;Option 5</a></li>
+  <li><a href="#" class="small" data-value="option6" tabIndex="-1"><input type="checkbox"/>&nbsp;Option 6</a></li>
+</ul>
+  </div>
 </div>
+  </div>
+</div>
+<%=hidden_field_tag 'all_dicts',all_dicts %>
+

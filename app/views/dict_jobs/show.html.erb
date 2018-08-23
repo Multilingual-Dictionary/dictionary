@@ -1,0 +1,49 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Job:</strong>
+  <%= @dict_job.job_id %>
+</p>
+
+<p>
+  <strong>Job name:</strong>
+  <%= @dict_job.job_name %>
+</p>
+
+<p>
+  <strong>In data:</strong>
+  <%= @dict_job.in_data %>
+</p>
+
+<p>
+  <strong>Out data:</strong>
+  <%= @dict_job.out_data %>
+</p>
+
+<p>
+  <strong>Stage:</strong>
+  <%= @dict_job.stage %>
+</p>
+
+<p>
+  <strong>Percent:</strong>
+  <%= @dict_job.percent %>
+</p>
+
+<p>
+  <strong>Status:</strong>
+  <%= @dict_job.status %>
+</p>
+
+<p>
+  <strong>Message:</strong>
+  <%= @dict_job.message %>
+</p>
+
+<p>
+  <strong>Notes:</strong>
+  <%= @dict_job.notes %>
+</p>
+
+<%= link_to 'Edit', edit_dict_job_path(@dict_job) %> |
+<%= link_to 'Back', dict_jobs_path %>

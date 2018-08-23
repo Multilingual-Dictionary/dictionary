@@ -1,8 +1,12 @@
+require 'sidekiq/web'
 Rails.application.routes.draw do
 
+  resources :data_files
+  resources :dict_jobs
   resources :glossary_indices
   resources :progress_bars
   get 'export_glossary/export'
+  get 'export_glossary/export_now'
 
   resources :glossaries
   resources :davkhkt_dicts
@@ -25,5 +29,8 @@ Rails.application.routes.draw do
   put  '/dict_import_commit',   to: 'import_page#import_glossary_commit'
   get  '/dict_import_commit',   to: 'import_page#import_glossary_commit'
   get 'export_glossaries' => 'exports#export_glossaries', as: :export_glossaries
+  get '/progress' => 'dict_jobs#progress'
+
+mount Sidekiq::Web, at: "/sidekiq"
 end
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html

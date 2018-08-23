@@ -8,13 +8,21 @@ class GlossaryDictService < DictService
   ##  LOOKUP ( to_search .. )
   ##
 
-  def lookup(to_search,dict_id=nil)
-
+  def lookup(to_search,dict_id="")
     lookup_init()
     conn = ActiveRecord::Base.connection
+    dicts=""
+    dict_id.split(",").each{|d|
+      dicts << "," if dicts!=""
+      dicts << conn.quote(d)
+    }
+    if dicts == ""
+      return result() if dicts == ""
+    end
+  
 
     ### search for key_words in GLOSSARY_INDICES 
-    query = "select * from glossary_indices where dict_id=#{conn.quote(dict_id)}"
+    query = "select * from glossary_indices where dict_id in (#{dicts}) "
     if @search_mode=='search_contain'
       to_search.split(' ').each{|w|
         query << " and key_words like #{conn.quote('%'+w.strip+'%')} "
@@ -31,6 +39,9 @@ class GlossaryDictService < DictService
          query << "'" << l.strip << "'"
        }
        query << ")"
+    end
+    if @search_mode=='search_contain'
+       query << " limit 100"
     end
     results = GlossaryIndex.find_by_sql(query)
     indices=Hash.new
@@ -71,26 +82,27 @@ class GlossaryDictService < DictService
 
     results.each(){|r|   ### each entry
 
+      cfg= @cfg[r.dict_id.upcase]
       key_words = indices[r.digest].key_words
       key_lang = indices[r.digest].lang
       translated = Hash.new
       xlated_word= Hash.new
       attr = ''
-      if key_lang==@cfg["ext_cfg"]["key_words_lang"]
-        translated[@cfg["ext_cfg"]["primary_xlate_lang"]]=r.primary_xlate
-        translated[@cfg["ext_cfg"]["secondary_xlate_lang"]]=r.secondary_xlate
-        xlated_word[@cfg["ext_cfg"]["primary_xlate_lang"]]= xlated[r.digest][@cfg["ext_cfg"]["primary_xlate_lang"]]
-        xlated_word[@cfg["ext_cfg"]["secondary_xlate_lang"]]= xlated[r.digest][@cfg["ext_cfg"]["secondary_xlate_lang"]]
+      if key_lang==cfg["ext_cfg"]["key_words_lang"]
+        translated[cfg["ext_cfg"]["primary_xlate_lang"]]=r.primary_xlate
+        translated[cfg["ext_cfg"]["secondary_xlate_lang"]]=r.secondary_xlate
+        xlated_word[cfg["ext_cfg"]["primary_xlate_lang"]]= xlated[r.digest][cfg["ext_cfg"]["primary_xlate_lang"]]
+        xlated_word[cfg["ext_cfg"]["secondary_xlate_lang"]]= xlated[r.digest][cfg["ext_cfg"]["secondary_xlate_lang"]]
 	attr << "/" + r.word_type  if r.word_type != ""
       else
-        translated[@cfg["ext_cfg"]["key_words_lang"]]=r.key_words
-        xlated_word[@cfg["ext_cfg"]["key_words_lang"]]= xlated[r.digest][@cfg["ext_cfg"]["key_words_lang"]]
-         if key_lang==@cfg["ext_cfg"]["primary_xlate_lang"]
-            translated[@cfg["ext_cfg"]["secondary_xlate_lang"]]=r.secondary_xlate
-            xlated_word[@cfg["ext_cfg"]["secondary_xlate_lang"]]= xlated[r.digest][@cfg["ext_cfg"]["secondary_xlate_lang"]]
+        translated[cfg["ext_cfg"]["key_words_lang"]]=r.key_words
+        xlated_word[cfg["ext_cfg"]["key_words_lang"]]= xlated[r.digest][cfg["ext_cfg"]["key_words_lang"]]
+         if key_lang==cfg["ext_cfg"]["primary_xlate_lang"]
+            translated[cfg["ext_cfg"]["secondary_xlate_lang"]]=r.secondary_xlate
+            xlated_word[cfg["ext_cfg"]["secondary_xlate_lang"]]= xlated[r.digest][cfg["ext_cfg"]["secondary_xlate_lang"]]
          else
-            translated[@cfg["ext_cfg"]["primary_xlate_lang"]]=r.primary_xlate
-            xlated_word[@cfg["ext_cfg"]["primary_xlate_lang"]]= xlated[r.digest][@cfg["ext_cfg"]["primary_xlate_lang"]]
+            translated[cfg["ext_cfg"]["primary_xlate_lang"]]=r.primary_xlate
+            xlated_word[cfg["ext_cfg"]["primary_xlate_lang"]]= xlated[r.digest][cfg["ext_cfg"]["primary_xlate_lang"]]
          end
       end
       attr << "/" + r.category  if r.category != ""
@@ -105,7 +117,7 @@ class GlossaryDictService < DictService
       translated.each{|l,t|
          txt << t
       }
-      add_entry(@cfg["dict_sys_name"],key,txt,infos)
+      add_entry(cfg["dict_sys_name"],key,txt,infos)
     }
     return result()
     end

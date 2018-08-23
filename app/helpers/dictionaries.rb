@@ -19,8 +19,9 @@ class Dictionaries
 	     "FR"=>"Tiếng Pháp"}
     @dict_infos=Hash.new
    
+    dict_num=0
     dict_infos.each{|inf|
-
+      dict_num += 1
       if inf.cfg != ""
         begin 
           tmp = JSON.parse(inf.cfg)
@@ -34,6 +35,7 @@ class Dictionaries
  
       @dict_infos[inf.dict_sys_name.upcase]=
         {
+          "dict_num" => dict_num,
           "dict_sys_name" => inf.dict_sys_name,
           "dict_name" => inf.dict_name,
           "protocol" => inf.protocol,
@@ -83,6 +85,11 @@ class Dictionaries
     inf =  @dict_infos[sys_name.upcase]
     return inf["dict_name"] if inf != nil
     return sys_name
+  end
+  def dict_num(sys_name)
+    inf =  @dict_infos[sys_name.upcase]
+    return inf["dict_num"] if inf != nil
+    return 0
   end
   ###################################################################
   ###########    PROCESS RESULT  ####################################
@@ -137,29 +144,28 @@ class Dictionaries
    return res
   end
 
-  def process_xlate(dict_infos,entry)
- 
+  def process_xlate(entry,dict_infos)
     if entry[:infos][:xlated_word] != nil
-	   ##printf("Already have xlate\n")
-	   return 
-	end
-	if dict_infos["src_languages"].length==1 and
-	   dict_infos["tgt_languages"].length==1 and 
-	   dict_infos["src_languages"][0]==dict_infos["tgt_languages"][0] 
-	   return
-	end
+      ##printf("Already have xlate\n")
+      return 
+    end
+    ## need processing
+    if dict_infos["src_languages"].length==1 and
+       dict_infos["tgt_languages"].length==1 and 
+       dict_infos["src_languages"][0]==dict_infos["tgt_languages"][0] 
+        return
+    end
     xlate_lang=dict_infos["tgt_languages"][0]
 	entry[:infos][:xlated_word]=Hash.new
 	entry[:infos][:xlated_word][xlate_lang]=[]
     txts = entry[:text]
     if txts != nil
       txts.each{|txt|
-	       printf("TXT(%s)\n",txt)
-	       txt=remove_notes(txt,"(",")")
-		   txt=remove_notes(txt,"{","}")
+	   txt=remove_notes(txt,"(",")")
+	   txt=remove_notes(txt,"{","}")
            txt=remove_notes(txt,"[","]")
-		   txt=remove_notes(txt,"<",">")
-		   printf("TXT_RM(%s)\n",txt)
+	   txt=remove_notes(txt,"<",">")
+	   ##printf("TXT_RM(%s)\n",txt)
            tokenize(txt).each{|tk|
              tk = tk.strip
              next if tk == ""
@@ -172,16 +178,17 @@ class Dictionaries
   ##
   ## process result -> infos Hash
   ## 
-  def process_result(dict_infos, result)
+  def process_result(result)
 	return result if result.length==0
 	processed=[]
 	result.each{|r|
+          dict_info=@dict_infos[r[:dict_name].to_s.upcase]
 	  r[:entries].each{|e|
             if e[:infos] == nil
 		e[:infos] = Hash.new
 	    end
   	    process_key(e)
-  	    process_xlate(dict_infos,e)
+  	    process_xlate(e,dict_info)
 	  }
 	}
 	return result
@@ -193,14 +200,11 @@ class Dictionaries
   ##
   ##  Call dict-servce to looup now!
   ##
-  def lookup(to_search,dict_infos,src_lang,tgt_lang)
- 
+  def lookup(to_search,dict_infos,src_lang,tgt_lang,dict_name=nil)
    begin
     case dict_infos["protocol"].upcase
     when "RFC2229"
       service= RFC2229DictService.new()
-    when "GLOSSARY"
-      service= GlossaryDictService.new(dict_infos)
     when "WIKTIONARY"
       service= WiktionaryDictService.new(dict_infos)
     when "GOOGLE"
@@ -212,13 +216,23 @@ class Dictionaries
 	rescue
 	  return nil
    end
-	
    service.set_search_mode(@search_mode)
    service.set_search_key(to_search)
    service.set_languages(src_lang,tgt_lang)
-   return process_result(dict_infos,
-		     service.lookup(to_search,dict_infos["dict_sys_name"]))
+   service.set_parser(dict_infos["ext_cfg"]["result_parser"])
+   if dict_name==nil
+      dict_name= dict_infos["dict_sys_name"]
+   end
+   return service.lookup(to_search,dict_name)
   end
+  def lookup_glossary(to_search,dict_infos,src_lang,tgt_lang,dict_name=nil)
+      service= GlossaryDictService.new(dict_infos)
+      service.set_search_mode(@search_mode)
+      service.set_search_key(to_search)
+      service.set_languages(src_lang,tgt_lang)
+      return service.lookup(to_search,dict_name)
+  end
+
 
   ##
   ##  use google-translator to detect language
@@ -237,47 +251,62 @@ class Dictionaries
   ##
   def lookup_dictionaries( to_search,source_lang,target_lang,reference_lang,dictionaries)
     #printf("TOSEARCH %s\n",to_search)
-	#printf("SRC_LANG %s\n",source_lang)
-	#printf("TGT_LANG %s\n",target_lang)
-	#printf("REF_LANG %s\n",reference_lang)
-	#printf("SELECT DICT %s\n",dictionaries)
+    #printf("SRC_LANG %s\n",source_lang)
+    #printf("TGT_LANG %s\n",target_lang)
+    #printf("REF_LANG %s\n",reference_lang)
+    #printf("SELECT DICT %s\n",dictionaries)
 
-	ret = []
+    ret = []
     if source_lang=='ALL'
-       src_lang=detect_lang(to_search,source_lang)
+      src_lang=detect_lang(to_search,source_lang)
     else
-       src_lang=source_lang
+      src_lang=source_lang
     end
-	tgt_lang=""
+    tgt_lang=""
     if reference_lang=="ALL"
-	   @tgt_lang_supported.each{|l,n|
+      @tgt_lang_supported.each{|l,n|
 	      tgt_lang << "," if tgt_lang != ""
 		  tgt_lang << l
-	   }
-	else
-	   tgt_lang = target_lang
-	   langs = {target_lang=>target_lang} 
-	   reference_lang.split(",").each{|l|
-	      next if langs.has_key?(l)
-		  tgt_lang << "," << l
-		  langs[l] = l
-	   }
-	end
-	
-	#printf("TGTLANG %s\n",tgt_lang)
-  
-	dictionaries.split(',').each{|n|
-      inf = dict_infos_by_sys_name(n)
-      if inf != nil
-        res = lookup(to_search,inf,src_lang,tgt_lang)
-        if res != nil 
-          res.each{|tmp|
-            ret << tmp
-          }
+      }
+    else
+      tgt_lang = target_lang
+      langs = {target_lang=>target_lang} 
+      reference_lang.split(",").each{|l|
+        next if langs.has_key?(l)
+        tgt_lang << "," << l
+	langs[l] = l
+      }
+     end
+     #printf("TGTLANG %s\n",tgt_lang)
+     glossary_names=""
+     glossary_infos=Hash.new
+     dictionaries.split(',').each{|n|
+       inf = dict_infos_by_sys_name(n)
+       if inf != nil
+         if inf["protocol"].upcase=="GLOSSARY"
+           glossary_names << "," if glossary_names !=""
+           glossary_names << n
+		   glossary_infos[n.upcase] =  inf
+         else
+           res = lookup(to_search,inf,src_lang,tgt_lang)
+           if res != nil 
+             res.each{|tmp|
+               ret << tmp
+             }
+           end
         end
       end
-    }
-	return ret 
+     }
+     if glossary_names!=""
+       printf("GLOSSARY! (%s)\n",glossary_names)
+       res = lookup_glossary(to_search,glossary_infos,src_lang,tgt_lang,glossary_names)
+       if res != nil 
+         res.each{|tmp|
+           ret << tmp
+         }
+	   end
+     end
+     return process_result(ret)
   end
   
   #################################################################

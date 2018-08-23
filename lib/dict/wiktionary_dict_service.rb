@@ -24,7 +24,7 @@ class WiktionaryDictService < DictService
 		wik_res.each{|l,words|
                    l = ""
                    words.each{|w|
-			l << "," if l != ""
+			l << ", " if l != ""
 			l << w 
                    }
 		   txt << l

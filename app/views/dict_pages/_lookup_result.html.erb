@@ -15,12 +15,14 @@
   </ul>
   
   <div class="tab-content">
-    <div id="summary" class="tab-pane fade in active">
+    <div id="summary">
       <%= @dictionaries.render_summary(@result).html_safe %>
     </div>
 <% i = 0 %>
 <% @result.each{|res| %>
-   	<div id="<%="R"+i.to_s%>" class="tab-pane fade">
+<hr/>
+   	<div id="<%="R"+i.to_s%>">
+	  <%=@dictionaries.dict_name(res[:dict_name])%>
 	  <%= @dictionaries.render_result(res).html_safe %>
 	</div>
 <% i = i + 1 %>

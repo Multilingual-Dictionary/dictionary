@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <body>
+<% @result.each{|res| %>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <a name="<%='dict'+@dictionaries.dict_num(res[:dict_name]).to_s%>"></a>
+	<p class="dict_label"><%=@dictionaries.dict_name(res[:dict_name])%></p>
+	</div>
+  <div class="panel-body">
+    <% 	res[:entries].each{|entry|
+		attr= entry[:infos][:key_attr]
+        attr= "" if attr==nil %>
+
+		  <p class="dict_key">
+		     <%=entry[:infos][:key_words]%>
+	<% if entry[:infos][:key_attr] != nil %>
+			 &nbsp;<i><%=attr%></i>
+	<% end %>
+		  </p>
+    <% entry[:text].each{|t|  %>
+        <p class="dict_text"><%=t%></p>
+    <% }
+      }	%>
+  </div>
+</div>
+
+<% } %>
+
+
+  </body>
+</html>

@@ -1,65 +1,33 @@
 
 <% @admin_job = "cfgdict" %>
 <%= render 'layouts/admin_header' %>
-<h2>Nhập Data cho tự điển: <%=@dict_name %></h2>
-<hr>
 <%= form_with url: '/dict_import', method: :put, local: true, multipart: true do |f| %>
   <%= hidden_field_tag('dict_id', @dict_id ) %>
   <%= hidden_field_tag('dict_name', @dict_name ) %>
   <%= hidden_field_tag('tmp_file_name', @tmp_file_name ) %>
-<table>
-<tr>
-  <td></td>
-  <td>Nhập: cột thứ mấy?| hay khoảng trắng nếu không có| hay giá trị của trường nếu tất cả giống nhau</td> 
-</tr><tr>
-  <td><%= f.label :q, "Từ khóa:" %></td>
-  <td><%= f.text_field :key_words, id: :key_words , value:@key_words %></td> 
-</tr><tr>
-  <td><%= f.label :q, "Ngôn ngữ 1:" %></td>
-  <td><%= f.text_field :primary_xlate, id: :primary_xlate , value:@primary_xlate %> </td>
-</tr><tr>
-  <td><%= f.label :q, "Ngôn ngữ 2:" %></td>
-  <td><%= f.text_field :secondary_xlate, id: :secondary_xlate , value:@secondary_xlate %></td> 
-</tr><tr>
-  <td><%= f.label :q, "Từ loại:" %></td>
-  <td><%= f.text_field :word_type, id: :word_type , value:@word_type %></td>
-</tr><tr>
-  <td><%= f.label :q, "Lĩnh vực:" %></td>
-  <td><%= f.text_field :category, id: :category , value:@category %></td>
-</tr><tr>
-  <td><%= f.label :q, "Import-File:" %></td>
-  <td><%= f.file_field :import_file %></td>
-</tr><tr>
-  <td><%= f.submit "read" %></td>
-</tr>
-</table>
+  <%= hidden_field_tag("job_id",params[:job_id]) %>
+  <%= hidden_field_tag("job_status",params[:job_status]) %>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-5">
+	  <p>Nhập Data cho tự điển: <%=@dict_name %></p>
+	  <%= render "import_form", :f => f %>
+	</div>
+    <div class="col-sm-7">
+	  <%= render "import_jobs" %>
+	  <%= render "import_read_result", :records => @records %>
+	  <% if not @records.empty? %>
+	   <div class="btn-group">
+		<%= f.submit "import" %>
+		<%= f.submit "cancel" %>
+	   </div>
+		<% end %>
+    </div>
+  </div>
+</div>
 
-<table class="table table-hover table-bordered ">
-  <thead>
-    <tr bgcolor=tabhead_color>
-      <th>key</th>
-	  <th>Từ loại</th>
-	  <th>Lĩnh vực</th>
-	  <th>prim_lang</th>
-	  <th>sec_lang</th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @records.each do |rec| %>
-      <tr>
-        <td><%= rec.key_words %></td>
-        <td><%= rec.word_type %></td>
-        <td><%= rec.category %></td>
-        <td><%= rec.primary_xlate %></td>
-        <td><%= rec.secondary_xlate %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+	  <%= render "import_progress", :f => f %>
 
-<% if not @records.empty? %>
-<%= f.submit "import" %>
-<%= f.submit "cancel" %>
-<% end %>
+
+
 <% end %>

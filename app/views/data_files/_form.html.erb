@@ -1,0 +1,42 @@
+<%= form_with(model: data_file, local: true) do |form| %>
+  <% if data_file.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(data_file.errors.count, "error") %> prohibited this data_file from being saved:</h2>
+
+      <ul>
+      <% data_file.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :name, id: :data_file_name %>
+  </div>
+
+  <div class="field">
+    <%= form.label :type %>
+    <%= form.text_field :type, id: :data_file_type %>
+  </div>
+
+  <div class="field">
+    <%= form.label :notes %>
+    <%= form.text_field :notes, id: :data_file_notes %>
+  </div>
+
+  <div class="field">
+    <%= form.label :filename %>
+    <%= form.text_field :filename, id: :data_file_filename %>
+  </div>
+
+  <div class="field">
+    <%= form.label :job_id %>
+    <%= form.text_field :job_id, id: :data_file_job_id %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

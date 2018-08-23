@@ -1,0 +1,25 @@
+<table class="table table-striped table-condensed">
+  <thead>
+    <tr class="info">
+      <th>Từ khóa</th>
+	  <th>Từ loại</th>
+	  <th>Lĩnh vực</th>
+	  <th>Ngôn ngữ 1</th>
+	  <th>Ngôn ngữ 2</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if records != nil %>
+		<% records.each do |rec| %>
+		<tr>
+			<td><%= rec.key_words %></td>
+			<td><%= rec.word_type %></td>
+			<td><%= rec.category %></td>
+			<td><%= rec.primary_xlate %></td>
+			<td><%= rec.secondary_xlate %></td>
+		</tr>
+		<% end %>
+    <% end %>
+  </tbody>
+</table>

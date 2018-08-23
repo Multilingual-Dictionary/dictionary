@@ -37,6 +37,7 @@ class GoogleDictService < DictService
           trans = nil
        end
        next if trans == nil
+       next if to_lang != detect_language(trans.text)
        next if trans.origin.upcase==trans.text.upcase
        txt << trans.text
        xlated_word[to_lang]=[trans.text]

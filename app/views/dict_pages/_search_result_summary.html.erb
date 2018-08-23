@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<% if @summary != nil %>
+<% @summary["translated"].each{|lang,trans| %>
+<%   if trans.length>0 %>
+<div class="panel panel-default">
+  <div class="panel-heading">
+	<p class="dict_label"><%=@dictionaries.lang_codes[lang]%></p>
+	</div>
+  <div class="panel-body">
+<%   trans.each{|key,res| %>
+       <p class="dict_key"><%=key%></p>
+<%     res.each{|r| %>
+
+	  
+
+	   <span class="clearfix">
+			<p style="float: left;" class="dict_text"><%=r["xlate"]%></p>
+			<div class="drop" style="float: right">
+				<div class="col-sm-2">
+					<div class="button-group">
+						<button type="button" " class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-book"></span> <span class="caret"></span></button>
+					<ul class="dropdown-menu">
+<%			r["dict"].each{|d| %>
+						<li><a href="<%='#dict'+@dictionaries.dict_num(d).to_s%>"><%=@dictionaries.dict_name(d)%></a></li>
+<%			} %>
+					</ul>
+					</div>
+				</div>
+			</div>
+		</span>
+	   
+	   
+	   
+	   
+	   
+<%     } %>
+<%   } %>
+  </div>
+</div>
+<%   end %>
+<% } %>
+<% end %>

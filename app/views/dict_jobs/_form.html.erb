@@ -1,0 +1,62 @@
+<%= form_with(model: dict_job, local: true) do |form| %>
+  <% if dict_job.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(dict_job.errors.count, "error") %> prohibited this dict_job from being saved:</h2>
+
+      <ul>
+      <% dict_job.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :job_id %>
+    <%= form.text_field :job_id, id: :dict_job_job_id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :job_name %>
+    <%= form.text_field :job_name, id: :dict_job_job_name %>
+  </div>
+
+  <div class="field">
+    <%= form.label :in_data %>
+    <%= form.text_area :in_data, id: :dict_job_in_data %>
+  </div>
+
+  <div class="field">
+    <%= form.label :out_data %>
+    <%= form.text_area :out_data, id: :dict_job_out_data %>
+  </div>
+
+  <div class="field">
+    <%= form.label :stage %>
+    <%= form.text_field :stage, id: :dict_job_stage %>
+  </div>
+
+  <div class="field">
+    <%= form.label :percent %>
+    <%= form.text_field :percent, id: :dict_job_percent %>
+  </div>
+
+  <div class="field">
+    <%= form.label :status %>
+    <%= form.text_field :status, id: :dict_job_status %>
+  </div>
+
+  <div class="field">
+    <%= form.label :message %>
+    <%= form.text_field :message, id: :dict_job_message %>
+  </div>
+
+  <div class="field">
+    <%= form.label :notes %>
+    <%= form.text_field :notes, id: :dict_job_notes %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

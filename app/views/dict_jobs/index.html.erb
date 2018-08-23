@@ -1,0 +1,43 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Dict Jobs</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Job</th>
+      <th>Job name</th>
+      <th>In data</th>
+      <th>Out data</th>
+      <th>Stage</th>
+      <th>Percent</th>
+      <th>Status</th>
+      <th>Message</th>
+      <th>Notes</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @dict_jobs.each do |dict_job| %>
+      <tr>
+        <td><%= dict_job.job_id %></td>
+        <td><%= dict_job.job_name %></td>
+        <td><%= dict_job.in_data %></td>
+        <td><%= dict_job.out_data %></td>
+        <td><%= dict_job.stage %></td>
+        <td><%= dict_job.percent %></td>
+        <td><%= dict_job.status %></td>
+        <td><%= dict_job.message %></td>
+        <td><%= dict_job.notes %></td>
+        <td><%= link_to 'Show', dict_job %></td>
+        <td><%= link_to 'Edit', edit_dict_job_path(dict_job) %></td>
+        <td><%= link_to 'Destroy', dict_job, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Dict Job', new_dict_job_path %>

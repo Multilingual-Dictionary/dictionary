@@ -1,14 +1,36 @@
-    <header class="navbar navbar-fixed-top navbar-inverse">
-      <div class="container" id="header-container" >
-        <%= link_to "TRANG TỰ ĐIỂN TỔNG HỢP", '#', id: "logo" %>
-        <nav>
-          <ul class="nav navbar-nav navbar-right "  >
-            <li><%= link_to "Home",   root_path %></li>
-            <li><%= link_to "Tra tự điển",   dict_lookup_path %></li>
-            <li><%= link_to "Trợ giúp",   help_path %></li>
-            <li><%= link_to "Về chúng tôi", about_path %></li>
-            <li><%= link_to "Admin", admin_path %></li>
+
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">TỰ ĐIỂN TỔNG HỢP</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+		<li><a href=<%=dict_lookup_path%>>Tra từ</a></li>
+		<li><a href=<%=admin_path%>>Quản lý</a></li>
+		<li><a href=<%=help_path%>>Trợ giúp</a></li>		
+		<li><a href=<%=about_path%>>Giới thiệu</a></li>
+		
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Quản lý<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href=<%=dict_configs_path%>>Cấu hình tự điển</a></li>
+            <li><a href=<%=glossaries_path%>>Bảng thuật ngữ</a></li>
+            <li role="separator" class="divider"></li>
+			<li><a href="#">Xuất bảng thuật ngữ</a></li>
+			<li><a href="#">Nhập bảng thuật ngữ</a></li>
           </ul>
-        </nav>
-      </div>
-    </header>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>

@@ -1,0 +1,52 @@
+<% provide(:title, "lookup") %>
+
+<%
+   @search_opts = [ ['Tìm từ chính xác','search_exact'],
+				   ['Tìm mục có chứa từ','search_contain'] ]
+%>
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= yield(:title) %> | Dictionary App</title>
+	<script>
+function check_all(id) {
+    var all_dicts;
+	if(document.getElementById(id).checked != true){
+	  to_set=false
+	} else {
+	  to_set=true
+	}
+	all_dicts=document.getElementById("all_dicts").value.split(";") ;
+	for(index=0;index<all_dicts.length-1;++index){
+		document.getElementById(all_dicts[index]).checked = to_set; 
+	}
+}
+function showSelect(id) {
+    var x = document.getElementById("select_dicts");
+	if(document.getElementById(id).checked != true){
+	  to_set="none"
+	} else {
+	  to_set="block"
+	}
+	console.log(to_set)
+	console.log(id)
+	console.log(x)
+    x.style.display = to_set;
+}
+</script>
+	
+	
+	
+	
+	
+	
+  </head>
+  <body>
+    <%= form_with url: '/dict_lookup', method: :get, local: true do |f| %>
+       <%= render 'select_dicts' %>
+       <%= render 'search' %>
+    <% end %>
+    <%= render 'lookup_result' %>
+  </body>
+</html>

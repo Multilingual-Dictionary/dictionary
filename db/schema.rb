@@ -10,7 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180728000620) do
+ActiveRecord::Schema.define(version: 20180816062135) do
+
+  create_table "data_files", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "name"
+    t.string "type"
+    t.string "notes"
+    t.string "filename"
+    t.string "job_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "davkhkt_dicts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci" do |t|
     t.string "key_words"
@@ -59,16 +69,34 @@ ActiveRecord::Schema.define(version: 20180728000620) do
     t.integer "priority", default: 1
   end
 
-  create_table "glossaries", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci" do |t|
-    t.string "dict_id"
-    t.string "key_words"
-    t.string "word_type"
-    t.string "category"
-    t.text "primary_xlate"
-    t.text "secondary_xlate"
+  create_table "dict_jobs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "job_id"
+    t.string "job_name"
+    t.text "in_data"
+    t.text "out_data", limit: 4294967295
+    t.string "stage"
+    t.integer "percent"
+    t.string "status"
+    t.string "message"
+    t.string "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "digest", limit: 32
+    t.index ["created_at"], name: "created_at"
+    t.index ["job_id"], name: "job_id"
+    t.index ["job_name"], name: "job_name"
+    t.index ["status"], name: "status"
+  end
+
+  create_table "glossaries", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "dict_id", limit: 32, collation: "utf8mb4_unicode_ci"
+    t.string "key_words", collation: "utf8mb4_unicode_ci"
+    t.string "word_type", limit: 80, collation: "utf8mb4_unicode_ci"
+    t.string "category", limit: 80, collation: "utf8mb4_unicode_ci"
+    t.text "primary_xlate", collation: "utf8mb4_unicode_ci"
+    t.text "secondary_xlate", collation: "utf8mb4_unicode_ci"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "digest", limit: 32, collation: "utf8mb4_unicode_ci"
     t.index ["dict_id"], name: "dict_id"
     t.index ["dict_id"], name: "dict_id_index"
     t.index ["digest"], name: "digest"
@@ -77,10 +105,10 @@ ActiveRecord::Schema.define(version: 20180728000620) do
   end
 
   create_table "glossary_indices", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.text "dict_id"
-    t.text "lang"
-    t.text "key_words"
-    t.text "digest"
+    t.string "dict_id", limit: 32
+    t.string "lang", limit: 8
+    t.string "key_words"
+    t.string "digest", limit: 32
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
