@@ -1,0 +1,14 @@
+
+
+Install REDIS
+
+https://redis.io/topics/quickstart
+
+Install SIDKIQ
+??
+
+Install SQL
+
+Install Apache
+
+
