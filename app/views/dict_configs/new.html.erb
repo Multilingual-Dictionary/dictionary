@@ -1,8 +1,2 @@
-<p id="notice"><%= notice %></p>
-<% provide(:title,"Them tu dien") %>
-<% @navlinks= [['Back', dict_configs_path]] %>
-<% @admin_job = "cfgdict" %>
-<%= render 'layouts/admin_header' %>
-
 <%= render 'form', dict_config: @dict_config %>
 

@@ -1,25 +1,36 @@
 <p id="notice"><%= notice %></p>
-<% provide(:title,"Cấu hình tự điển") %>
-<% @navlinks= [['Thêm tự điển', new_dict_config_path]] %>
-<% @admin_job = "cfgdict" %>
-<%= render 'layouts/admin_header' %>
-
-
-<table class="table table-condensed">
+<%= form_with url: dict_configs_path, method: :get, local: true, multipart: true do |f| %>
+<table class="table table-condensed table-striped">
   <thead>
-    <tr>
-      <th>Dict_ID</th>
+    <tr class="active">
+      <th>Mã hệ thống</th>
       <th>Tên tự điển</th>
       <th>Ngôn ngữ gốc</th>
       <th>Ngôn ngữ đích</th>
       <th>Protocol</th>
-      <th>Url</th>
       <th>Priority</th>
       <th colspan="4"></th>
     </tr>
   </thead>
 
   <tbody>
+    <tr>
+      <th>
+		<a class="btn btn-default btn-sm" href="<%=new_dict_config_path%>" role="button">Thêm tự điển</a>
+      </th>
+      <th>
+		<div class="input-group input-group-sm">
+			<input type="text" id="dict_name" name="dict_name" class="form-control" 
+				value="<%=params[:dict_id]%>" placeholder="Nhập một phần tên để tìm">
+		</div><!-- /input-group -->
+	  </th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  
+  
     <% @dict_configs.each do |dict_config| %>
       <tr>
         <td><%= dict_config.dict_sys_name %></td>
@@ -27,7 +38,6 @@
         <td><%= dict_config.lang %></td>
         <td><%= dict_config.xlate_lang %></td>
         <td><%= dict_config.protocol %></td>
-        <td><%= dict_config.url %></td>
         <td><%= dict_config.priority %></td>
 <div class="btn-group">
         <td><%= link_to 'Chi tiết', dict_config %></td>
@@ -44,3 +54,4 @@
 
 <br>
 
+<%end%>

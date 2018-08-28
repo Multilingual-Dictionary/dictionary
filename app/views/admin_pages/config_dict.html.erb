@@ -1,2 +1,38 @@
-<h1>AdminPages#config_dict</h1>
-<p>Find me in app/views/admin_pages/config_dict.html.erb</p>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <% if params[:id]==nil or params[:id]=="0"
+	      tittle = "Tạo tự điển mới"
+	   else
+	      name = ""
+		  if params[:dict_name] != nil and params[:dict_name] != ""
+		     name = params[:dict_name]
+		  else 
+			if params[:dict_sys_name] != nil and params[:dict_sys_name] != ""
+				name = params[:dict_sys_name]
+		    else
+				name = params[:id]
+			end
+		  end
+		  tittle = "Cấu hình tự điển: "+ name 
+	   end
+	%>
+	<p class="dict_label"><%=tittle%></p>
+  </div>
+  
+<% if @notice!=nil %>
+<div class="alert alert-success">
+   <%=@notice%>
+</div>
+<%end%>
+<% if @warning!=nil %>
+<div class="alert alert-danger">
+   <%=@warning%>
+</div>
+<%end%>
+  <div class="panel-body">
+    <%= form_with url: admin_pages_config_dict_path , method: :get, local: true ,id: "cfg" do |f| %>
+		<%=hidden_field_tag 'id',params[:id] %>
+		<%= render "config_dict_form" %>
+	<% end %>
+  </div>

@@ -1,0 +1,63 @@
+<p id="notice"><%= notice %></p>
+
+<%= form_with url: admin_pages_config_dicts_path , 
+       method: :get, local: true do |f| %>
+  
+<div class="container">
+<div class="table-responsive">
+<table class="table table-condensed table-striped">
+  <thead>
+    <tr class="active">
+      <th>Mã hệ thống</th>
+	  <th/>
+      <th>Tên tự điển</th>
+      <th>Ngôn ngữ gốc</th>
+      <th>Ngôn ngữ đích</th>
+      <th>Protocol</th>
+      <th>Priority</th>
+      <th colspan="4"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <th>
+		<a class="btn btn-default btn-sm" href="<%=admin_pages_config_dict_path%>" role="button">Thêm tự điển</a>
+      </th>
+	  <th></th>
+      <th>
+		<div class="input-group input-group-sm">
+			<input type="text" id="dict_name" name="dict_name" class="form-control" 
+				value="<%=params[:dict_id]%>" placeholder="Nhập một phần tên để tìm">
+		</div><!-- /input-group -->
+	  </th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  
+  
+    <% @dict_configs.each do |dict_config| %>
+      <tr>
+	    <td><%= dict_config.dict_sys_name %></td>
+	    <td>
+		
+		<a class="btn btn-default btn-sm" 
+			href="<%=admin_pages_config_dict_path+"?id="+dict_config.id.to_s%>" 	
+			role="button"><i class="fa fa-cog"></i>
+		</a>
+		</td>
+        <td><%= dict_config.dict_name %></td>
+        <td><%= dict_config.lang %></td>
+        <td><%= dict_config.xlate_lang %></td>
+        <td><%= dict_config.protocol %></td>
+        <td><%= dict_config.priority %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+</div> <!--- table-responsive -->
+</div> <!--- container -->
+
+<%end%>

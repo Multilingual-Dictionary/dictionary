@@ -1,0 +1,8 @@
+<p id="notice"><%= @notice %></p>
+
+<%= form_with url: admin_pages_config_dict_new_path , method: :get, local: true do |f| %>
+<%=hidden_field_tag 'id',@dict_config.id %>
+
+<%= render "config_dict_form" %>
+
+<% end %>

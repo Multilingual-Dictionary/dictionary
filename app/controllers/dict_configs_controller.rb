@@ -4,7 +4,13 @@ class DictConfigsController < ApplicationController
   # GET /dict_configs
   # GET /dict_configs.json
   def index
-    @dict_configs = DictConfig.order(priority: :desc, dict_name: :asc) 
+	printf("CFG %s\n",params.inspect())
+    if params[:dict_name] != nil and  params[:dict_name] != ""
+	printf("---\n")
+       @dict_configs = DictConfig.where("dict_name like ?","%"+params[:dict_name]+"%").order(priority: :desc, dict_name: :asc) 
+    else
+       @dict_configs = DictConfig.order(priority: :desc, dict_name: :asc) 
+    end
   end
 
   # GET /dict_configs/1
@@ -84,6 +90,6 @@ class DictConfigsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def dict_config_params
-      params.require(:dict_config).permit(:dict_sys_name, :dict_name, :lang, :xlate_lang, :desc, :protocol, :url, :syntax, :ext_infos,:cfg,:priority)
+      params.require(:dict_config).permit(:dict_sys_name, :dict_name, :lang, :xlate_lang, :desc, :protocol, :url, :syntax, :ext_infos,:cfg,:priority,:dict_id)
     end
 end

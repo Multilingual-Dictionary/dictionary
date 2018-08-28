@@ -10,48 +10,41 @@
       </ul>
     </div>
   <% end %>
-<table class="table table-bordered ">
-  <tr>
-    <td bgcolor=tabhead_color><strong>Dict_ID:</strong> </td>
-    <td><%= form.text_field :dict_sys_name, id: :dict_config_dict_sys_name,size:100 %> </td>
-  </tr>
-  <tr>
-    <td bgcolor=tabhead_color><strong>Tên tự điển:</strong> </td>
-    <td><%= form.text_field :dict_name, id: :dict_config_dict_name, size: "100" %> </td>
-  </tr>
-  <tr>
-    <td bgcolor=tabhead_color><strong>Ngôn ngữ gốc:</strong> </td>
-    <td><%= form.text_field :lang, id: :dict_config_lang, size: "100" %></td>
-  </tr>
-  <tr>
-    <td bgcolor=tabhead_color><strong>Ngôn ngữ đích:</strong> </td>
-    <td><%= form.text_field :xlate_lang, id: :dict_config_xlate_lang, size: "100" %> </td>
-  </tr>
-  <tr>
-    <td bgcolor=tabhead_color><strong>Mô tả:</strong> </td>
-    <td><%= form.text_area :desc, id: :desc, size: "100" %> </td>
-  </tr>
-  <tr>
-    <td bgcolor=tabhead_color><strong>Priority:</strong> </td>
-    <td><%= form.text_field :priority, id: :priority, size: "10" %> </td>
-  </tr>
 
-  <tr>
-    <td bgcolor=tabhead_color><strong>Protocol:</strong> </td>
-    <td><%= form.text_field :protocol, id: :dict_config_protocol, size: "100" %> </td>
-  </tr>
+  
+<div class="container-fluid form-horizontal">
+<div class="row">
+  <div class="form-group">
+	<%= form.label "dict_id" , {"class"=> "col-sm-4"} %>
+    <%= form.text_field :dict_sys_name, id: :dict_config_dict_sys_name, class: "col-sm-10" %>
+  </div>
+  <div class="form-group">
+    <%= form.label "Tên tự điển" , {"class"=> "col-sm-4"}%>
+    <%= form.text_field :dict_name, id: :dict_config_name, class: "col-sm-10"%> 
+  </div>
+</div>
+    <%= form.label "Ngôn ngữ gốc" , {"class"=> "col-sm-2"}%>
+    <%= form.text_field :lang, id: :dict_config_lang , class: "col-sm-2"%>
+<br/>
+    <%= form.label "Ngôn ngữ đích" , {"class"=> "col-sm-2"}%>
+    <%= form.text_field :xlate_lang, id: :dict_config_xlate_lang, size: "100" %>
+<br/>
+    <%= form.label "Mô tả" , {"class"=> "col-sm-2"}%>
+    <%= form.text_area :desc, id: :desc%>
+<br/>
+    <%= form.label "Priority" , {"class"=> "col-sm-2"}%>
+    <%= form.text_field :priority, id: :priority %>
+<br/>
+    <%= form.label "Protocol" , {"class"=> "col-sm-2"}%>
+    <%= form.text_field :protocol, id: :dict_config_protocol%>
+<br/>
+    <%= form.label "Url" , {"class"=> "col-sm-2"}%>
+    <%= form.text_field :url, id: :dict_config_url %>
+<br/>
+    <%= form.label "CFG" , {"class"=> "col-sm-2"} %>
+    <%= form.text_area :cfg, id: :dict_config_cfg %>
 
-  <tr>
-    <td bgcolor=tabhead_color><strong>Url:</strong> </td>
-    <td><%= form.text_field :url, id: :dict_config_url, size: "100" %> </td>
-  </tr>
-  <tr>
-
-  <tr>
-    <td bgcolor=tabhead_color><strong>CFG:</strong> </td>
-    <td><%= form.text_area :cfg, id: :dict_config_cfg, size: "100" %> </td>
-  </tr>
-</table>
+</div> 
 
 <div class="actions">
     <%= form.submit %>

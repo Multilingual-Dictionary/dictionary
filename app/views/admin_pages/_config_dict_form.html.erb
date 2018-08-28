@@ -1,0 +1,137 @@
+<!--- config-dict-form ----------------------------------------->
+
+<!--- script---------------------------------------------------->
+<script>
+$(document).ready(function(){
+    $("#delete").click(function(){
+        console.log("delete");
+		$("#want_delete").modal();
+		return false;
+    });
+	$("#submitButton").click(function(){
+        $("#want_delete").modal();
+		return false;
+    });
+	$("#yes").click(function(){
+        console.log("YES");
+		document.getElementById("do_it").value="delete";
+		document.getElementById("cfg").submit();
+		return false;
+    });
+	$("#no").click(function(){
+        console.log("NO");
+		return true;
+    });
+	console.log("READY!");
+});
+</script>
+<!--- HTML---------------------------------------------------->
+<%= hidden_field_tag 'do_it' %>
+
+<!--- FORM---------------------------------------------------->
+<div class='container'>
+<div class="input-group">
+  <input type="text" class="form-control" 
+    id="dict_sys_name" name="dict_sys_name"
+	placeholder='Nhập tên ngắn thí dụ TD-AV-xx' 
+	value="<%=params[:dict_sys_name]%>"
+	aria-describedby="basic-addon2">
+  <span class="input-group-addon" id="basic-addon2">Tên hệ thống</span>
+</div>
+<div class="input-group">
+  <input type="text" class="form-control" 
+        id="dict_name" name="dict_name"
+	placeholder='Nhập tên thí dụ Tự điển Anh Việt ...' 
+	value="<%=params[:dict_name]%>" 
+	aria-describedby="basic-addon2">
+  <span class="input-group-addon" id="basic-addon2">Tên tự điển</span>
+</div>
+
+<div class="input-group">
+  <input type="text" class="form-control" 
+        id="lang" name="lang" 
+	placeholder='Ngôn ngữ gốc , Thí dụ EN,VI,DE ...' 
+	value="<%=params[:xlate_lang]%>" 
+	aria-describedby="basic-addon2">
+  <span class="input-group-addon" id="basic-addon2">Ngôn ngữ gốc</span>
+</div>
+
+<div class="input-group">
+  <input type="text" class="form-control" 
+        id="xlate_lang" name="xlate_lang" 
+	placeholder='Ngôn ngữ đích , Thí dụ EN,VI,DE ...' 
+	value="<%=params[:xlate_lang]%>"
+	aria-describedby="basic-addon2">
+  <span class="input-group-addon" id="basic-addon2">Ngôn ngữ đích</span>
+</div>
+
+
+<div class="input-group">
+ <%= select_tag(
+	"protocol", options_for_select(@protocol_options, params[:protocol]), 
+	{ "selected" => params[:protocol],
+	  "class" =>"form-control" 
+	} ) %>
+  <span class="input-group-addon" id="basic-addon2">Giao thức</span>
+</div>
+
+<div class="input-group">
+  <input type="text" class="form-control" 
+        id="priority" name="priority" 
+	placeholder='số ưu tiên, 0: không dùng, càng cao: ưu tiên dùng tự điển này!' 
+	value="<%=params[:priority]%>"
+	aria-describedby="basic-addon2">
+  <span class="input-group-addon" id="basic-addon2">Số ưu tiên</span>
+</div>
+
+<div class="input-group">
+  <textarea class="form-control" rows="4" 
+    id="desc" name="desc" ><%=params[:desc]%></textarea>
+  <span class="input-group-addon" id="basic-addon2">Mô tả</span>
+</div>
+
+<div class="input-group">
+  <textarea class="form-control" rows="4" 
+    id="cfg" name="cfg" ><%=params[:cfg]%></textarea>
+  <span class="input-group-addon" id="basic-addon2">Cấu hình</span>
+</div>
+
+<div class="input-group">
+<% if params[:dict_sys_name]=="deleted" %>
+Đã xóa!
+	<a class="btn btn-default btn-sm" href="<%=admin_pages_config_dicts_path%>" role="button">Trở lại</a>
+<%else%>
+<%= submit_tag "update", {"class"=>"form-control"} %>
+<%= submit_tag "xóa", {"class"=>"form-control","id"=>"delete"} %>
+<%end%>
+</div>
+
+</div>
+
+
+
+<!----- POPUPS --------------------------------------------------------------->
+<div class="container">
+  <!-- Modal -->
+  <div class="modal fade" id="want_delete" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Xóa tự điển <%=params[:dict_name]%></h4>
+        </div>
+        <div class="modal-body">
+          <p>Bạn thật sự muốn xóa tự điển này?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		  <button type="button" class="btn btn-default" id="yes" data-dismiss="modal">Yes</button>
+		  <button type="button" class="btn btn-default" id="no" data-dismiss="modal">No</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>

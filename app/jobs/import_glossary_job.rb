@@ -1,133 +1,92 @@
 
-####require './lib/dict/glossary_import'
-require 'iconv'
-require 'roo'
-require 'roo-xls'
-
+require './lib/dict/glossary_import'
 
 class ImportGlossaryJob < ApplicationJob
-  queue_as :urgent
-  attr_accessor :key_words,:word_type,:category,:primary_xlate,:secondary_xlate
+	queue_as :urgent
 
-  def perform(id,dict_id,data_file,params)
-    printf("DO IMPORT id %s, dict_id %s,data_file %s\n",
+	def perform(id,dict_id,data_file,params)
+    		printf("DO IMPORT id %s, dict_id %s,data_file %s\n",
 			id,dict_id,data_file)
-    printf("PARAMS %s\n",params.inspect())
-    setup(params)
-    
-    ## start job now
-    start(id,"import_glossary")
-    @job.update( status: "in_progress")
-    @job.update( stage: "reading file")
-    @job.update( message: "reading file , please wait")
-    @job.update( percent: 0)
-    begin
-      workbook = Roo::Excel.new(data_file)
-      sheet= workbook.sheet(0)
-      num_rows=sheet.last_row-sheet.first_row+1
-      if num_rows <= 0
-        @job.update( percent: 100)
-        @job.update( status: 'done')
-        @job.update( message: 'no data!')
-        return
-      end
-      printf("NUM %s\n",num_rows)
-	  processed=0
-      @job.update(stage: "importing")
-      @job.update( message: sprintf("0 of %s processed [%s]",processed,"0%"))
-      count=0
-      sheet.each {|r|
-        record= get_from_excel(r,params)
-        record.dict_id = dict_id
-        record.setup_record()
-	##printf("%s\n",record.inspect())
-        if ( record.add_if_not_exists() == 1)
-          record.index_keys(params['config'])
-        end
-        count += 1
-        processed += 1
-        if count == 100
-	  count = 0
-          printf("%s from %s\n",processed,num_rows)
-          percent = (processed.to_i*100)/num_rows.to_i
-          msg = sprintf("%s of %s processed [%s]",processed,num_rows,percent.to_s+"%")
-          @job.update( percent: percent)
-          @job.update( message: msg)
-        end
-      }
-      percent = (processed.to_i*100)/num_rows.to_i
-      msg = sprintf("%s of %s processed [%s]",processed,num_rows,percent.to_s+"%")
-      @job.update(percent: 100)
-      @job.update( message: msg)
-      @job.update( status: 'done')
-      File::unlink(data_file)
-    rescue Exception => e
-        @job.update( message: e.message)
-		@job.update( status: 'error')
-    end
-  end
-
-  def is_numeric(txt)
-    return txt.to_s.match(/\A[+-]?\d+?(_?\d+)*(\.\d+e?\d*)?\Z/) == nil ? false : true
-  end
-
-  def setup(params)
-    if is_numeric(params["key_words"])
-      @key_words = params["key_words"].to_i
-    else
-      @key_words = 0
-    end
-    if is_numeric(params["word_type"])
-       @word_type=params["word_type"].to_i
-    else
-       @word_type=nil
-    end
-    if is_numeric(params["category"])
-       @category=params["category"].to_i
-    else
-       @category=nil
-    end
-    if is_numeric(params["primary_xlate"])
-       @primary_xlate=params["primary_xlate"].to_i
-    else
-       @primary_xlate=1
-    end
-    if is_numeric(params["secondary_xlate"])
-       @secondary_xlate=params["secondary_xlate"].to_i
-    else
-       @secondary_xlate=nil
-    end
-  end
-
-  def get_from_excel(r,params)
-    rec= Glossary.new
-    rec.key_words = r[@key_words].to_s
-    rec.word_type= r[@word_type].to_s if @word_type != nil
-    rec.category= r[@category].to_s if @category != nil
-    rec.primary_xlate= r[@primary_xlate].to_s 
-    rec.secondary_xlate= r[@secondary_xlate].to_s if @secondary_xlate != nil
-    return rec
-  end
-
-
+		import_params={
+			"dict_id"=>dict_id,
+                	"key_words_lang"=>params["config"]["key_words_lang"],
+                	"primary_xlate_lang"=>params["config"]["primary_xlate_lang"],
+                	"secondary_xlate_lang"=>params["config"]["secondary_xlate_lang"],
+                	"key_words"=>params["key_words"],
+                	"word_type"=>params["word_type"],
+                	"category"=>params["category"],
+                	"primary_xlate"=>params["primary_xlate"],
+                	"secondary_xlate"=>params["secondary_xlate"]
+                	} 
+		## start job now
+		start(id,"import_glossary")
+		@job.update(status: "in_progress")
+		@job.update(notes: sprintf("Import %s",dict_id))
+		## use sql
+        	db_config= YAML::load(File.open('config/database.yml'))
+		##
+		callback= MyGlossaryImportCallback.new(@job)
+		imp= GlossaryImport.new(
+                      {
+                        "host" => "localhost",
+                        "username" => db_config[Rails.env]["username"],
+                        "password" =>db_config[Rails.env]["password"],
+                        "database" =>db_config[Rails.env]["database"]
+                      },
+                      callback)
+        	imp.import(data_file,import_params)
+	end
 
 end
 
 ### Call back 
 
+
 class MyGlossaryImportCallback
-	def initialize(job,file)
+	attr_accessor :job,:total,:sofar,:stage
+	def initialize(job)
+		@job = job
+		@total = 0
+		@sofar = 0
 	end
 	def start(stage,count)
-	end
-	def write(data)
+		printf("START %s,%s\n",stage,count)
+		@total = count
+		@stage = stage
+		@job.update( stage: stage)
 	end
 	def sofar(stage,count)
+		printf("SOFAR ---%s,%s,%s\n",stage,count,@total)
+		@stage = stage
+		@sofar = count
+		if @total <=  0
+			percent = 0
+		else
+			percent = (@sofar.to_i*100)/@total.to_i
+		end
+		printf("SOFAR %s,%s,%s,%s\n",stage,@sofar,@total,percent)
+		msg = sprintf("%s of %s exported [%s]",@sofar,@total,percent.to_s+"%")
+		@job.update( percent: percent)
+		@job.update( message: msg)
+		@job.update( stage: stage)
+		printf("COUNT %s,%s,%s\n",stage,count,msg)
 	end
 	def done(stage)
+		@stage = stage
+		@job.update( percent: 100)
+		@job.update( stage: stage)
+		printf("DONE %s\n",stage)
+	end
+	def error(stage,msg)
+		@stage = stage
+		@job.update( percent: 100)
+		@job.update( message: msg)
 	end
 	def finish()
+		printf("FINISH\n")
+		@job.update( status: 'done')
 	end
 end
+
 
 

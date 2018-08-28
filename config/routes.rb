@@ -14,6 +14,8 @@ Rails.application.routes.draw do
   root 'dict_pages#home'
   get 'admin_pages/admin_home'
   get 'admin_pages/config_dict'
+  get 'admin_pages/config_dict_new'
+  get 'admin_pages/config_dicts'
   get 'admin_pages/config_user'
   get 'dav_dict_pages/import'
   get 'dav_dict_pages/show'

@@ -1,7 +1,8 @@
+require_relative "admin/config_dicts_controller"
+require_relative "admin/config_dict_controller"
+
 class AdminPagesController < ApplicationController
   def admin_home
-  end
-  def config_dict
   end
   def config_user
   end
@@ -10,3 +11,5 @@ class AdminPagesController < ApplicationController
 	puts(params.inspect())
   end
 end
+
+
