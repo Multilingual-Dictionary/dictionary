@@ -16,6 +16,8 @@ Rails.application.routes.draw do
   get 'admin_pages/config_dict'
   get 'admin_pages/config_dict_new'
   get 'admin_pages/config_dicts'
+  get 'admin_pages/glossaries'
+  get 'admin_pages/glossary_edit'
   get 'admin_pages/config_user'
   get 'dav_dict_pages/import'
   get 'dav_dict_pages/show'

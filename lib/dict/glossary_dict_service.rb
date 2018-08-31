@@ -1,9 +1,12 @@
 require_relative 'dict_service'
+require 'json'
 
 class GlossaryDictService < DictService 
   def initialize(cfg=nil)
     @cfg = cfg
+    
   end
+
   ##
   ##  LOOKUP ( to_search .. )
   ##
@@ -46,78 +49,93 @@ class GlossaryDictService < DictService
     results = GlossaryIndex.find_by_sql(query)
     indices=Hash.new
     results.each(){|r|
-	indices[r.digest]=r
+	indices[r.item_id]=r
     }
     #######
-    digests = ""
-    indices.each{|digest,r|
-        digests << "," if  digests != ""
-	digests << "'" << digest << "'"
+    item_ids = ""
+    indices.each{|item_id,r|
+        item_ids << "," if  item_ids != ""
+	item_ids << "'" << item_id << "'"
     }
     
     ### nothing found!
-    return result() if digests == ""
+    return result() if item_ids == ""
 
-    ### For the digests search for all translated-keywords related
+    ### For the item_ids search for all translated-keywords related
 
     results = GlossaryIndex.find_by_sql(sprintf(
-      "select * from glossary_indices where digest in (%s) ",digests))
+      "select * from glossary_indices where item_id in (%s) ",item_ids))
     xlated = Hash.new
     results.each(){|r|
-      if not xlated.has_key?(r.digest)
-         xlated[r.digest]=Hash.new
+      if not xlated.has_key?(r.item_id)
+         xlated[r.item_id]=Hash.new
       end
-      if not xlated[r.digest].has_key?(r.lang)
-         xlated[r.digest][r.lang]=[]
+      if not xlated[r.item_id].has_key?(r.lang)
+         xlated[r.item_id][r.lang]=[]
       end
-      xlated[r.digest][r.lang]<<r.key_words
+      xlated[r.item_id][r.lang]<<r.key_words
     }
     ### now we have all translated-keywords in xlated!
 
+    printf("XLATED %s\n",xlated.inspect())
 
-    ### For the digests search for all dictionary-entries related
+
+    ### For the item_ids search for all dictionary-entries related
     
     results = Glossary.find_by_sql(sprintf(
-		"select * from glossaries where digest in (%s) ",digests))
-
-    results.each(){|r|   ### each entry
-
-      cfg= @cfg[r.dict_id.upcase]
-      key_words = indices[r.digest].key_words
-      key_lang = indices[r.digest].lang
-      translated = Hash.new
+		"select * from glossaries where item_id in (%s) ",item_ids))
+    results.each(){|r|   ### each dictionary-entry
+      printf("RESULT %s\n",r.inspect())
       xlated_word= Hash.new
-      attr = ''
-      if key_lang==cfg["ext_cfg"]["key_words_lang"]
-        translated[cfg["ext_cfg"]["primary_xlate_lang"]]=r.primary_xlate
-        translated[cfg["ext_cfg"]["secondary_xlate_lang"]]=r.secondary_xlate
-        xlated_word[cfg["ext_cfg"]["primary_xlate_lang"]]= xlated[r.digest][cfg["ext_cfg"]["primary_xlate_lang"]]
-        xlated_word[cfg["ext_cfg"]["secondary_xlate_lang"]]= xlated[r.digest][cfg["ext_cfg"]["secondary_xlate_lang"]]
-	attr << "/" + r.word_type  if r.word_type != ""
-      else
-        translated[cfg["ext_cfg"]["key_words_lang"]]=r.key_words
-        xlated_word[cfg["ext_cfg"]["key_words_lang"]]= xlated[r.digest][cfg["ext_cfg"]["key_words_lang"]]
-         if key_lang==cfg["ext_cfg"]["primary_xlate_lang"]
-            translated[cfg["ext_cfg"]["secondary_xlate_lang"]]=r.secondary_xlate
-            xlated_word[cfg["ext_cfg"]["secondary_xlate_lang"]]= xlated[r.digest][cfg["ext_cfg"]["secondary_xlate_lang"]]
-         else
-            translated[cfg["ext_cfg"]["primary_xlate_lang"]]=r.primary_xlate
-            xlated_word[cfg["ext_cfg"]["primary_xlate_lang"]]= xlated[r.digest][cfg["ext_cfg"]["primary_xlate_lang"]]
-         end
+      txt = []
+      attr = ""
+      ##
+      ## parse json-data
+      ##
+      begin
+        entry_data=JSON.parse(r.data)
+      rescue
+        entry_data=Hash.new ## empty ! just in case!
       end
-      attr << "/" + r.category  if r.category != ""
+      printf("ENTRY %s\n",entry_data.inspect())
+      ## key-words of this entry 
+      key_words = indices[r.item_id].key_words
+      key_lang = indices[r.item_id].lang
+      printf("KEY %s,%s\n",key_words,key_lang)
+      ##
+      ## get xlated and another informations from entry_data
+      ##
+      entry_data.each{|tag,value|
+        printf("TAG %s,VALUE %s\n",tag,value)
+	pos = tag.index(":")
+        if pos == nil
+        	tag_key=tag
+        	tag_lang=""
+        else
+        	tag_key=tag[0,pos]
+        	tag_lang=tag[pos,2]
+	end
+        printf("TAG [%s][%s]\n",tag_key,tag_lang)
+        case tag_key
+        when "#TERM"
+		printf("is term\n")
+      		txt << value
+        when "#CATEGORY"
+		attr << "/" + value
+        when "#GRAMMAR"
+		attr << "/" + value
+        else
+      		txt << value
+        end
+      }
       attr << "/" if attr != ""
       key = key_words  
       key << " " << attr if attr != ""
       infos=Hash.new
       infos[:key_words]=key_words
       infos[:key_lang]=key_lang
-      infos[:xlated_word]=xlated_word
-      txt = []
-      translated.each{|l,t|
-         txt << t
-      }
-      add_entry(cfg["dict_sys_name"],key,txt,infos)
+      infos[:xlated_word]=xlated[r.item_id]
+      add_entry(r.dict_id,key,txt,infos)
     }
     return result()
     end

@@ -51,7 +51,7 @@ $(document).ready(function(){
   <input type="text" class="form-control" 
         id="lang" name="lang" 
 	placeholder='Ngôn ngữ gốc , Thí dụ EN,VI,DE ...' 
-	value="<%=params[:xlate_lang]%>" 
+	value="<%=params[:lang]%>" 
 	aria-describedby="basic-addon2">
   <span class="input-group-addon" id="basic-addon2">Ngôn ngữ gốc</span>
 </div>
@@ -101,8 +101,16 @@ $(document).ready(function(){
 Đã xóa!
 	<a class="btn btn-default btn-sm" href="<%=admin_pages_config_dicts_path%>" role="button">Trở lại</a>
 <%else%>
-<%= submit_tag "update", {"class"=>"form-control"} %>
-<%= submit_tag "xóa", {"class"=>"form-control","id"=>"delete"} %>
+
+<% if params[:id]==nil or params[:id]=="0" %>
+<%= submit_tag "Tạo", {"class"=>"form-control btn btn-secondary btn-sm"} %>
+<% else %>
+<%= submit_tag "Thay đổi", {"class"=>"form-control btn btn-default btn-sm"} %>
+<%= submit_tag "Xóa", {"class"=>"form-control btn btn-default btn-sm","id"=>"delete"} %>
+
+
+<%end%>
+
 <%end%>
 </div>
 

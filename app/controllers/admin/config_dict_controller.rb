@@ -8,15 +8,41 @@ class AdminPagesController < ApplicationController
 	end
 	def delete_dict(id)
 		##return "can not delete because.."
-		DictConfig.find(id).destroy
+		begin
+			dict=DictConfig.find(id)
+		rescue
+			return nil
+		end
+		if dict.protocol.downcase=='glossary'
+			cnt=Glossary.new.count_records(dict.dict_sys_name).to_i
+			if cnt > 0
+				return sprintf("Tự điển %s đang có %d từ mục\n",dict.dict_name,cnt)+
+						"Nếu muốn xóa thì phải xóa các từ mục trước!"
+			end
+		end
+		dict.destroy
+		return nil
+	end
+	def is_empty(v)
+		return true if v==nil or v.strip==""
+	end
+	def validate(dict_config)
+		return "Chưa điền tên hệ thống" if is_empty(dict_config.dict_sys_name)
+		return "Chưa điền tên tự điển" if is_empty(dict_config.dict_name)
+		return "Chưa điền ngôn ngữ gốc" if is_empty(dict_config.lang)
+		return "Chưa điền ngôn ngữ đích" if is_empty(dict_config.xlate_lang)
 		return nil
 	end
 	def config_dict
 		printf("CFG PARAMS %s\n",params.inspect())
 		config_dict_setup
-		if params[:id]==nil
-			params[:id]=="0"
+		if params[:id]==nil or params[:id].strip==""
+			printf("TRUE\n")
+			params[:id]="0"
+		else
+			printf("FALSE\n")
 		end
+		printf("PARAMID [%s]\n",params[:id])
 		if params[:id]!="0"
 			begin
 				@dict_config=  DictConfig.find(params[:id])
@@ -42,71 +68,39 @@ class AdminPagesController < ApplicationController
 		if params[:do_it]=="delete"
 			params[:do_it]==""
 			ret = delete_dict(params[:id])
+			printf("DELETE RET %s\n",ret.inspect())
 			if ret == nil
-				@notice="DELETED"
+				@notice=sprintf("Đã xóa tự điển %s! \n",params[:dict_name])
 				params[:dict_sys_name]="deleted"
 				params[:status]="deleted"
 			else
 				@warning= ret
 			end
 		end
-		if params[:commit]=="update"
+		if params[:commit]=="Tạo" or params[:commit]=="Thay đổi"
 			@dict_config.id=params[:id].strip
 			if @dict_config.id=="0"
-				@dict_config.id=nil
+				@dict_config.id=nil   ## create!
 			end
 			@dict_config.dict_sys_name=params[:dict_sys_name].strip
 			@dict_config.dict_name=params[:dict_name].strip
 			@dict_config.lang=params[:lang].strip
 			@dict_config.xlate_lang=params[:xlate_lang].strip
 			@dict_config.protocol=params[:protocol].strip
+			@dict_config.priority=params[:priority].strip
 			@dict_config.desc=params[:desc].strip
 			@dict_config.cfg=params[:cfg].strip
-			@dict_config.save
-			params[:id]=@dict_config.id
-		end
-		@mode = "update"
-	end
-	def config_dict_new
-		printf("NEW PARAMS %s\n",params.inspect())
-		config_dict_setup
-		@mode = "update"
-		if params[:id]==nil or params[:id]==""
-			@dict_config=  DictConfig.new
-			@mode = "create"
-			@dict_config.id=""
-			@dict_config.dict_sys_name=params[:dict_sys_name]
-			@dict_config.dict_name=params[:dict_sys_name]
-			@dict_config.lang=params[:lang]
-			@dict_config.xlate_lang=params[:xlate_lang]
-			@dict_config.url=params[:url]
-			@dict_config.protocol=params[:protocol]
-			@dict_config.desc=params[:desc]
-			@dict_config.cfg=params[:cfg]
-		else
-			begin
-			@dict_config=  DictConfig.find(params[:id])
-			rescue 
-				@dict_config=  DictConfig.new
-				@dict_config.dict_name=sprintf("Error! Record %s not exists!",params[:id])
-				@dict_config.id=""
-			end
-		end
-		if params[:commit]=="update" 
-			ok = true
-			if @mode=="create"
-				rec = @dict_config.find_by_sys_name(params[:dict_sys_name])
-      				if rec != nil 
-					@notice= "dup name"
-					ok = false
-				end
-			end
-			if ok
+			printf("AAAA %s\n",@dict_config.inspect())
+			valid = validate(@dict_config)
+			printf("BBBB %s\n",@dict_config.inspect())
+			if valid==nil
+				@dict_config.id=nil if @dict_config.id=="" or @dict_config.id=="0"
 				@dict_config.save
-				printf("SAVED %s\n",@dict_config.id)
 				params[:id]=@dict_config.id
-				redirect_to admin_pages_config_dicts_path
+			else
+				@warning= valid 
 			end
 		end
+		@mode = "update"
 	end
 end

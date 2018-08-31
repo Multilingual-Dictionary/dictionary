@@ -22,6 +22,17 @@ def add_if_not_exists()
 	return 1
 end
 
+def count_records(dict_id)
+	conn = ActiveRecord::Base.connection
+	sql = " select count(id) as cnt from glossaries where
+		dict_id=#{conn.quote(dict_id)} "
+	res = conn.select_all(sql)
+	if res.rows.empty?
+		return 0
+	end
+	return res.rows[0][0]
+end
+
 def remove_notes(txt,open,close)
    is_in = false
    res = ""

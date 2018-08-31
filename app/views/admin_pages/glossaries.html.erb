@@ -1,0 +1,65 @@
+
+<% options = [] 
+   @all_glossaries_configs.each {|inf|
+		options << [ inf.dict_name , inf.dict_sys_name ]
+   } 
+%>
+
+<%= form_with url: admin_pages_glossaries_path , 
+       method: :get, local: true do |f| %>
+
+	   
+
+<div class="container">
+
+<div class="row form-group">
+        <select class="form-control" id="dict_id" name="dict_id" onchange="this.form.submit();" >
+			<%= options_for_select(options,params[:dict_id]) %>
+        </select>          
+</div>  
+
+<div class="row" >
+  <div class="input-group">
+    <span class="input-group-addon"><i class="fa fa-search"></i></span>
+    <input id="to_search" type="text" class="form-control" name="to_search" placeholder="Nhập từ muốn kiếm">
+  </div>
+</div>
+
+   
+
+<div class="row" >
+<div class="table-responsive">
+<table class="table table-condensed table-striped">
+
+  <thead  class="thead-light">
+    <tr>
+	  <th></th>
+      <th><%=@lang_codes[@key_lang]%></th>
+	  <th><%=@lang_codes[@prim_lang]%></th>
+	  <th><%=@sec_lang%></th>
+	  <th>'Từ loại'</th>
+	  <th>'Lĩnh vực'</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @glossaries.each do |glossary| %>
+      <tr>
+	  	<td>
+			<a class="btn btn-default btn-sm" 
+				href="<%=admin_pages_glossary_edit_path + '?' + 'id=' + glossary.id.to_s %>"	
+				role="button"><i class="fa fa-edit"></i>
+			</a>
+		</td>
+        <td><%= glossary.key_words %></td>
+        <td><%= glossary.primary_xlate %></td>
+        <td><%= glossary.secondary_xlate %></td>
+        <td><%= glossary.word_type %></td>
+        <td><%= glossary.category %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+</div> <!--- row  -------------->
+</div> <!--- table-responsive -->
+</div> <!--- container -->
+<% end %>

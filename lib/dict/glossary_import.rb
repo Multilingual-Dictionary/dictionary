@@ -1,7 +1,9 @@
 require "mysql2"
 require 'iconv'
+require 'json'
 require 'roo'
 require 'roo-xls'
+require_relative 'table_file'
 
 class GlossaryImportCallback
 	def initialize()
@@ -24,18 +26,24 @@ class GlossaryImportCallback
 	end
 end
 
-class Glossary
-	attr_accessor :dict_id,:key_words, :category, :word_type,
-		:primary_xlate, :secondary_xlate,:digest
-	def initialize(dict_id)
-		@dict_id = dict_id.strip
-		@key_words = ''
-		@key_words = ''
-		@category= ''
-		@word_type= ''
-		@primary_xlate= ''
-		@secondary_xlate= ''
-		@digest= ''
+class GlossaryData
+	attr_accessor :dict_id,:item_id,:data
+	
+	def initialize(dict_id,tags,item_data)
+		md5 = Digest::MD5.new
+		md5 << dict_id.upcase
+		@dict_id = dict_id
+		@item_id = ''
+		@data = Hash.new
+		tags.each{|k,col|
+			v = item_data[col.to_i].to_s
+			v = "" if  v==nil
+			v.strip!
+			@data[k]=v 
+			md5 << v.upcase
+		}
+		@item_id = md5.hexdigest
+		
 	end
 end
 class GlossaryImport
@@ -50,60 +58,6 @@ class GlossaryImport
 	def is_numeric(txt)
 		return txt.to_s.match(/\A[+-]?\d+?(_?\d+)*(\.\d+e?\d*)?\Z/) == nil ? false : true
 	end
-	def setup(params)
-		@cfg=params
-		@dict_id=params["dict_id"].upcase.strip
-		if is_numeric(params["key_words"])
-			@key_words = params["key_words"].to_i
-		else
-			@key_words = 0
-		end
-		if is_numeric(params["word_type"])
-			@word_type=params["word_type"].to_i
-		else
-			@word_type=nil
-		end
-		if is_numeric(params["category"])
-			@category=params["category"].to_i
-		else
-			@category=nil
-		end
-		if is_numeric(params["primary_xlate"])
-			@primary_xlate=params["primary_xlate"].to_i
-		else
-			@primary_xlate=1
-		end
-		if is_numeric(params["secondary_xlate"])
-			@secondary_xlate=params["secondary_xlate"].to_i
-		else
-			@secondary_xlate=nil
-		end
-  	end
-	def get_from_excel(r)
-		rec= Glossary.new(@dict_id)
-		rec.key_words = r[@key_words].to_s.strip
-		rec.word_type= r[@word_type].to_s.strip if @word_type != nil
-		rec.category= r[@category].to_s.strip if @category != nil
-		rec.primary_xlate= r[@primary_xlate].to_s.strip 
-		rec.secondary_xlate= r[@secondary_xlate].to_s.strip if @secondary_xlate != nil
-
-		return nil if rec.key_words.length ==0
-		return nil if rec.word_type.length > 60
-		return nil if rec.category.length > 60
-		return nil if rec.primary_xlate.length ==0 and 
-		              rec.secondary_xlate.length ==0 
-
-		md5 = Digest::MD5.new
-		md5 << rec.dict_id
-		md5 << rec.key_words
-		md5 << rec.word_type
-		md5 << rec.category
-		md5 << rec.primary_xlate
-		md5 << rec.secondary_xlate
-		rec.digest = md5.hexdigest
-		return rec
-	end
-
 	def remove_notes(txt,open,close)
 		is_in = false
 		res = ""
@@ -123,7 +77,7 @@ class GlossaryImport
    		return res
 	end
 	def add_index(lang,key_words)
-		##printf("add index %s,%s,%s,%s\n",lang,key_words,@dict_id,@digest)
+		##printf("add index %s,%s,%s,%s\n",lang,key_words,@dict_id,@item_id)
         	key_words=remove_notes(key_words,"(",")")
         	key_words=remove_notes(key_words,"{","}")
         	key_words=remove_notes(key_words,"[","]")
@@ -138,105 +92,202 @@ class GlossaryImport
 			@index << sprintf("('%s','%s','%s','%s','%s',now(),now())\n",
 					@client.escape(@dict_id),
 					lang,
-					@digest,
+					@item_id,
 					@client.escape(key),
 					key.length)
 		}
 		##printf("QUERY %s\n",@index)
 	end
-
 	def index_keys(r)
-		@digest=r.digest
-		add_index(@cfg["key_words_lang"],r.key_words) if @cfg["key_words_lang"]!=""
-		add_index(@cfg["primary_xlate_lang"],r.primary_xlate) if @cfg["primary_xlate_lang"]!=""
-		add_index(@cfg["secondary_xlate_lang"],r.secondary_xlate) if @cfg["secondary_xlate_lang"]!=""
+		@item_id=r.item_id
+		r.data.each{|k,v|
+			next if k.index("#TERM:")==nil
+			add_index(k[6,2],v) if v !=""
+		}
 	end
+	###
+ 	###	Import array of records
+	###
 	def import_records(recs)
+
 		##printf("IMPORT %s \n",recs.length)
 		d = "''"
 		recs.each{|dg,r|
 			d << ",'"+dg+"'"
 		}
-		query="select digest from glossaries where digest in ("+d+")"
+		##
+		## check if already exists ? ( using item_id , for now is md5 hash of the data )
+		##
+		query="select item_id from glossaries where item_id in ("+d+")"
 		res = @client.query(query)
 		res.each{|r|
 			##printf("r %s\n",r.inspect())
-			v = recs.delete(r["digest"])
+			v = recs.delete(r["item_id"])  ## we dont need to import this!
 		}
 		return if recs.length==0
-		##printf("IMPORT %s NOW\n",recs.length)
-		query = "insert into glossaries(dict_id,key_words,word_type,category,primary_xlate,secondary_xlate"+
-			",digest,created_at,updated_at)values\n"
+		##
+		## import -> glossaries-table
+		##
+		query = "insert into glossaries(dict_id,item_id,data,created_at,updated_at)values\n"
 		i = 0
 		recs.each{|dg,r|
 			if i > 0
 				query << ",\n"
 			end
 			i = i + 1
-			query << sprintf("('%s','%s','%s','%s','%s','%s','%s',now(),now())\n",
+			query << sprintf("('%s','%s','%s',now(),now())\n",
 					@client.escape(r.dict_id),
-					@client.escape(r.key_words),
-					@client.escape(r.word_type),
-					@client.escape(r.category),
-					@client.escape(r.primary_xlate),
-					@client.escape(r.secondary_xlate),
-					@client.escape(r.digest))
+					@client.escape(r.item_id),
+					@client.escape(JSON.generate(r.data)))
 		}
-		##printf("QUERY %s\n",query)
 		res = @client.query(query)
+
+		##
+		## index now
+		##
 		@index=""
 		recs.each{|dg,r|
 			index_keys(r)
 		}
 		if @index.length > 0
 			res = @client.query(
-			  	"insert into glossary_indices(dict_id,lang,digest,key_words,key_len,created_at,updated_at)values\n"+@index)
+			  	"insert into glossary_indices(dict_id,lang,item_id,key_words,key_len,created_at,updated_at)values\n"+@index)
 		end
 	end
-	def import(file,params)
-		printf("para %s\n",params.inspect())
+	def read_file(file)
 		@callback.start("read-file",0)
-		begin
-			workbook = Roo::Excel.new(file)
-		rescue Exception => e
-			@callback.error("read-file",sprintf("could not read %s",file))
+		@workbook = TableFile.new(file)
+		if @workbook.error!=nil
+			@callback.error("read-file",sprintf("could not read %s,error %s",file,@workbook.error))
 			@callback.done("read-file")
 			@callback.finish()
-			return
-	   	end
+			return @workbook.error
+		end
 		@callback.done("read-file")
-		sheet= workbook.sheet(0)
-		num_rows=sheet.last_row-sheet.first_row+1
+		@callback.finish()
+		return nil
+	end
+	##
+	def get_tag(v)
+		return "" if v==nil
+		value=v.strip.upcase.gsub(/ /,"")
+		if v[0]=='#'
+			return v
+		end
+		return ""
+	end
+	def get_value(v)
+		return "" if v==nil
+		return v.strip
+	end
+	### detect if is our format?
+	def detect_our_format()
+		i = -1
+		coldefs=nil
+		@workbook.table.each {|r|
+			i += 1
+			first=get_tag(r[0])
+			if first=="#COLDEFS"
+				coldefs=first
+				break
+			end
+		}
+		return nil if coldefs==nil
+		defs = @workbook.table[i+1]
+		j = -1  
+		format = Hash.new
+		defs.each{|d|
+			j += 1
+			v = get_tag(d)
+			next if v == ""
+			format[v]=j
+		}
+		return nil if format.size == 0
+		datas=[]
+		i_row = i+1
+		count = 0
+		while i_row < @workbook.table.size
+			r =@workbook.table[i_row]
+			i_row += 1
+			break if r == nil
+			next if get_tag(r[0]) != ""
+			count += 1
+			d = Hash.new
+			format.each{|k,col|
+				d[k]=get_value(r[col.to_i])
+			}
+			datas << d
+			break if count >= 4
+		end
+		format["DATA_START"]=i+2
+		format["SOME_DATAS"]=datas
+		return format
+	end
+	def detect_format()
+		fmt = detect_our_format()
+		return fmt if fmt != nil
+		return nil
+	end
+	def import(file,params,fmt=nil)
+		res = read_file(file)
+		return res if res !=nil
+		num_rows=@workbook.num_rows
 		if num_rows <= 0
 			@callback.error("read-file",sprintf("empty file ! %s",file))
 			@callback.done("read-file")
 			@callback.finish()
 			return
 		end
+		@format=detect_format()
+		## if format in file , use it
+		if @format==nil
+			## not in file
+			if fmt==nil
+				## and not specified!
+				@callback.error("read-file",sprintf("format not supported ! %s",file))
+				@callback.done("read-file")
+				@callback.finish()
+				return
+			end
+			## yes , it is specified
+			@format=fmt
+			printf("USE SPEC FMT %s\n",@format.inspect())
+		else	
+			printf("USE FILE FMT %s\n",@format.inspect())
+		end
+
+		## prepare , get tags from format
+
+		@dict_id=params["dict_id"].upcase.strip
+		tags = Hash.new
+		@format.each{|k,col|
+			next if k[0] != "#"
+			tags[k]=col.to_i
+		}
+		## import now
 		@callback.start("importing",num_rows)
 		begin 
 			count = 0
-			setup(params)
 			recs = Hash.new
 			n = 0
 			count = 0
-			sheet.each {|r|
+			i_row = @format["DATA_START"].to_i
+			while i_row < @workbook.table.size
+				r =@workbook.table[i_row]
+				i_row += 1
 				n += 1
 				count += 1
 				if (n == 100)
 					n= 0
 					@callback.sofar("importing",count)
 				end
-				rec = get_from_excel(r)
-				if rec==nil
-					next
-				end
-				recs[rec.digest]=rec
+				data = GlossaryData.new(@dict_id,tags,r)
+				recs[data.item_id]=data
 				if recs.length>=100
 					import_records(recs)
 					recs.clear()
 				end
-			}
+			end
 			if recs.length>0
 				import_records(recs)
 				@callback.sofar("importing",count)
