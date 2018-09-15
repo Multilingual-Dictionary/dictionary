@@ -1,9 +1,14 @@
-<style>
- #select_dicts {
-    margin-left:+2px;
-	background-color:#99ccff;
- }
-</style>
+<script>
+
+function lang_change(){
+	console.log("changed");
+	document.getElementById("lang_changed").value="1";
+	document.getElementById("lookup").submit();
+}
+
+</script>
+
+<%=hidden_field_tag "lang_changed" , "0" %>
 <!-- LANGUAGE OPTIONS -------------------------------------------- -->
 <% src_lang_opt = []
    tgt_lang_opt = []
@@ -17,102 +22,87 @@
 	  ref_lang_opt << [v,k]
    }
 %>
+<!-- FORM -------------------------------------------- -->
 
-<div class=container-fluid>
-  <label class="left_side" >Ngôn ngữ gốc</label>
-  <%= select_tag(
+<!-------- SRC_LANG ------------------------------------->
+<div class="input-group input-group-sm">
+    <%= select_tag(
 	"src_lang", options_for_select(src_lang_opt,params[:src_lang]), 
 	{ "selected" => params[:src_lang],
-	  "class" =>"right_side" ,
-	  "onchange" => "this.form.submit();"} ) %>
-</div>
-
-<div class=container-fluid>
-  <label class="left_side" > Ngôn ngữ đích</label>
+	  "class" =>"form-control" ,
+	  "onchange" => "lang_change();"} ) %>
+  <span class="input-group-addon" id="basic-addon2"><i class="fa fa-arrow-right"></i></span>
     <%= select_tag(
 	"tgt_lang", options_for_select(tgt_lang_opt,params[:tgt_lang]), 
 	{ "selected" => params[:tgt_lang],
-	  "class" =>"right_side" ,
-	  "onchange" => "this.form.submit();"} ) %>
+	  "class" =>"form-control" ,
+	  "onchange" => "lang_change();"} ) %>
 </div>
-<div class=container-fluid>
-  <label class="left_side">Tham khảo</label>
+<!-------- REF_LANG ------------------------------------->
+<div class="input-group input-group-sm">
+  <span class="input-group-addon" id="basic-addon2">Ngôn ngữ tham khảo</span>
     <%= select_tag(
 	"ref_lang", options_for_select(ref_lang_opt,params[:ref_lang]), 
 	{ "selected" => params[:ref_lang],
-	  "class" =>"right_side" ,
-	  "onchange" => "this.form.submit();"} ) %>
-</div>
-<!-- SEARCH -------------------------------------------- -->
-<div class=container-fluid>
-  <label>Cách tìm</label>
-  <%= select_tag(
-	"search_mode", options_for_select(@search_opts,params[:search_mode]), 
-	{ "selected" => params[:search_mode] ,
-	  "class" =>"right_side" } ) %> 
-</div>
-<div class=container-fluid>
-  <label>Tra từ</label>
-  <%= text_field_tag 'to_search' , params[:to_search] , {"class"=>"right_side"} %>
+	  "class" =>"form-control" ,
+	  "onchange" => "lang_change();"} ) %>
 </div>
 
-<div class=container-fluid>
-	<%= submit_tag( "Tìm kiếm", {"class"=>"right_side"}) %>
-</div>
-<div class=container-fluid>
-<% if @key_words_list.length>1 %>
-     <label>Các từ khóa:</label>
-     <%= select_tag(
-	     "search_key", options_for_select(@key_words_list,params[:search_key]),
-		{ "selected" => params[:search_key] } ) %> 
-	 <%= submit_tag "Tìm từ khóa" %>
-<% end %>
-</div>
-
-<!-- DICTIONARIES OPTIONS -------------------------------------------- -->
+<!-------- DICTIONARIES-SELECT  ------------------------------------->
+<!--- SELECT - DICTS -------------------------------------------->
 <% all_dicts="" %>
-<div class="container">
-	<div class="row">
-		<div class="col-lg-12">
-			<div class="button-group">
-				<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-book"></span> <span class="caret"></span></button>
-			<ul class="dropdown-menu">
-				<li>
-					<div class="form-check">
-						<input class="form-check-input" type="checkbox" value="ON" 
-							name="all"
-							id="all"
-							<% if @selected_dicts.length>0 %>
-								CHECKED
-							<% end %>
-							onchange="check_all('all')"
-						>
-						<label class="form-check-label">
-							Tất cả
-						</label>
-					</div>
-				</li>
+<div class="input-group input-group-sm">
+<p class="form-control"></p>
+  <span class="input-group-addon" id="basic-addon2">
+	<div class="button-group">
+		<button type="button" class="fa fa-book dropdown-toggle" data-toggle="dropdown" >
+		</button>		
+<div class="dropdown-menu">
+<div class="panel panel-default">
+<div class="panel-heading">Chọn tự điển [nếu cần thiết]</div>		
+<div class="panel-body">
+
+<!---DROP LIST ------------------------------------------------------------------------->
+				<div class="checkbox">
+					<label><input type="checkbox" name='all' id='all' value="ON"
+								<% if @selected_dicts.length>0 %>
+									CHECKED
+								<% end %>
+								onchange="check_all('all')"
+					>Tất cả
+					</label>
+				</div>
 <% @dict_list.each(){|n,inf| %>
 <% all_dicts << n << ";" %>
-				<li>
-					<div class="form-check">
-						<input class="form-check-input" type="checkbox" value="ON" 
-							name="<%="CHK"+inf["dict_sys_name"]%>"
-							id="<%=inf["dict_sys_name"]%>"
-							<% if @selected_dicts.has_key?(inf["dict_sys_name"]) %>
+				<div class="checkbox">
+					<label><input type="checkbox" value="ON"
+						name="<%="CHK"+inf["dict_sys_name"]%>"
+						id="<%=inf["dict_sys_name"]%>"
+						<% if @selected_dicts.has_key?(inf["dict_sys_name"]) %>
 							CHECKED
 							<% end %>
-						>
-						<label class="form-check-label" for="<%=inf["dict_sys_name"]%>">
-							<%=inf["dict_name"]%>
-						</label>
-					</div>
-				</li>
+					><%=inf["dict_name"]%>
+					</label>
+				</div>
+
 <% } %>
+</div> <!--- panel body --->
+</div> <!----panel ---->
+</div> <!--- dropdown-menu --->
+</div> <!----button-group --->
+</div> <!----input-group --->
 <%=hidden_field_tag 'all_dicts',all_dicts %>
-			</ul>
-			</div>
-		</div>
-	</div>
+<!---END DROP LIST ------------------------------------------------------------------------->
+<!---END SELECT - DICTS -------------------------------------------->
+<!-------- SEARCH  ------------------------------------->
+<div class="input-group input-group-sm">
+  <input type="text" class="form-control" 
+        id="to_search" name="to_search"
+	placeholder='Nhập từ cần tra ...' 
+	value="<%=params[:to_search]%>" 
+	aria-describedby="basic-addon2">
+  <span class="input-group-addon" id="basic-addon2">
+		<button class="fa fa-search" name="submit_a" type="submit_a" value="submit-true">
+		</button></span>
 </div>
 <!-- -------------------------------------------- -->

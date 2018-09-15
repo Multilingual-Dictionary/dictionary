@@ -1,2 +1,40 @@
-EDIT
-<%= params.inspect() %>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <% if params[:id]==nil or params[:id]=="0" or params[:id]==""
+	      tittle = "Tạo từ mục mới"
+	   else
+		  tittle = "Thay đổi từ mục " + params[:id].to_s
+	   end
+	%>
+	<p class="dict_label"><%=tittle%></p>
+  </div>
+
+<!--- SHOW NOTICE ---> 
+<% if @notice!=nil %>
+<div class="alert alert-success">
+   <% @notice.split("\n").each{|l| %>
+		<p><%=l%>
+   <%}%>
+</div>
+<%end%>
+
+<!--- SHOW WARNING --->
+
+<% if @warning!=nil %>
+<div class="alert alert-danger">
+   <% @warning.split("\n").each{|l| %>
+		<p><%=l%>
+   <%}%>
+</div>
+<%end%>
+
+<!---- EDIT IT --------->
+  <div class="panel-body">
+    <%= form_with url: admin_pages_glossary_edit_path , method: :get, local: true ,id: "cfg" do |f| %>
+		<%=hidden_field_tag 'id',params[:id] %>
+		<%=hidden_field_tag 'dict_id',params[:dict_id] %>
+		<%= render "edit_glossary_form" %>
+	<% end %>
+  </div>
+  

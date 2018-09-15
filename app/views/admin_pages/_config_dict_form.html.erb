@@ -49,8 +49,8 @@ $(document).ready(function(){
 
 <div class="input-group">
   <input type="text" class="form-control" 
-        id="lang" name="lang" 
-	placeholder='Ngôn ngữ gốc , Thí dụ EN,VI,DE ...' 
+        id="lang" name="lang"  readonly
+	placeholder='' 
 	value="<%=params[:lang]%>" 
 	aria-describedby="basic-addon2">
   <span class="input-group-addon" id="basic-addon2">Ngôn ngữ gốc</span>
@@ -58,8 +58,8 @@ $(document).ready(function(){
 
 <div class="input-group">
   <input type="text" class="form-control" 
-        id="xlate_lang" name="xlate_lang" 
-	placeholder='Ngôn ngữ đích , Thí dụ EN,VI,DE ...' 
+        id="xlate_lang" name="xlate_lang" readonly 
+	placeholder='' 
 	value="<%=params[:xlate_lang]%>"
 	aria-describedby="basic-addon2">
   <span class="input-group-addon" id="basic-addon2">Ngôn ngữ đích</span>

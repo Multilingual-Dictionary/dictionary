@@ -4,9 +4,8 @@ require './lib/dict/glossary_export'
 class ExportGlossaryJob < ApplicationJob
 	queue_as :urgent
 
-	def perform(id,src_lang,tgt_lang,glossaries)
+	def perform(id,export_params,notes)
 	
-		printf("SRC [%s] TGT[%s] GLOS[%s]\n",src_lang,tgt_lang,glossaries)
 		
 		## start job now
 		start(id,"export_glossary")
@@ -15,17 +14,27 @@ class ExportGlossaryJob < ApplicationJob
 		
 		## use sql
         db_config= YAML::load(File.open('config/database.yml'))
+		
 		## file where we store exported data
 		data_file=DataFile.new
 		data_file.filename = data_file.generate_filename("glossary","csv")
 		data_file.job_id=id
-		tmp=glossaries
-		if tmp.length > 200
-			tmp= tmp[0,200] + ".."
+		case export_params[:mode]
+		when "export"
+			tmp = export_params[:dict_id]
+		else
+			tmp=export_params[:dict_list]
+			if tmp.length > 100
+				tmp= tmp[0,100] + "__"
+			end
+			tmp = tmp + "." + export_params[:src_lang] + "." + export_params[:tgt_lang]
 		end
-		data_file.name="exp."+src_lang+"["+tmp+"]"
+		
+		data_file.name="exp."+tmp
 		data_file.data_type="exported.glossary"
+		data_file.notes=notes
 		data_file.save
+		
 		##  now call export class , this will call us back!
 	
 		@file = File.new(data_file.filename,"w")
@@ -39,7 +48,16 @@ class ExportGlossaryJob < ApplicationJob
                         "database" =>db_config[Rails.env]["database"]
                       },
                       callback)
-        exp.export_data(src_lang,tgt_lang,glossaries)
+					  
+		case export_params[:mode]
+		when "export"
+			exp.export_glossary(export_params[:dict_id])
+		else
+			exp.export_terms(
+					export_params[:src_lang],
+					export_params[:tgt_lang],
+					export_params[:dict_list])
+		end				
 		@file.close
 	
 	end
@@ -65,7 +83,7 @@ class MyGlossaryExportCallback
 		@file.write(data)
 	end
 	def sofar(stage,count)
-	printf("SOFAR ---%s,%s,%s\n",stage,count,@total)
+		printf("SOFAR ---%s,%s,%s\n",stage,count,@total)
 		@stage = stage
 		@sofar = count
 		if @total <=  0
@@ -88,6 +106,12 @@ class MyGlossaryExportCallback
 		printf("FINISH\n")
 		@job.update( status: 'done')
 	end
+	def error(stage,msg)
+		printf("error %s,%s\n",stage,msg)
+        @job.update(status: 'error')
+		@job.update(message: msg)
+    end
+
 end
 
 

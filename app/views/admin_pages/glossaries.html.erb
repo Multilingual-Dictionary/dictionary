@@ -12,20 +12,46 @@
 
 <div class="container">
 
-<div class="row form-group">
-        <select class="form-control" id="dict_id" name="dict_id" onchange="this.form.submit();" >
+
+<div class="row input-group">
+
+    <select class="form-control" id="dict_id" name="dict_id" onchange="this.form.submit();" >
 			<%= options_for_select(options,params[:dict_id]) %>
-        </select>          
-</div>  
+    </select>
+    <span class="input-group-addon">-</span>
+	<div class="dropdown">
+		<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			<i class="fa  fa-reorder"></i>
+		</button>
+		<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+			<a class="dropdown-item" 
+			   href="<%=admin_pages_glossary_edit_path+'?dict_id='+params[:dict_id] %>" 
+			   >Thêm từ mục</a>
+			<a class="dropdown-item" 
+			   href="<%=admin_pages_glossary_import_path+'?dict_id='+params[:dict_id] %>" 
+			   >Nhập liệu từ file</a>
+			<a class="dropdown-item" 
+			   href="<%=admin_pages_glossary_export_path+'?dict_id='+params[:dict_id] %>" 
+			   >Kết xuất tự điển ra file</a>
+		</div>
+	</div>
+
+</div>
 
 <div class="row" >
   <div class="input-group">
-    <span class="input-group-addon"><i class="fa fa-search"></i></span>
-    <input id="to_search" type="text" class="form-control" name="to_search" placeholder="Nhập từ muốn kiếm">
+    <span class="input-group-addon btn btn-default btn-sm " role="button"> 
+	    <button class="fa fa-search"></button>
+	</span>
+    <input id="to_search" type="text" class="form-control" name="to_search"
+	value= "<%=params[:to_search] %>" 
+	placeholder="Nhập từ muốn kiếm">
   </div>
 </div>
 
-   
+<%= render "notices" %>
+ 
+<%if @fields != nil %>
 
 <div class="row" >
 <div class="table-responsive">
@@ -34,32 +60,37 @@
   <thead  class="thead-light">
     <tr>
 	  <th></th>
-      <th><%=@lang_codes[@key_lang]%></th>
-	  <th><%=@lang_codes[@prim_lang]%></th>
-	  <th><%=@sec_lang%></th>
-	  <th>'Từ loại'</th>
-	  <th>'Lĩnh vực'</th>
+	  <% @fields.each{|field,value| %>
+	    <th><%=value%></th>
+	  <% }%>
     </tr>
   </thead>
   <tbody>
-    <% @glossaries.each do |glossary| %>
+    <% @glossaries.each do |id,glossary| %>
       <tr>
 	  	<td>
 			<a class="btn btn-default btn-sm" 
-				href="<%=admin_pages_glossary_edit_path + '?' + 'id=' + glossary.id.to_s %>"	
+				href="<%=admin_pages_glossary_edit_path + '?' + 'id=' + id.to_s %>"	
 				role="button"><i class="fa fa-edit"></i>
 			</a>
 		</td>
-        <td><%= glossary.key_words %></td>
-        <td><%= glossary.primary_xlate %></td>
-        <td><%= glossary.secondary_xlate %></td>
-        <td><%= glossary.word_type %></td>
-        <td><%= glossary.category %></td>
+	<% @fields.each{|field,pos|
+		data = glossary[field]
+		data = "NA" if data==nil
+	%>
+	    <td><%=data%></td>
+	<% }%>
       </tr>
     <% end %>
   </tbody>
 </table>
-</div> <!--- row  -------------->
+
 </div> <!--- table-responsive -->
+</div> <!--- row  -------------->
 </div> <!--- container -->
+
+<% else %>
+  <p>Tư điển chưa được cấu hình hay cấu hình sai! </p> 
+<% end %>
+
 <% end %>

@@ -19,6 +19,7 @@
 	<% end %>
 		  </p>
     <% entry[:text].each{|t|  %>
+    <% t = t.gsub(";","; ").gsub(",",", ") %>  
         <p class="dict_text"><%=t%></p>
     <% }
       }	%>

@@ -1,0 +1,65 @@
+<div class="custom-file">
+	<input type="file" id="imp_file"  name="imp_file">
+</div>
+
+<% @lang_config.each{|f,v| %>
+	<%= hidden_field_tag(f,v) %>
+<% } %>
+<%= hidden_field_tag("DATA_START",params["DATA_START"]) if params["DATA_START"]!=nil  %>
+<% data_ready= true if @fields != nil and @sample_datas != nil %>
+
+<div class="input-group input-group-sm">
+	<select class="form-control" id="dict_id" name="dict_id"  onchange="this.form.submit();">
+		<%= options_for_select(@glossaries_options,params[:dict_id]) %>
+	</select>
+	<span class="input-group-addon" id="basic-addon2">Chọn tự điển</span>
+</div>
+
+<div class="input-group">
+	<%= submit_tag "Đọc file", {"class"=>"form-control btn btn-default btn-sm"} %>
+    <%= if data_ready 
+	       submit_tag "Nhập file", {"class"=>"form-control btn btn-default btn-sm"}
+		end
+	%>
+	<%= if data_ready
+		   submit_tag "Bỏ qua", {"class"=>"form-control btn btn-default btn-sm"} 
+		end
+	%>
+</div>
+
+<% if @fields != nil and @sample_datas != nil %>
+
+<div class="row" >
+<div class="table-responsive">
+<table class="table table-condensed table-striped">
+
+  <thead  class="thead-light">
+    <tr>
+	  <% @fields.each{|field,value| %>
+	    <th><%=value%></th>
+	  <% }%>
+    </tr>
+  </thead>
+  <tbody>
+
+		<% @sample_datas.each do |glossary_data|	%>
+		   <tr>
+		<% 	  @fields.each{|field,value| 			%>
+		<%		data = glossary_data[field]			%>
+		<%		data = "NA" if data==nil 			%>
+				<td><%=data%></td>
+		<% 	  }										%>
+			</tr>
+		<% end 										%>
+
+  </tbody>
+</table>
+
+</div> <!--- table-responsive -->
+</div> <!--- row  -------------->
+
+
+<%end%>
+
+
+

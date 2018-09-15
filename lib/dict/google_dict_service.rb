@@ -5,8 +5,8 @@ class GoogleDictService < DictService
   def initialize(cfg=nil)
     @cfg = cfg
     printf("GOOGLE %s\n",@cfg.inspect())
-    ##@engine = Google::Cloud::Translate.new(key: "AIzaSyDVBM9yohnLlhQ8TvwOmEo7FUudFQQxFgM")
-    @engine = Google::Cloud::Translate.new(key: @cfg["ext_cfg"]["api_key"])
+    @engine = Google::Cloud::Translate.new(key: "AIzaSyDVBM9yohnLlhQ8TvwOmEo7FUudFQQxFgM")
+    ##@engine = Google::Cloud::Translate.new(key: @cfg["ext_cfg"]["api_key"])
   end
   ##
   ##  LOOKUP ( to_search .. )
@@ -28,12 +28,15 @@ class GoogleDictService < DictService
     end
     txt=[]
     tgt_lang.split(",").each{|to_lang|
+       printf("%s FROM %s TO %s\n",to_search,from_lang,to_lang)
        to_lang.strip
        next if to_lang==""
        next if to_lang == from_lang
        begin
           trans = @engine.translate(to_search,from: from_lang  ,to: to_lang)
+	  printf("OK %s\n",trans.inspect())
        rescue 
+	  printf("RESCUE\n")
           trans = nil
        end
        next if trans == nil

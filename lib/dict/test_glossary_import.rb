@@ -8,8 +8,14 @@ imp=GlossaryImport.new(
 		 "database" => "dictionary_development"
 		},
 		cb)
-imp.import(ARGV[1],
-		{
-		"dict_id"=>ARGV[0], 
-		} )
+imp=GlossaryImport.new()
+fmt=imp.pre_read(ARGV[0],
+       		{
+                	"#TERM:DE"=>0,
+                	"#CATEGORY:EN"=>1,
+                	"#TERM:EN"=>2,
+                	"#TERM:FR"=>3,
+                	"DATA_START"=>0
+        	})
 
+printf("fmt %s\n",fmt.inspect())

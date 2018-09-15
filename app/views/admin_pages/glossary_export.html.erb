@@ -1,0 +1,26 @@
+<%= render "notices" %>
+<%= form_with url: admin_pages_glossary_export_path, 
+				method: :get, id: "this_form" , local: true, multipart: true do |f| %>
+
+  <%= hidden_field_tag('dict_id', params[:dict_id] ) %>
+  <%= hidden_field_tag("job_id",params[:job_id]) %>
+  <%= hidden_field_tag("job_status",params[:job_status]) %>
+  <%= hidden_field_tag("job_result",params[:job_result]) %>
+
+  
+	<div class="row">
+		<div class="col-sm-6">
+			<%=render 'panel' , :head=> ["Xuất dữ liệu tự điển"] %>
+			<%=render 'glossary_export_form' %>
+			<%=render 'job_progress'		 %>
+			<%=render 'panel_end' %>
+		</div>
+		<div class="col-sm-6">
+			<%=render 'panel' , :head=> ["Các dữ liệu đã/đang xuất"] %>
+			<%=render 'glossary_exported' %>
+			<%=render 'panel_end' %>
+		</div>
+	</div> <!-- row --->
+
+
+<%end%> <!--- form --->

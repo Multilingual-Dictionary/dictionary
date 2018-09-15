@@ -1,0 +1,60 @@
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+function update_progress_bar( progress){
+	console.log("UPDATE");
+	var progress_bar = document.getElementById("progress_bar");
+	var progress_msg = document.getElementById("progress_msg");
+	var percent=progress.percent;
+	if (percent<1){
+		percent=1;
+	}
+	console.log(progress_bar.getAttribute("aria-valuenow"));
+	progress_bar.setAttribute("aria-valuenow",percent);
+	console.log(progress_bar.getAttribute("aria-valuenow"));
+	progress_bar.setAttribute("style","width:"+percent+"%");
+	progress_msg.innerHTML= progress.stage + " " + progress.message;
+	progress_bar.innerHTML = progress.percent+"%";
+	document.getElementById("job_status").value=progress.status;
+	if(progress.status=="done" || progress.status=="error" ){
+		if (progress.status=="done") {
+			progress_msg.innerHTML="Hoàn tất";
+			progress_bar.innerHTML = "100%";
+			progress_bar.setAttribute("style","width:100%");
+			document.getElementById("job_result").value="done";
+		} else {
+			progress_msg.innerHTML="Lỗi!"
+			document.getElementById("job_result").value="error";
+		}
+		document.getElementById("this_form").submit();
+    }
+}
+function get_progress(){
+	var job_id,job_status;
+	job_id = document.getElementById("job_id").value;
+	job_status = document.getElementById("job_status").value;
+	if(job_id!="0" & job_status!="done" & job_status!="error" ){
+		$.ajax({
+			url: "/progress?id="+job_id,
+			dataType: "json",
+			success: function(result){
+				console.log(result);
+				update_progress_bar(result);
+				console.log(result.id);
+		}});
+	}
+}
+$(document).ready(function(){
+	setInterval(get_progress, 1000);
+});
+</script>
+
+
+		<div id="progress_msg">JOB</div>
+		<div class="progress">
+			<div id="progress_bar" class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+			<span class="sr-only"></span>
+			</div>
+		</div>
+

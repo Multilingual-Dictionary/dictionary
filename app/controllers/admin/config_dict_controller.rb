@@ -6,6 +6,66 @@ class AdminPagesController < ApplicationController
 		@protocol_options=["glossary","rfc2229","wiktionary","google"]
 		@lang_options=@dictionaries.lang_codes
 	end
+	def build_lang(dict_config)
+		dict_config.lang=""
+		dict_config.xlate_lang=""
+		cfg=json_parse(dict_config.cfg)
+		if cfg == nil
+			printf("NIL\n")
+			return true
+		end
+		printf("CFG %s\n",cfg.inspect())
+		if cfg["config"]==nil or cfg["config"]["languages"]==nil
+			printf("NOT EXIST\n")
+			return true
+		end
+		src_lang=Hash.new
+		tgt_lang=Hash.new
+		cfg["config"]["languages"].each{|tag,v|
+			src_term=true
+			tgt_term=true
+			case v.upcase
+			when "T"
+				src_term=false
+			when "S"
+				tgt_term=false
+			end
+			if tag[0,6]=="#TERM:"
+				lang=tag[6,2].upcase
+				src_lang[lang]=1 if src_term
+				tgt_lang[lang]=1 if tgt_term
+				next
+			end
+			if tag[0,9]=="#EXPLAIN:"
+				lang=tag[9,2].upcase
+				tgt_lang[lang]=1
+				next
+			end
+		}
+		s = ""
+		src_lang.each{|l,v|
+			s << "," if s != ""
+			s << l
+		}
+		t = ""
+		tgt_lang.each{|l,v|
+			t << "," if t != ""
+			t << l
+		}
+		dict_config.lang=s
+		dict_config.xlate_lang=t
+	end
+	def set_params()
+		params[:dict_sys_name]=@dict_config.dict_sys_name
+		params[:dict_name]=@dict_config.dict_name
+		params[:lang]=@dict_config.lang
+		params[:xlate_lang]=@dict_config.xlate_lang
+		params[:protocol]=@dict_config.protocol
+		params[:desc]=@dict_config.desc
+		params[:cfg]=@dict_config.cfg
+		params[:priority]=@dict_config.priority
+		params[:url]=@dict_config.url
+	end
 	def delete_dict(id)
 		##return "can not delete because.."
 		begin
@@ -29,8 +89,6 @@ class AdminPagesController < ApplicationController
 	def validate(dict_config)
 		return "Chưa điền tên hệ thống" if is_empty(dict_config.dict_sys_name)
 		return "Chưa điền tên tự điển" if is_empty(dict_config.dict_name)
-		return "Chưa điền ngôn ngữ gốc" if is_empty(dict_config.lang)
-		return "Chưa điền ngôn ngữ đích" if is_empty(dict_config.xlate_lang)
 		return nil
 	end
 	def config_dict
@@ -46,7 +104,11 @@ class AdminPagesController < ApplicationController
 		if params[:id]!="0"
 			begin
 				@dict_config=  DictConfig.find(params[:id])
+				printf("DICT %s\n",@dict_config.inspect())
+				build_lang(@dict_config)
+				printf("DICT AFTER %s\n",@dict_config.inspect())
 			rescue
+				printf("RESCUE !\n")
 				@dict_config=  DictConfig.new
 				@dict_config.id="0"
 			end
@@ -55,15 +117,7 @@ class AdminPagesController < ApplicationController
 			@dict_config.id="0"
 		end
 		if params[:dict_sys_name]==nil
-			params[:dict_sys_name]=@dict_config.dict_sys_name
-			params[:dict_name]=@dict_config.dict_name
-			params[:lang]=@dict_config.lang
-			params[:xlate_lang]=@dict_config.xlate_lang
-			params[:protocol]=@dict_config.protocol
-			params[:desc]=@dict_config.desc
-			params[:cfg]=@dict_config.cfg
-			params[:priority]=@dict_config.priority
-			params[:url]=@dict_config.url
+			set_params()
 		end
 		if params[:do_it]=="delete"
 			params[:do_it]==""
@@ -79,22 +133,19 @@ class AdminPagesController < ApplicationController
 		end
 		if params[:commit]=="Tạo" or params[:commit]=="Thay đổi"
 			@dict_config.id=params[:id].strip
-			if @dict_config.id=="0"
-				@dict_config.id=nil   ## create!
+			if params[:commit]=="Tạo"
+				@dict_config.id = nil
 			end
 			@dict_config.dict_sys_name=params[:dict_sys_name].strip
 			@dict_config.dict_name=params[:dict_name].strip
-			@dict_config.lang=params[:lang].strip
-			@dict_config.xlate_lang=params[:xlate_lang].strip
 			@dict_config.protocol=params[:protocol].strip
 			@dict_config.priority=params[:priority].strip
 			@dict_config.desc=params[:desc].strip
 			@dict_config.cfg=params[:cfg].strip
-			printf("AAAA %s\n",@dict_config.inspect())
+			build_lang(@dict_config)
+			set_params()
 			valid = validate(@dict_config)
-			printf("BBBB %s\n",@dict_config.inspect())
 			if valid==nil
-				@dict_config.id=nil if @dict_config.id=="" or @dict_config.id=="0"
 				@dict_config.save
 				params[:id]=@dict_config.id
 			else

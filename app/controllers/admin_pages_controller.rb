@@ -1,6 +1,8 @@
 require_relative "admin/config_dicts_controller"
 require_relative "admin/config_dict_controller"
 require_relative "admin/glossaries_controller"
+require_relative "admin/glossaries_import"
+require_relative "admin/glossaries_export"
 
 class AdminPagesController < ApplicationController
   def admin_home

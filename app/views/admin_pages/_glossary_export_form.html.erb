@@ -1,0 +1,82 @@
+<% src_lang_opt = []
+   tgt_lang_opt = []
+   ref_lang_opt = []
+   @dictionaries.src_lang_supported.each{|k,v|
+      src_lang_opt << [v,k]
+   }
+   @dictionaries.tgt_lang_supported.each{|k,v|
+      tgt_lang_opt << [v,k]
+   }
+%>
+
+
+
+<div class="row" >
+	<div class="input-group input-group-sm">
+		<select class="form-control" id="mode" name="mode" onchange="this.form.submit();" >
+			<%= options_for_select(@mode_options,params[:mode]) %>
+		</select>
+		<span class="input-group-addon" id="basic-addon2">Chọn cách xuất dữ liệu</span>
+	</div>
+	
+	<% if params[:mode] == "export" %>
+		<div class="input-group input-group-sm">
+			<select class="form-control" id="dict_id" name="dict_id">
+				<%= options_for_select(@glossaries_options,params[:dict_id]) %>
+			</select>
+		<span class="input-group-addon" id="basic-addon2">Chọn tự điển</span>
+		</div>
+	<% else %>
+	
+	<div class="input-group input-group-sm">
+		<select class="form-control" id="src_lang" 
+				name="src_lang" onchange="this.form.submit();">
+			<%= options_for_select(src_lang_opt,params[:src_lang]) %>
+		</select>
+		<span class="input-group-addon" id="basic-addon2">Ngôn ngữ gốc</span>
+	</div>
+	<div class="input-group input-group-sm">
+		<select class="form-control" id="tgt_lang" 
+				name="tgt_lang" 		onchange="this.form.submit();">
+			<%= options_for_select(tgt_lang_opt,params[:tgt_lang]) %>
+		</select>
+		<span class="input-group-addon" id="basic-addon2">Ngôn ngữ đích</span>
+	</div>
+
+<div class="input-group input-group-sm">
+<% @dict_list.each(){|n,inf| %>
+	<div class="checkbox">
+			<label><input type="checkbox" value="ON"
+			name="<%="CHK"+inf["dict_sys_name"]%>"
+			id="<%=inf["dict_sys_name"]%>"
+			<% if @selected_dicts.has_key?(inf["dict_sys_name"]) %>
+				CHECKED
+			<% end %>
+		><%=inf["dict_name"]%>
+		</label>
+	</div>
+
+<% } %>
+<span class="input-group-addon" id="basic-addon2">Chọn tự điển</span>
+</div>
+<% end %>
+	
+<div class="input-group input-group-sm">
+  <input type="text" class="form-control" 
+        id="notes" name="notes"
+	placeholder='Ghi chú (nếu cần thiết)' 
+	value="<%=params[:notes]%>"  
+	aria-describedby="basic-addon2">
+  <span class="input-group-addon" id="basic-addon2">
+		<button class="fa fa-pencil" name="submit_a" type="submit_a" value="submit-true">
+		</button></span>
+</div>
+	
+	
+<div class="input-group input-group-sm">
+	<%= submit_tag "Xuất dữ liệu", {"class"=>"form-control btn btn-default btn-sm"} %>
+</div>
+
+	
+</div> <!---- row  --->
+

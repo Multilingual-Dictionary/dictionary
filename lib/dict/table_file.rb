@@ -58,12 +58,12 @@ end
 
 
 
-##wb = TableFile.new(ARGV[0])
-##if wb.error!=nil
-##	exit(0)
-##end
-##printf("%s\n",wb.workbook.inspect())
-##printf("num rows %s\n",wb.num_rows)
-##printf("table %s\n",wb.table.inspect())
+#wb = TableFile.new(ARGV[0])
+#if wb.error!=nil
+#	exit(0)
+#end
+#printf("%s\n",wb.workbook.inspect())
+#printf("num rows %s\n",wb.num_rows)
+#printf("table %s\n",wb.table.inspect())
 
 

@@ -1,0 +1,97 @@
+<!--- config-dict-form ----------------------------------------->
+
+<!--- script---------------------------------------------------->
+<script>
+$(document).ready(function(){
+    $("#delete").click(function(){
+        console.log("delete");
+		$("#want_delete").modal();
+		return false;
+    });
+	$("#submitButton").click(function(){
+        $("#want_delete").modal();
+		return false;
+    });
+	$("#yes").click(function(){
+        console.log("YES");
+		document.getElementById("do_it").value="delete";
+		document.getElementById("cfg").submit();
+		return false;
+    });
+	$("#no").click(function(){
+        console.log("NO");
+		return true;
+    });
+	console.log("READY!");
+});
+</script>
+
+
+<!--- HTML---------------------------------------------------->
+<%= hidden_field_tag 'do_it' %>
+
+<!--- FORM---------------------------------------------------->
+<div class='container'>
+
+<% @fields.each{|f,v| %>
+<div class="input-group">
+  <textarea rows="2" cols="60" class="form-control" 
+    id="<%=f%>" name="<%=f%>"
+	placeholder='' 
+	aria-describedby="basic-addon2"><%=@data[f]%></textarea>
+  <span class="input-group-addon" id="basic-addon2"><%=v%></span>
+</div> <!---input-group --->
+<% } %>
+
+<! ACTIONS ----------------------------------------------->
+<div class="input-group">
+
+<% if @fields.size==0 %>
+
+   <% if params[:id] != nil and params[:id] != "" and params[:id] != "0" %>
+	<p> Đã xóa!</p>
+   <% end %>
+	<a class="btn btn-default btn-sm"
+		href="<%=admin_pages_glossaries_path+'?dict_id='+params[:dict_id]%>" 
+		role="button">Trở lại</a> 
+<%else%>
+  <% if params[:id]==nil or params[:id]=="0" %>
+     <%= submit_tag "Tạo", {"class"=>"form-control btn btn-default btn-sm"} %>
+  <% else %>
+     <%= submit_tag "Thay đổi", {"class"=>"form-control btn btn-default btn-sm"} %>
+     <%= submit_tag "Xóa", {"class"=>"form-control btn btn-default btn-sm",
+	        "id"=>"delete"} %>
+  <%end%>
+<%end%>
+</div>
+<! END-ACTIONS ----------------------------------------------->
+</div> <!--- container --->
+<!--- END-FORM---------------------------------------------------->
+
+
+<!----- POPUPS --------------------------------------------------------------->
+<div class="container">
+  <!-- Modal -->
+  <div class="modal fade" id="want_delete" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Xóa tự điển <%=params[:dict_name]%></h4>
+        </div>
+        <div class="modal-body">
+          <p>Bạn thật sự muốn xóa tự điển này?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		  <button type="button" class="btn btn-default" id="yes" data-dismiss="modal">Yes</button>
+		  <button type="button" class="btn btn-default" id="no" data-dismiss="modal">No</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+

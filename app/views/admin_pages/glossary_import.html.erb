@@ -1,0 +1,25 @@
+<%= render "notices" %>
+<%= form_with url: admin_pages_glossary_import_path, 
+				method: :put, local: true, id: "this_form",  multipart: true do |f| %>
+
+  <%= hidden_field_tag('dict_id', params[:dict_id] ) %>
+  <%= hidden_field_tag('tmp_file_name', params[:tmp_file_name] ) %>
+  <%= hidden_field_tag("job_id",params[:job_id]) %>
+  <%= hidden_field_tag("job_status",params[:job_status]) %>
+  <%= hidden_field_tag("format",params[:format])		 %>
+  <%= hidden_field_tag("job_result",params[:job_result]) %>
+	<div class="row">
+		<div class="col-sm-8">
+			<%=render 'panel' , :head=> ["Nhập Data cho tự điển",@dict_config.dict_name] %>
+			<%=render 'glossary_import_form' %>
+			<%=render 'job_progress'		 %>
+			<%=render 'panel_end' %>
+		</div>
+		<div class="col-sm-4">
+			<%=render 'panel' , :head=> ["Đã nhập hôm nay"] %>
+			<%=render 'import_history'		 %>
+			<%=render 'panel_end' %>
+		</div>
+	</div> <!-- row --->
+
+<%end%> <!--- form --->

@@ -21,8 +21,11 @@ class GlossaryImportCallback
 	def error(stage,msg)
 		printf("CALLBACK ERROR %s,%s \n",stage,msg)
 	end
+	def warn(stage,msg)
+		printf("CALLBACK WARN %s,%s \n",stage,msg)
+	end
 	def finish()
-		printf("CALLBACK FINISH\n")
+		printf("CALLBACK FINISH \n")
 	end
 end
 
@@ -43,17 +46,22 @@ class GlossaryData
 			md5 << v.upcase
 		}
 		@item_id = md5.hexdigest
-		
 	end
 end
 class GlossaryImport
-	def initialize(cfg,callback)
-		@client = Mysql2::Client.new(
+	def initialize(cfg=nil,callback=nil)
+		if cfg!=nil 
+			@client = Mysql2::Client.new(
 			    :host => cfg["host"],
 			    :username => cfg["username"], 
 			    :password => cfg["password"] , 
 			    :database => cfg["database"])
-		@callback=callback
+		end
+		if callback != nil
+			@callback=callback
+		else
+			@callback=GlossaryImportCallback.new
+		end
 	end
 	def is_numeric(txt)
 		return txt.to_s.match(/\A[+-]?\d+?(_?\d+)*(\.\d+e?\d*)?\Z/) == nil ? false : true
@@ -86,10 +94,14 @@ class GlossaryImport
 			####printf("KEY %s\n",key)
 			key.strip!
 			next if key==""
-			next if key.length>250
+			if key.length>250
+				@callback.warn("index-file",sprintf(
+						"key very long! ignored!%s\n",key))
+				next
+			end
 			@index << ",\n" if @index.length>0
 			##printf("ADD KEY (%s)(%s)\n",lang,key)
-			@index << sprintf("('%s','%s','%s','%s','%s',now(),now())\n",
+			@index << sprintf("('%s','%s','%s','%s','%d',now(),now())\n",
 					@client.escape(@dict_id),
 					lang,
 					@item_id,
@@ -101,7 +113,7 @@ class GlossaryImport
 	def index_keys(r)
 		@item_id=r.item_id
 		r.data.each{|k,v|
-			next if k.index("#TERM:")==nil
+			next if k.index("TERM:")==nil
 			add_index(k[6,2],v) if v !=""
 		}
 	end
@@ -164,21 +176,20 @@ class GlossaryImport
 			return @workbook.error
 		end
 		@callback.done("read-file")
-		@callback.finish()
 		return nil
 	end
 	##
 	def get_tag(v)
 		return "" if v==nil
-		value=v.strip.upcase.gsub(/ /,"")
-		if v[0]=='#'
+		value=v.to_s.strip.upcase.gsub(/ /,"").to_s
+		if value[0]=='#'
 			return v
 		end
 		return ""
 	end
 	def get_value(v)
 		return "" if v==nil
-		return v.strip
+		return v.to_s.strip
 	end
 	### detect if is our format?
 	def detect_our_format()
@@ -227,6 +238,52 @@ class GlossaryImport
 		fmt = detect_our_format()
 		return fmt if fmt != nil
 		return nil
+	end
+	def pre_read(file,fmt=nil)
+		res = read_file(file)
+		return nil if res !=nil
+		format=detect_format()
+		if format != nil
+			format["FMT_IN_FILE"]=1
+			return format 
+		end
+		return nil if fmt==nil
+		## 
+		format = Hash.new
+		fmt.each{|k,col|
+			next if k[0] != "#"
+			c = col.to_s.strip
+			next if c==""
+			format[k]=c.to_i
+		}
+		if fmt["DATA_START"] != nil
+			i_row= fmt["DATA_START"].to_i
+		else
+			i_row=0
+		end
+		datas=[]
+		count = 0
+		
+		while i_row < @workbook.table.size
+			r =@workbook.table[i_row]
+			i_row += 1
+			break if r == nil
+			next if get_tag(r[0]) != ""
+			count += 1
+			d = Hash.new
+			format.each{|k,col|
+				d[k]=get_value(r[col.to_i])
+			}
+			datas << d
+			break if count >= 4
+		end
+		if fmt["DATA_START"] == nil
+			format["DATA_START"] = 0
+		else
+			format["DATA_START"] = fmt["DATA_START"]
+		end
+		format["SOME_DATAS"]=datas
+		return format
 	end
 	def import(file,params,fmt=nil)
 		res = read_file(file)

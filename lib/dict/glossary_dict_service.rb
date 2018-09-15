@@ -113,7 +113,7 @@ class GlossaryDictService < DictService
         	tag_lang=""
         else
         	tag_key=tag[0,pos]
-        	tag_lang=tag[pos,2]
+        	tag_lang=tag[pos+1,2]
 	end
         printf("TAG [%s][%s]\n",tag_key,tag_lang)
         case tag_key

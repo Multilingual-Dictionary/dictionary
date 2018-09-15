@@ -10,11 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180816062135) do
+ActiveRecord::Schema.define(version: 20180915231136) do
 
   create_table "data_files", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "name"
-    t.string "type"
+    t.string "data_type"
     t.string "notes"
     t.string "filename"
     t.string "job_id"
@@ -89,28 +89,29 @@ ActiveRecord::Schema.define(version: 20180816062135) do
 
   create_table "glossaries", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "dict_id", limit: 32, collation: "utf8mb4_unicode_ci"
-    t.string "key_words", collation: "utf8mb4_unicode_ci"
-    t.string "word_type", limit: 80, collation: "utf8mb4_unicode_ci"
-    t.string "category", limit: 80, collation: "utf8mb4_unicode_ci"
-    t.text "primary_xlate", collation: "utf8mb4_unicode_ci"
-    t.text "secondary_xlate", collation: "utf8mb4_unicode_ci"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "digest", limit: 32, collation: "utf8mb4_unicode_ci"
-    t.index ["dict_id"], name: "dict_id"
-    t.index ["dict_id"], name: "dict_id_index"
-    t.index ["digest"], name: "digest"
-    t.index ["key_words"], name: "key_words"
-    t.index ["key_words"], name: "key_words_index"
+    t.string "item_id", limit: 32
+    t.text "data"
+    t.index ["dict_id"], name: "dict_id_idx"
+    t.index ["item_id"], name: "item_id_idx"
   end
 
   create_table "glossary_indices", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "dict_id", limit: 32
     t.string "lang", limit: 8
     t.string "key_words"
-    t.string "digest", limit: 32
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "key_len", limit: 2
+    t.string "item_id", limit: 32
+    t.index ["dict_id", "lang", "key_words"], name: "dict_key_lang"
+    t.index ["dict_id"], name: "dict_id_idx"
+    t.index ["item_id"], name: "item_id_idx"
+    t.index ["key_len"], name: "key_len_idx"
+    t.index ["key_words", "key_len"], name: "key_li"
+    t.index ["key_words"], name: "key_words_idx"
+    t.index ["lang"], name: "lang_idx"
   end
 
   create_table "progress_bars", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci" do |t|
@@ -119,6 +120,14 @@ ActiveRecord::Schema.define(version: 20180816062135) do
     t.integer "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "name"
+    t.string "email"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "password_digest"
   end
 
 end

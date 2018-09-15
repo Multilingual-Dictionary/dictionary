@@ -26,25 +26,27 @@ def dict_lookup
 	@key_words_list = []
 	@result = []
 	
-	params[:cur_mode]='setup' if params[:cur_mode] == nil
+
 	params[:src_lang]='DE' if params[:src_lang] == nil
 	params[:tgt_lang]='VI' if params[:tgt_lang] == nil
 	params[:ref_lang]='ALL' if params[:ref_lang] == nil
 	params[:to_search]='' if params[:to_search] == nil
 	params[:search_mode]='search_exact' if params[:search_mode] == nil
-	if params[:show_select_dicts] != nil
-	   @show_select_dicts = true
-	else
-	   @show_select_dicts = false
+
+	
+	@cur_mode="lookup"
+	if params[:lang_changed] == nil or  params[:lang_changed] == "1"
+	    @cur_mode=""
 	end
 	
-	@cur_mode=""
-	case params[:commit]
-	when "Tìm kiếm"
-	   @cur_mode='lookup'
-	when "Tìm từ khóa"
-	   @cur_mode='lookup' 
-	end
+	#case params[:commit]
+	#when "Tìm kiếm"
+	#   @cur_mode='lookup'
+	#when "Tìm từ khóa"
+	#   @cur_mode='lookup' 
+	#end
+	
+	printf("CURMODE %s\n",@cur_mode)
 	
 	@dict_list=Hash.new
 	@dictionaries.dict_infos.each{|n,inf|
@@ -63,17 +65,20 @@ def dict_lookup
 		  @selected_dicts[n]=1
 	    end
 	}
-	return if @cur_mode!='lookup'
+	printf("..%s,%s\n",@cur_mode,params[:to_search])
+	return if @cur_mode!='lookup' or params[:to_search] ==""
 	use_dicts=""
 	@selected_dicts.each{|name,v|
 	   use_dicts << "," if use_dicts != ""
 	   use_dicts << name
 	}
+	printf("LOOKUP-- %s,%s\n",params[:to_search],use_dicts)
 	return if use_dicts==""
 	if params[:commit]=="Tìm từ khóa" and params[:search_key] != "" 
 	  params[:search_mode] = "search_exact" 
 	  params[:to_search] = params[:search_key] 
 	end
+	printf("LOOKUP %s,%s\n",params[:to_search],use_dicts)
 	@dictionaries.set_search_mode(params[:search_mode])
 	@dictionaries.set_search_key(params[:to_search])
 	@result = @dictionaries.lookup_dictionaries(

@@ -18,7 +18,8 @@
 			<div class="drop" style="float: right">
 				<div class="col-sm-2">
 					<div class="button-group">
-						<button type="button" " class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-book"></span> <span class="caret"></span></button>
+						<button type="button" " class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+							<span class="fa fa-book"></span></button>
 					<ul class="dropdown-menu">
 <%			r["dict"].each{|d| %>
 						<li><a href="<%='#dict'+@dictionaries.dict_num(d).to_s%>"><%=@dictionaries.dict_name(d)%></a></li>

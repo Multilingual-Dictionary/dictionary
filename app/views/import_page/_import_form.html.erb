@@ -1,25 +1,9 @@
-<table>
-<tr>
-  <td></td>
-  <td>Nhập: cột thứ mấy?| hay khoảng trắng nếu không có| hay giá trị của trường nếu tất cả giống nhau</td> 
-</tr><tr>
-  <td><%= f.label :q, "Từ khóa:" %></td>
-  <td><%= f.text_field :key_words, id: :key_words , value:@key_words %></td> 
-</tr><tr>
-  <td><%= f.label :q, "Ngôn ngữ 1:" %></td>
-  <td><%= f.text_field :primary_xlate, id: :primary_xlate , value:@primary_xlate %> </td>
-</tr><tr>
-  <td><%= f.label :q, "Ngôn ngữ 2:" %></td>
-  <td><%= f.text_field :secondary_xlate, id: :secondary_xlate , value:@secondary_xlate %></td> 
-</tr><tr>
-  <td><%= f.label :q, "Từ loại:" %></td>
-  <td><%= f.text_field :word_type, id: :word_type , value:@word_type %></td>
-</tr><tr>
-  <td><%= f.label :q, "Lĩnh vực:" %></td>
-  <td><%= f.text_field :category, id: :category , value:@category %></td>
-</tr><tr>
-  <td><%= f.label :q, "Import-File:" %></td>
-  <td><%= f.file_field :import_file %>
-      <%= f.submit "read" %></td>
-</tr>
-</table>
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
+  </div>
+  <div class="custom-file">
+    <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+    <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+  </div>
+</div>
