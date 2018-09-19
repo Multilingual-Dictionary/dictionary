@@ -1,0 +1,32 @@
+<div class="row">
+  <div class="col-md-6 col-md-offset-3">
+  <div class="panel panel-default">
+  <div class="panel-heading">
+	 <p>Đăng nhập</p>
+  </div>
+  <div class="panel-body">
+  
+    <%= form_for(:session, url: login_path) do |f| %>
+
+	  
+	<div class="input-group input-group-sm">
+		<%= f.email_field :email , {"class"=>"form-control" } %>
+		<span class="input-group-addon" id="basic-addon2">Tài khoản Email</span>
+	</div>
+	
+	<div class="input-group input-group-sm">
+		<%= f.password_field :password , {"class"=>"form-control" } %>
+		<span class="input-group-addon" id="basic-addon2">Mật khẩu</span>
+	</div>
+	  
+	<div class="input-group input-group-sm">
+      <%= f.submit "Đăng nhập", class: "btn btn-default form-control" %>
+	</div>
+	  
+    <% end %>
+
+   </div> <!--- panel body --->
+   </div> <!--- panel --->
+  </div>
+</div>
+

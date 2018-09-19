@@ -92,6 +92,7 @@ class AdminPagesController < ApplicationController
 		return nil
 	end
 	def config_dict
+		require_role("ADMIN.DICTIONARY")
 		printf("CFG PARAMS %s\n",params.inspect())
 		config_dict_setup
 		if params[:id]==nil or params[:id].strip==""

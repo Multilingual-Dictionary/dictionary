@@ -16,6 +16,9 @@ class DictPagesController < ApplicationController
   def admin
   end
 
+  def error
+	warn(params[:error])
+  end
   
 def dict_lookup
 

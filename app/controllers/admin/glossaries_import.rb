@@ -2,6 +2,7 @@ require './lib/dict/glossary_import'
 
 class AdminPagesController < ApplicationController
   def glossary_import
+	require_role("ADMIN.DICTIONARY")
 	@dict_id=params[:dict_id]
 	get_all_glossaries_configs()
 	if params[:dict_id]==nil

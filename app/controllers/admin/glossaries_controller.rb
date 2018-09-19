@@ -5,10 +5,6 @@ class AdminPagesController < ApplicationController
 ################################################################################
 
   #####################################################################
-  def warn(txt)
-	@warning='' if @warn==nil
-	@warning << txt
-  end
   def build_head(data)
     	fields = Hash.new
 	return fields if data==nil
@@ -117,7 +113,7 @@ class AdminPagesController < ApplicationController
 ##### GLOSSARIES
 ################################################################################
   def glossaries
-	printf("GLOSSARIE\n")
+	require_role("ADMIN.DICTIONARY")
 	@glossaries = Hash.new
 	err = init_glossaries()
 	@fields=build_head(@lang_cfg)

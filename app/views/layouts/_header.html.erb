@@ -9,7 +9,20 @@
 		<li><a class="nav-link" href=<%=dict_lookup_path%>>Tra từ</a></li>
 		<li><a class="nav-link" href=<%=help_path%>>Trợ giúp</a></li>		
 		<li><a class="nav-link" href=<%=about_path%>>Giới thiệu</a></li>
-		
+	
+		<li class="nav-item dropdown">
+			<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 	data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				Tài khoản
+			</a>
+			<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+				<a class="dropdown-item" href=<%=login_path%>>Đăng nhập</a>
+				<a class="dropdown-item" href=<%=logout_path%>>Đăng xuất</a>
+				<a class="dropdown-item" href=<%=signup_path%>>Đăng ký</a>
+				<div class="dropdown-divider"></div>
+				<a class="dropdown-item" href="#"><%=current_user_name%></a>
+				
+			</div>
+		</li>		
 		<li class="nav-item dropdown">
 			<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 	data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 				Quản lý

@@ -20,25 +20,6 @@
 	<p class="dict_label"><%=tittle%></p>
   </div>
 
-<!--- SHOW NOTICE ---> 
-<% if @notice!=nil %>
-<div class="alert alert-success">
-   <% @notice.split("\n").each{|l| %>
-		<p><%=l%>
-   <%}%>
-</div>
-<%end%>
-
-<!--- SHOW WARNING --->
-
-<% if @warning!=nil %>
-<div class="alert alert-danger">
-   <% @warning.split("\n").each{|l| %>
-		<p><%=l%>
-   <%}%>
-</div>
-<%end%>
-
   <div class="panel-body">
     <%= form_with url: admin_pages_config_dict_path , method: :get, local: true ,id: "cfg" do |f| %>
 		<%=hidden_field_tag 'id',params[:id] %>

@@ -1,5 +1,6 @@
 class AdminPagesController < ApplicationController
 def config_dicts
+	require_role("ADMIN.DICTIONARY")
 	printf("CFG-DICTS %s\n",params.inspect())
 	if params[:dict_name] != nil and  params[:dict_name] != ""
 		printf("---\n")

@@ -1,0 +1,18 @@
+<!--- SHOW NOTICE ---> 
+<% if @notice!=nil %>
+<div class="alert alert-success">
+   <% @notice.split("\n").each{|l| %>
+		<p><%=l%>
+   <%}%>
+</div>
+<%end%>
+
+<!--- SHOW WARNING --->
+
+<% if @warning!=nil %>
+<div class="alert alert-danger">
+   <% @warning.split("\n").each{|l| %>
+		<p><%=l%>
+   <%}%>
+</div>
+<%end%>

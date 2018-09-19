@@ -2,6 +2,7 @@ require "json"
 
 class AdminPagesController < ApplicationController
   def glossary_export
+	require_role("ADMIN.DICTIONARY")
 	printf("PARAMS START %s\n",params.inspect())
   	params[:src_lang]='DE' if params[:src_lang] == nil
 	params[:tgt_lang]='VI' if params[:tgt_lang] == nil
