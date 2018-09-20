@@ -29,7 +29,7 @@ class UsersController < ApplicationController
     ok = true
     u = User.find_by(email: @user.email)
     if u != nil
-    	warn(sprintf("Email %s da co tai khoan",@user.email))
+    	warn(sprintf("Email %s đã có tài khoản! ",@user.email))
 	ok = false
     end
 
