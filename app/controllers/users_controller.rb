@@ -26,13 +26,21 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
 
+    ok = true
+    u = User.find_by(email: @user.email)
+    if u != nil
+    	warn(sprintf("Email %s da co tai khoan",@user.email))
+	ok = false
+    end
+
     respond_to do |format|
-      if @user.save
+      if ok and @user.save
         format.html { redirect_to @user, notice: 'User was successfully created.' }
         format.json { render :show, status: :created, location: @user }
       else
         format.html { render :new }
         format.json { render json: @user.errors, status: :unprocessable_entity }
+	printf("%s\n",@user.errors.inspect())
       end
     end
   end
