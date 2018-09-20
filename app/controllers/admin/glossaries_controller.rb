@@ -113,7 +113,7 @@ class AdminPagesController < ApplicationController
 ##### GLOSSARIES
 ################################################################################
   def glossaries
-	require_role("ADMIN.DICTIONARY")
+	require_role("ADMIN")
 	@glossaries = Hash.new
 	err = init_glossaries()
 	@fields=build_head(@lang_cfg)
