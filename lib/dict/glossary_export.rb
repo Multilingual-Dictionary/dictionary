@@ -160,6 +160,7 @@ class GlossaryExport
 		keys = []
 		count=key_words.size
 		@callback.start("write-key",count)
+		@callback.write(sprintf("%s\t%s\n",src_lang,tgt_lang))
 		key_words.each{|k|
 			cnt += 1
 			total += 1
