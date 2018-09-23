@@ -93,6 +93,7 @@ def dict_lookup
 	##printf("RESULT %s\n",@result.inspect())
 	@summary=build_summary(@result)
 	@key_words_list =  @dictionaries.get_key_words(@result)
+	printf("LIST %s\n",@key_words_list.inspect())
   end
 
   def build_summary_for_language(trans,lang,summary)

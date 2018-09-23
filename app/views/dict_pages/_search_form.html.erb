@@ -5,48 +5,16 @@ function lang_change(){
 	document.getElementById("lang_changed").value="1";
 	document.getElementById("lookup").submit();
 }
+function clickme(s){
+	console.log(s)
+	document.getElementById("to_search").value=s
+	document.getElementById("search_mode").value="search_exact"
+	document.getElementById("lookup").submit();
+}
 
 </script>
 
 <%=hidden_field_tag "lang_changed" , "0" %>
-<!-- LANGUAGE OPTIONS -------------------------------------------- -->
-<% src_lang_opt = []
-   tgt_lang_opt = []
-   ref_lang_opt = []
-   @dictionaries.src_lang_supported.each{|k,v|
-      src_lang_opt << [v,k]
-   }
-   ref_lang_opt << ["Mặc định","ALL"]
-   @dictionaries.tgt_lang_supported.each{|k,v|
-      tgt_lang_opt << [v,k]
-	  ref_lang_opt << [v,k]
-   }
-%>
-<!-- FORM -------------------------------------------- -->
-
-<!-------- SRC_LANG ------------------------------------->
-<div class="input-group input-group-sm">
-    <%= select_tag(
-	"src_lang", options_for_select(src_lang_opt,params[:src_lang]), 
-	{ "selected" => params[:src_lang],
-	  "class" =>"form-control" ,
-	  "onchange" => "lang_change();"} ) %>
-  <span class="input-group-addon" id="basic-addon2"><i class="fa fa-arrow-right"></i></span>
-    <%= select_tag(
-	"tgt_lang", options_for_select(tgt_lang_opt,params[:tgt_lang]), 
-	{ "selected" => params[:tgt_lang],
-	  "class" =>"form-control" ,
-	  "onchange" => "lang_change();"} ) %>
-</div>
-<!-------- REF_LANG ------------------------------------->
-<div class="input-group input-group-sm">
-  <span class="input-group-addon" id="basic-addon2">Ngôn ngữ tham khảo</span>
-    <%= select_tag(
-	"ref_lang", options_for_select(ref_lang_opt,params[:ref_lang]), 
-	{ "selected" => params[:ref_lang],
-	  "class" =>"form-control" ,
-	  "onchange" => "lang_change();"} ) %>
-</div>
 
 <!-------- DICTIONARIES-SELECT  ------------------------------------->
 <!--- SELECT - DICTS -------------------------------------------->
@@ -94,6 +62,63 @@ function lang_change(){
 <%=hidden_field_tag 'all_dicts',all_dicts %>
 <!---END DROP LIST ------------------------------------------------------------------------->
 <!---END SELECT - DICTS -------------------------------------------->
+
+
+
+
+
+
+<!-- LANGUAGE OPTIONS -------------------------------------------- -->
+<% src_lang_opt = []
+   tgt_lang_opt = []
+   ref_lang_opt = []
+   @dictionaries.src_lang_supported.each{|k,v|
+      src_lang_opt << [v,k]
+   }
+   ref_lang_opt << ["Mặc định","ALL"]
+   @dictionaries.tgt_lang_supported.each{|k,v|
+      tgt_lang_opt << [v,k]
+	  ref_lang_opt << [v,k]
+   }
+%>
+<!-- FORM -------------------------------------------- -->
+
+<!-------- SRC_LANG ------------------------------------->
+<div class="input-group input-group-sm">
+    <%= select_tag(
+	"src_lang", options_for_select(src_lang_opt,params[:src_lang]), 
+	{ "selected" => params[:src_lang],
+	  "class" =>"form-control" ,
+	  "onchange" => "lang_change();"} ) %>
+  <span class="input-group-addon" id="basic-addon2"><i class="fa fa-arrow-right"></i></span>
+    <%= select_tag(
+	"tgt_lang", options_for_select(tgt_lang_opt,params[:tgt_lang]), 
+	{ "selected" => params[:tgt_lang],
+	  "class" =>"form-control" ,
+	  "onchange" => "lang_change();"} ) %>
+</div>
+<!-------- REF_LANG ------------------------------------->
+<div class="input-group input-group-sm">
+  <span class="input-group-addon" id="basic-addon2">Ngôn ngữ tham khảo</span>
+    <%= select_tag(
+	"ref_lang", options_for_select(ref_lang_opt,params[:ref_lang]), 
+	{ "selected" => params[:ref_lang],
+	  "class" =>"form-control" ,
+	  "onchange" => "lang_change();"} ) %>
+</div>
+
+<!-------- REF_LANG ------------------------------------->
+<div class="input-group input-group-sm">
+  <span class="input-group-addon" id="basic-addon2">Cách tìm</span>
+    <%= select_tag(
+	"search_mode", options_for_select(@search_opts,params[:search_mode]), 
+	{ "selected" => params[:search_mode],
+	  "class" =>"form-control" ,
+	  "onchange" => "lang_change();"} ) %>
+</div>
+
+
+
 <!-------- SEARCH  ------------------------------------->
 <div class="input-group input-group-sm">
   <input type="text" class="form-control" 
@@ -103,6 +128,16 @@ function lang_change(){
 	aria-describedby="basic-addon2">
   <span class="input-group-addon" id="basic-addon2">
 		<button class="fa fa-search" name="submit_a" type="submit_a" value="submit-true">
-		</button></span>
+        </button>
+  </span>
 </div>
 <!-- -------------------------------------------- -->
+
+<%if @key_words_list.size>1 %>
+
+<div class="list-group">
+  <% @key_words_list.each{|k| %>
+  <button type="button" class="list-group-item list-group-item-action" onclick = "clickme('<%=k%>');"><%=k%></button>
+  <% } %>
+</div>
+<%end%>
