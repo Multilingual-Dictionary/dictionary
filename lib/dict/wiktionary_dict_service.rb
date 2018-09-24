@@ -21,19 +21,21 @@ class WiktionaryDictService < DictService
       		infos[:xlated_word]=wik_res
       		txt = []
 		cnt=0
-		wik_res.each{|l,words|
+		wik_res.each{|lang,words|
                    l = ""
                    words.each{|w|
 			l << ", " if l != ""
 			l << w 
                    }
-		   txt << l
+		   l.strip!
+		   next if l==""
+		   txt << "["+lang.upcase+"] "+ l
 		   cnt += 1
                 }
 		add_entry(@cfg["dict_sys_name"],to_search,txt,infos) if cnt > 0
 		ret= result()
-printf("WIKI %s\n",wik_res.inspect())
-printf("WIKIRET %s\n",ret.inspect())
+##printf("WIKI %s\n",wik_res.inspect())
+##printf("WIKIRET %s\n",ret.inspect())
  
 		return ret
 	end

@@ -77,7 +77,7 @@ class GlossaryDictService < DictService
     }
     ### now we have all translated-keywords in xlated!
 
-    printf("XLATED %s\n",xlated.inspect())
+    ##printf("XLATED %s\n",xlated.inspect())
 
 
     ### For the item_ids search for all dictionary-entries related
@@ -85,7 +85,7 @@ class GlossaryDictService < DictService
     results = Glossary.find_by_sql(sprintf(
 		"select * from glossaries where item_id in (%s) ",item_ids))
     results.each(){|r|   ### each dictionary-entry
-      printf("RESULT %s\n",r.inspect())
+      ##printf("RESULT %s\n",r.inspect())
       xlated_word= Hash.new
       txt = []
       attr = ""
@@ -97,16 +97,16 @@ class GlossaryDictService < DictService
       rescue
         entry_data=Hash.new ## empty ! just in case!
       end
-      printf("ENTRY %s\n",entry_data.inspect())
+      ##printf("ENTRY %s\n",entry_data.inspect())
       ## key-words of this entry 
       key_words = indices[r.item_id].key_words
       key_lang = indices[r.item_id].lang
-      printf("KEY %s,%s\n",key_words,key_lang)
+      ##printf("KEY %s,%s\n",key_words,key_lang)
       ##
       ## get xlated and another informations from entry_data
       ##
       entry_data.each{|tag,value|
-        printf("TAG %s,VALUE %s\n",tag,value)
+        ##printf("TAG %s,VALUE %s\n",tag,value)
 	pos = tag.index(":")
         if pos == nil
         	tag_key=tag
@@ -115,17 +115,17 @@ class GlossaryDictService < DictService
         	tag_key=tag[0,pos]
         	tag_lang=tag[pos+1,2]
 	end
-        printf("TAG [%s][%s]\n",tag_key,tag_lang)
+        ##printf("TAG [%s][%s]\n",tag_key,tag_lang)
         case tag_key
         when "#TERM"
-		printf("is term\n")
-      		txt << value
+		##printf("is term\n")
+      		txt << "["+tag_lang+"] "+ value
         when "#CATEGORY"
 		attr << "/" + value
         when "#GRAMMAR"
 		attr << "/" + value
         else
-      		txt << value
+      		txt << "["+tag_lang+"] "+ value
         end
       }
       attr << "/" if attr != ""

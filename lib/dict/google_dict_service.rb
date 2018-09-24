@@ -40,9 +40,15 @@ class GoogleDictService < DictService
           trans = nil
        end
        next if trans == nil
-       next if to_lang != detect_language(trans.text)
+       begin
+       	trans_lang = detect_language(trans.text)
+       rescue
+    	return []
+       end
+
+       next if to_lang != trans_lang
        next if trans.origin.upcase==trans.text.upcase
-       txt << trans.text
+       txt << "["+to_lang.upcase+"] "+ trans.text
        xlated_word[to_lang]=[trans.text]
        infos[:key_lang]=trans.from
        k = trans.origin

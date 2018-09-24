@@ -76,7 +76,10 @@ class DictService
 		end
 		txt=[]
 		text.each{|t|
-			txt << t.force_encoding(Encoding::UTF_8) if t != ""
+			t.strip!
+			next if t==""
+			temp = t.force_encoding(Encoding::UTF_8)
+			txt << temp
 		}
                 k_e = key.dup
 		k_e = k_e.force_encoding(Encoding::UTF_8),
