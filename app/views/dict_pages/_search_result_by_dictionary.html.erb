@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <body>
-<% @result.each{|res| %>
+<% @sorted_results.each{|n,res| %>
 <div class="panel panel-default">
   <div class="panel-heading">
     <a name="<%='dict'+@dictionaries.dict_num(res[:dict_name]).to_s%>"></a>

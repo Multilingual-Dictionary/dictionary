@@ -28,6 +28,7 @@ def dict_lookup
 	@key_words = []
 	@key_words_list = []
 	@result = []
+	@sorted_results=Hash.new
 	
 
 	params[:src_lang]='DE' if params[:src_lang] == nil
@@ -49,7 +50,6 @@ def dict_lookup
 	#   @cur_mode='lookup' 
 	#end
 	
-	printf("CURMODE %s\n",@cur_mode)
 	
 	@dict_list=Hash.new
 	@dictionaries.dict_infos.each{|n,inf|
@@ -68,20 +68,20 @@ def dict_lookup
 		  @selected_dicts[n]=1
 	    end
 	}
-	printf("..%s,%s\n",@cur_mode,params[:to_search])
+	##printf("..%s,%s\n",@cur_mode,params[:to_search])
 	return if @cur_mode!='lookup' or params[:to_search] ==""
 	use_dicts=""
 	@selected_dicts.each{|name,v|
 	   use_dicts << "," if use_dicts != ""
 	   use_dicts << name
 	}
-	printf("LOOKUP-- %s,%s\n",params[:to_search],use_dicts)
+	##printf("LOOKUP-- %s,%s\n",params[:to_search],use_dicts)
 	return if use_dicts==""
 	if params[:commit]=="Tìm từ khóa" and params[:search_key] != "" 
 	  params[:search_mode] = "search_exact" 
 	  params[:to_search] = params[:search_key] 
 	end
-	printf("LOOKUP %s,%s\n",params[:to_search],use_dicts)
+	##printf("LOOKUP %s,%s\n",params[:to_search],use_dicts)
 	@dictionaries.set_search_mode(params[:search_mode])
 	@dictionaries.set_search_key(params[:to_search])
 	@result = @dictionaries.lookup_dictionaries(
@@ -90,13 +90,31 @@ def dict_lookup
 		params[:tgt_lang],
 		params[:ref_lang],
 		use_dicts)
+	xlate_count=Hash.new
+	@result.each{|r|
+		xlate_count[r[:dict_name]]=0
+	}
 	##printf("RESULT %s\n",@result.inspect())
-	@summary=build_summary(@result)
+	@summary=build_summary(@result,xlate_count)
+	##printf("DICTS %s\n",xlate_count.inspect())
+	@sorted= xlate_count.sort_by{|dict,count| count}
+	##printf("SORT DICTS %s\n",@sorted.inspect())
+	@sorted.reverse!
+	##printf("SORT DICTS %s\n",@sorted.inspect())
+	@sorted.each{|d,v|
+		@result.each{|r|
+			if r[:dict_name] == d
+				@sorted_results[d]= r
+			end
+		}
+	}
+	##printf("SORT DICTS-RESULTS %s\n",@sorted_results.inspect())
+
 	@key_words_list =  @dictionaries.get_key_words(@result)
-	printf("LIST %s\n",@key_words_list.inspect())
+	##printf("LIST %s\n",@key_words_list.inspect())
   end
 
-  def build_summary_for_language(trans,lang,summary)
+  def build_summary_for_language(trans,lang,summary,xlate_count=nil)
 	if trans[lang]==nil
 		return
 	end
@@ -108,9 +126,14 @@ def dict_lookup
 		end
 		summary["translated"][lang][key]<<
 			{"xlate"=>x["xlate"],"dict"=>x["dict"]}
+		if  xlate_count != nil 
+			x["dict"].each{|d|
+				xlate_count[d] += 1 
+			}
+		end
 	}
   end
-  def build_summary(result)
+  def build_summary(result,xlate_count)
 	summary=Hash.new
 	summary["message"]=""
 	summary["translated"]=Hash.new
@@ -119,7 +142,7 @@ def dict_lookup
 		return summary
 	end
 	trans =  @dictionaries.get_translated_words(result)
-  	build_summary_for_language(trans,params[:tgt_lang],summary)
+  	build_summary_for_language(trans,params[:tgt_lang],summary,xlate_count)
 	if params[:ref_lang]=="ALL" 
 		@dictionaries.lang_codes.each{|lang,lang_txt|
 			next if lang==params[:tgt_lang]
