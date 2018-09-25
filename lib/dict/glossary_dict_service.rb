@@ -28,7 +28,7 @@ class GlossaryDictService < DictService
     query = "select * from glossary_indices where dict_id in (#{dicts}) "
     if @search_mode=='search_contain'
       to_search.split(' ').each{|w|
-        query << " and key_words like #{conn.quote('%'+w.strip+'%')} "
+        query << " and key_words like #{conn.quote(w.strip+'%')} "
       }
     else
         query << " and key_words = #{conn.quote(to_search.strip)}"
