@@ -28,7 +28,9 @@ class GlossaryDictService < DictService
     query = "select * from glossary_indices where dict_id in (#{dicts}) "
     if @search_mode=='search_contain'
       to_search.split(' ').each{|w|
-        query << " and key_words like #{conn.quote(w.strip+'%')} "
+        w.strip!
+        w.gsub!("*",'%')
+        query << " and key_words like #{conn.quote(w+'%')} "
       }
     else
         query << " and key_words = #{conn.quote(to_search.strip)}"
@@ -44,7 +46,7 @@ class GlossaryDictService < DictService
        query << ")"
     end
     if @search_mode=='search_contain'
-       query << " limit 50"
+       query << " order by key_len limit 50"
     end
     results = GlossaryIndex.find_by_sql(query)
     indices=Hash.new
