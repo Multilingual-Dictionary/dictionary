@@ -119,7 +119,7 @@ class Dictionaries
         entry[:infos][:key_attr]=attr.strip
       end
       entry[:infos][:key_attr]="" if entry[:infos][:key_attr]==nil
-      entry[:infos][:key_similarity] = WhiteSimilarity.similarity(@search_key,entry[:infos][:key_words])
+      entry[:infos][:key_similarity] = WhiteSimilarity.similarity(@search_key+"_",entry[:infos][:key_words]+"_")
   end
   def tokenize(txt)
      return []  if txt == nil
@@ -250,39 +250,63 @@ class Dictionaries
   ##  lookup using many dictionaries
   ##
   def lookup_dictionaries( to_search,source_lang,target_lang,reference_lang,dictionaries)
-    #printf("TOSEARCH %s\n",to_search)
-    #printf("SRC_LANG %s\n",source_lang)
-    #printf("TGT_LANG %s\n",target_lang)
-    #printf("REF_LANG %s\n",reference_lang)
-    #printf("SELECT DICT %s\n",dictionaries)
+    ##printf("TOSEARCH %s\n",to_search)
+    ##printf("SRC_LANG %s\n",source_lang)
+    ##printf("TGT_LANG %s\n",target_lang)
+    ##printf("REF_LANG %s\n",reference_lang)
+    ##printf("SELECT DICT %s\n",dictionaries)
 
     ret = []
+
+    ### handle source-language
+
     if source_lang=='ALL'
       src_lang=detect_lang(to_search,source_lang)
     else
       src_lang=source_lang
     end
-    tgt_lang=""
-    if reference_lang=="ALL"
-      @tgt_lang_supported.each{|l,n|
-	      tgt_lang << "," if tgt_lang != ""
-		  tgt_lang << l
-      }
-    else
-      tgt_lang = target_lang
-      langs = {target_lang=>target_lang} 
-      reference_lang.split(",").each{|l|
-        next if langs.has_key?(l)
-        tgt_lang << "," << l
-	langs[l] = l
-      }
+
+    ### handle target-language
+    
+    num_tgt_lang = 0
+    if @search_mode=='search_exact'
+      ## exact! use reference languages
+      tgt_lang=""
+      if reference_lang=="ALL"
+        @tgt_lang_supported.each{|l,n|
+	        tgt_lang << "," if tgt_lang != ""
+		tgt_lang << l
+    		num_tgt_lang = num_tgt_lang + 1
+        }
+      else
+    	num_tgt_lang = 1
+        tgt_lang = target_lang
+        langs = {target_lang=>target_lang} 
+        reference_lang.split(",").each{|l|
+          next if langs.has_key?(l)
+          tgt_lang << "," << l
+	  langs[l] = l
+          num_tgt_lang = num_tgt_lang + 1
+        }
+       end
+     else
+       ### search contains ,, we ignore reference languages !
+        tgt_lang = target_lang
      end
-     #printf("TGTLANG %s\n",tgt_lang)
+     
+     ### lookup now 
+
      glossary_names=""
      glossary_infos=Hash.new
      dictionaries.split(',').each{|n|
        inf = dict_infos_by_sys_name(n)
        if inf != nil
+         if num_tgt_lang <= 1 
+            if not inf["tgt_languages"].include?(tgt_lang)
+	       ## not supported
+               next
+            end
+         end
          if inf["protocol"].upcase=="GLOSSARY"
            glossary_names << "," if glossary_names !=""
            glossary_names << n
@@ -298,7 +322,6 @@ class Dictionaries
       end
      }
      if glossary_names!=""
-       printf("GLOSSARY! (%s)\n",glossary_names)
        res = lookup_glossary(to_search,glossary_infos,src_lang,tgt_lang,glossary_names)
        if res != nil 
          res.each{|tmp|

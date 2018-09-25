@@ -114,12 +114,22 @@ class AdminPagesController < ApplicationController
 ################################################################################
   def glossaries
 	require_role("ADMIN")
+	if params[:do_it]!= nil and params[:do_it]=="delete" and params[:dict_id] != nil 
+		conn = ActiveRecord::Base.connection	
+    		conn.select_all(
+			sprintf("delete from glossary_indices where dict_id=%s\n",conn.quote(params[:dict_id])))
+    		conn.select_all(
+			sprintf("delete from glossaries where dict_id=%s\n",conn.quote(params[:dict_id])))
+	end
 	@glossaries = Hash.new
 	err = init_glossaries()
 	@fields=build_head(@lang_cfg)
-	if @dict_id!=nil and params[:to_search] != nil and params[:to_search] != ''  
+	if @dict_id!=nil and params[:to_search] != nil   
 		conn = ActiveRecord::Base.connection	
 		query = "select distinct  item_id from glossary_indices where dict_id=#{conn.quote(@dict_id)}"
+		if params[:to_search]== ""
+			params[:to_search]="*"
+		end
 		words=params[:to_search].gsub("*","%").gsub(" ","")
   		if words.length > 0
 			query << " and key_words like #{conn.quote(words)} limit 10 "

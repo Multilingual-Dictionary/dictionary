@@ -1,6 +1,3 @@
-<div class="custom-file">
-	<input type="file" id="imp_file"  name="imp_file">
-</div>
 
 <% @lang_config.each{|f,v| %>
 	<%= hidden_field_tag(f,v) %>
@@ -16,6 +13,10 @@
 </div>
 
 <div class="input-group">
+
+
+	<input type="file" id="imp_file"  name="imp_file" class="form_control" >
+
 	<%= submit_tag "Đọc file", {"class"=>"form-control btn btn-default btn-sm"} %>
     <%= if data_ready 
 	       submit_tag "Nhập file", {"class"=>"form-control btn btn-default btn-sm"}
@@ -60,6 +61,5 @@
 
 
 <%end%>
-
 
 

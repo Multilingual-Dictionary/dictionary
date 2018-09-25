@@ -44,7 +44,7 @@ class GlossaryDictService < DictService
        query << ")"
     end
     if @search_mode=='search_contain'
-       query << " limit 100"
+       query << " limit 50"
     end
     results = GlossaryIndex.find_by_sql(query)
     indices=Hash.new
