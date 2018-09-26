@@ -49,7 +49,12 @@ class GlossaryData
 	end
 end
 class GlossaryImport
+	attr_accessor :dict_name,:author,:category,:year
 	def initialize(cfg=nil,callback=nil)
+		@dict_name=""
+		@author=""
+		@category=""
+		@year=""
 		if cfg!=nil 
 			@client = Mysql2::Client.new(
 			    :host => cfg["host"],
@@ -202,6 +207,20 @@ class GlossaryImport
 				coldefs=first
 				break
 			end
+			case first 
+			when "#DICTNAME"
+				@dict_name=get_value(r[1])
+			when "#AUTHOR"
+				@author=get_value(r[1])
+			when "#FIELD"
+				@category=get_value(r[1])
+			when "#CATEGORY"
+				@category=get_value(r[1])
+			when "#DOMAIN"
+				@category=get_value(r[1])
+			when "#YEAR"
+				@year=get_value(r[1])
+			end
 		}
 		return nil if coldefs==nil
 		defs = @workbook.table[i+1]
@@ -337,6 +356,9 @@ class GlossaryImport
 				if (n == 100)
 					n= 0
 					@callback.sofar("importing",count)
+				end
+				if r[0] != nil
+					next if r[0][0,1]=="#"
 				end
 				data = GlossaryData.new(@dict_id,tags,r)
 				recs[data.item_id]=data

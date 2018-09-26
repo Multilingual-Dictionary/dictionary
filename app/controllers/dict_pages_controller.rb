@@ -37,7 +37,7 @@ def dict_lookup
 	params[:to_search]='' if params[:to_search] == nil
 	params[:search_mode]='search_exact' if params[:search_mode] == nil
 
-	
+
 	@cur_mode="lookup"
 	if params[:lang_changed] == nil or  params[:lang_changed] == "1"
 	    @cur_mode=""
@@ -84,17 +84,20 @@ def dict_lookup
 	##printf("LOOKUP %s,%s\n",params[:to_search],use_dicts)
 	@dictionaries.set_search_mode(params[:search_mode])
 	@dictionaries.set_search_key(params[:to_search])
+
 	@result = @dictionaries.lookup_dictionaries(
 		params[:to_search],
 		params[:src_lang],
-		params[:tgt_lang],
+		params[:tgt_lang].dup,
 		params[:ref_lang],
 		use_dicts)
+
 	xlate_count=Hash.new
 	@result.each{|r|
 		xlate_count[r[:dict_name]]=0
 	}
 	##printf("RESULT %s\n",@result.inspect())
+
 	@summary=build_summary(@result,xlate_count)
 	##printf("DICTS %s\n",xlate_count.inspect())
 	@sorted= xlate_count.sort_by{|dict,count| count}
