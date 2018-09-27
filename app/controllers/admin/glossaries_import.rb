@@ -50,7 +50,7 @@ class AdminPagesController < ApplicationController
 		## read & store temp.
 		file = params[:imp_file]
 		if file != nil 
-			params[:tmp_file_name] = "/tmp/"+file.original_filename
+			params[:tmp_file_name] = "./data_files/"+file.original_filename
 			tmp_file = File.new(params[:tmp_file_name],"wb")
 			tmp_file.write(file.read)
 			tmp_file.close()
