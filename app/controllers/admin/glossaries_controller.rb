@@ -5,8 +5,13 @@ class AdminPagesController < ApplicationController
 ################################################################################
 
   #####################################################################
+  
   def build_head(data)
-    	fields = Hash.new
+	printf("NEW BUILD HEAD\n")
+	return GlossaryUtils.new.build_template_fields(data,@lang_codes)
+  end
+  def old_build_head(data)
+    fields = Hash.new
 	return fields if data==nil
 	head=Hash.new
 	terms=Hash.new
@@ -56,17 +61,6 @@ class AdminPagesController < ApplicationController
 	return fields
   end
   #################################################################
-  def json_parse(data)
-		return nil if data==nil
-  		begin
-			data= JSON.parse(data)
-			return data
-		rescue Exception => e
-			warn(sprintf("json error %s\n",e))
-		end
-		return nil
-  end
-  #################################################################
   def get_records(item_ids)
 	fields=Hash.new
 	results = Glossary.find_by_sql(sprintf(
@@ -81,33 +75,7 @@ class AdminPagesController < ApplicationController
 	}
 	@fields=build_head(fields)
   end
-  #################################################################
-  def get_dict_config(dict_id)
-	if dict_id==nil
-		warn("dict_id==nil")
-		return nil
-	end
-	begin
-		@dict_config=DictConfig.find_by( dict_sys_name: dict_id)
-	rescue
-		warn(sprintf("dict %s not exists",dict_id))
-		@dict_config=nil
-	end
-	return @dict_config
-  end
-  #################################################################
-  def get_languages_config(dict_config)
-  	if dict_config==nil
-		printf("ERROR dict-cfg NIL")
-		return nil
-	end
-  	ext= json_parse(dict_config.cfg)
-	if ext==nil or ext["config"] ==nil or ext["config"]["languages"]==nil
-		warn("Tự điển chưa được cấu hình đúng")
-		return nil
-	end
-	return ext["config"]["languages"]
-  end
+
   
 ################################################################################
 ##### GLOSSARIES
@@ -308,86 +276,5 @@ class AdminPagesController < ApplicationController
 	
   end
 end
-################################################################################
-###	UPDATER
-################################################################################
-class GlossaryUpdater
-  def initialize(glossary,data)
-    @dict_id=glossary.dict_id
-	@index = ""
-	## build Hash & Json
-	md5 = Digest::MD5.new
-    md5 << @dict_id.upcase
-	data.each{|tag,v|
-		v = "" if  v==nil
-        v.strip!
-		md5 << v.upcase
-    }
-    @item_id= md5.hexdigest
-	json = JSON.generate(data)
-	## build indices
-	data.each{|k,v|
-		next if k.index("TERM:")==nil
-        add_index(k[6,2],v) if v !=""
-	}
-	glossary.data=json
-	old_item_id=glossary.item_id
-	glossary.item_id=@item_id
-	insert_indices= "insert into glossary_indices "+
-	                "(dict_id,lang,item_id,key_words,key_len,created_at," +
-					"updated_at)values\n" +
-					@index
-					
 
-	
-	conn = ActiveRecord::Base.connection
-    res = conn.select_all(
-		sprintf("delete from glossary_indices where item_id='%s'\n",old_item_id))
-	conn.select_all(insert_indices)
-	glossary=nil if glossary.id=="" or glossary.id=="0"
-	glossary.save
-  end
-  def remove_notes(txt,open,close)
-	is_in = false
-	res = ""
-	txt.each_char{|c|
-		if c==open
-			is_in = true
-			next
-		end
-		if c == close
-			is_in = false
-			next
-		end
-		if not is_in
-			res << c
-		end
-	}
-	return res
- end
- def add_index(lang,key_words)
-    ##printf("add index %s,%s,%s,%s\n",lang,key_words,@dict_id,@item_id)
-	key_words=remove_notes(key_words,"(",")")
-	key_words=remove_notes(key_words,"{","}")
-	key_words=remove_notes(key_words,"[","]")
-	return if key_words==""
-	conn = ActiveRecord::Base.connection		
-	key_words.gsub(/;/,",").split(',').each{|key|
-		####printf("KEY %s\n",key)
-		key.strip!
-		next if key==""
-		if key.length>250
-			next
-		end
-		@index << ",\n" if @index.length>0
-
-        @index << sprintf("(%s,'%s','%s',%s,'%d',now(),now())\n",
-			conn.quote(@dict_id),
-            lang,
-            @item_id,
-            conn.quote(key),
-            key.length)
-	}
-  end
-end
   

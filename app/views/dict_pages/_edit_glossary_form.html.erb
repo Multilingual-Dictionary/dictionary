@@ -1,0 +1,34 @@
+
+<!--- FORM---------------------------------------------------->
+<div class='container'>
+
+<% @fields.each{|f,v| %>
+<div class="input-group">
+  <textarea rows="2" cols="60" class="form-control" 
+    id="<%=f%>" name="<%=f%>"
+	placeholder='' 
+	aria-describedby="basic-addon2"><%=@data[f]%></textarea>
+  <span class="input-group-addon" id="basic-addon2"><%=v%></span>
+</div> <!---input-group --->
+<% } %>
+
+<! ACTIONS ----------------------------------------------->
+<div class="input-group">
+
+<% if @fields.size==0 %>
+
+   <% if params[:id] != nil and params[:id] != "" and params[:id] != "0" %>
+	<p> Không tìm thấy!</p>
+   <% end %>
+<%else%>
+  <% if params[:id]==nil or params[:id]=="0" %>
+     <%= submit_tag "Tạo", {"class"=>"form-control btn btn-default btn-sm"} %>
+  <% else %>
+     <%= submit_tag "Thay đổi", {"class"=>"form-control btn btn-default btn-sm"} %>
+  <%end%>
+<%end%>
+</div>
+<! END-ACTIONS ----------------------------------------------->
+</div> <!--- container --->
+<!--- END-FORM---------------------------------------------------->
+

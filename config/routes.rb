@@ -39,6 +39,7 @@ Rails.application.routes.draw do
   delete '/logout',  to: 'sessions#destroy'
   get '/logout',  to: 'sessions#destroy'
   get '/dict_lookup',   to: 'dict_pages#dict_lookup'
+  get '/dict_add',   to: 'dict_pages#dict_add'
   put '/glossaries',   to: 'glossaries#index'
   get '/progress' => 'dict_jobs#progress'
 
