@@ -81,6 +81,19 @@ class Dictionaries
   def dict_infos_by_sys_name(name)
     return @dict_infos[name.upcase]
   end
+  def has_explanation(name)
+    	inf=@dict_infos[name.upcase]
+	begin
+		inf["ext_cfg"]["languages"].each{|t,v|
+			if t.index("#EXPLAIN")==0
+				return true
+			end
+		}
+	rescue
+		return false
+	end
+	return false
+  end
   def dict_name(sys_name)
     inf =  @dict_infos[sys_name.upcase]
     return inf["dict_name"] if inf != nil

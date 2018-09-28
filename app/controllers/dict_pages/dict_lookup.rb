@@ -10,6 +10,7 @@ def dict_lookup
 	@result = []
 	@sorted_results=Hash.new
 	
+	### SET DEFAUL PARAMS 
 
 	params[:src_lang]='DE' if params[:src_lang] == nil
 	params[:tgt_lang]='VI' if params[:tgt_lang] == nil
@@ -23,22 +24,14 @@ def dict_lookup
 	    @cur_mode=""
 	end
 	
-	#case params[:commit]
-	#when "Tìm kiếm"
-	#   @cur_mode='lookup'
-	#when "Tìm từ khóa"
-	#   @cur_mode='lookup' 
-	#end
-	
-	
 	@dict_list=Hash.new
 	@dictionaries.dict_infos.each{|n,inf|
 	   next if not inf["src_languages"].include?(params[:src_lang])
 	   if inf["tgt_languages"].include?(params[:tgt_lang]) or
 	      params[:ref_lang]=="ALL" or 
-          inf["tgt_languages"].include?(params[:ref_lang])         
-   	     @dict_list[inf["dict_sys_name"]]=inf
-       end		  
+              inf["tgt_languages"].include?(params[:ref_lang])         
+   	     	@dict_list[inf["dict_sys_name"]]=inf
+           end		  
 	}
 	@selected_dicts=Hash.new
 	@dict_list.each{|n,inf|
@@ -50,6 +43,8 @@ def dict_lookup
 	}
 	##printf("..%s,%s\n",@cur_mode,params[:to_search])
 	return if @cur_mode!='lookup' or params[:to_search] ==""
+
+
 	use_dicts=""
 	@selected_dicts.each{|name,v|
 	   use_dicts << "," if use_dicts != ""
@@ -65,6 +60,7 @@ def dict_lookup
 	@dictionaries.set_search_mode(params[:search_mode])
 	@dictionaries.set_search_key(params[:to_search])
 
+	#### LOOKUP NOW!!!
 	@result = @dictionaries.lookup_dictionaries(
 		params[:to_search],
 		params[:src_lang],
@@ -72,18 +68,37 @@ def dict_lookup
 		params[:ref_lang],
 		use_dicts)
 
-	xlate_count=Hash.new
-	@result.each{|r|
-		xlate_count[r[:dict_name]]=0
-	}
-	##printf("RESULT %s\n",@result.inspect())
+	#### SORT RESULTS 
 
+	xlate_count=Hash.new
+	user_want_explanation= false
+	if params[:src_lang] ==params[:tgt_lang]
+		user_want_explanation= true
+	end
+	@result.each{|r|
+		cnt = 1
+		lang_tag="["+params[:tgt_lang].upcase+"]"
+		r[:entries].each{|e|
+			e[:text].each{|txt|
+				if txt.index(lang_tag) == 0
+					cnt = cnt + 1
+				end
+			}
+		}
+		xlate_count[r[:dict_name]]=cnt
+	}
 	@summary=build_summary(@result,xlate_count)
-	##printf("DICTS %s\n",xlate_count.inspect())
+	if user_want_explanation
+		xlate_count.each{|dict,count|
+  			if @dictionaries.has_explanation(dict)
+				xlate_count[dict] = count * 100 
+				##printf("DICT %s has explanation  %d\n",dict,count)
+			end
+		}
+	end
+
 	@sorted= xlate_count.sort_by{|dict,count| count}
-	##printf("SORT DICTS %s\n",@sorted.inspect())
 	@sorted.reverse!
-	##printf("SORT DICTS %s\n",@sorted.inspect())
 	@sorted.each{|d,v|
 		@result.each{|r|
 			if r[:dict_name] == d
@@ -91,10 +106,9 @@ def dict_lookup
 			end
 		}
 	}
-	##printf("SORT DICTS-RESULTS %s\n",@sorted_results.inspect())
 
 	@key_words_list =  @dictionaries.get_key_words(@result)
-	##printf("LIST %s\n",@key_words_list.inspect())
+
   end
 
   def build_summary_for_language(trans,lang,summary,xlate_count=nil)
