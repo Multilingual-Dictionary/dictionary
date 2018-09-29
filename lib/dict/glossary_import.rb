@@ -97,6 +97,7 @@ class GlossaryImport
 		return if key_words==""
 		key_words.gsub(/;/,",").split(',').each{|key|
 			####printf("KEY %s\n",key)
+			key.gsub!("|",",")
 			key.strip!
 			next if key==""
 			if key.length>250
