@@ -9,7 +9,6 @@
   <div class="panel-body">
     <%= form_with url: "/dict_add" , method: :get, local: true ,id: "cfg" do |f| %>
 		<%=hidden_field_tag 'id',params[:id] %>
-		<%=hidden_field_tag 'dict_id',params[:dict_id] %>
 		<%= render "edit_glossary_form" %>
 	<% end %>
   </div>

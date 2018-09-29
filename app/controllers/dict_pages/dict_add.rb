@@ -47,13 +47,61 @@ class DictPagesController < ApplicationController
 		glossary=Glossary.new
 		glossary.dict_id=@dict_id.upcase
 		updater= GlossaryUpdater.new(glossary,@data)
+		params[:id]=glossary.id
 	else
 	
 	end
   end
   
   def my_glossary_update()
-	printf("MY GLOSSARY UPDATE\n")
+	@fields=Hash.new
+	printf("MY GLOSSARY UPDATE  %d\n",params[:id])
+	begin
+		glossary=Glossary.find(params[:id])
+	rescue
+		glossary=nil
+		warn(sprintf("Không tìm thấy từ mục %s",params[:id]))
+		return
+	end
+	if glossary==nil
+		warn(sprintf("Không tìm thấy từ mục %s",params[:id]))
+		return
+	end
+	if @dict_id.upcase != glossary.dict_id.upcase
+		warn(sprintf("Không đúng tự điển %s,%s",glossary.dict_id,@dict_id))
+		return 
+	end
+	@data = json_parse(glossary.data)
+	if @data == nil
+		@fields=Hash.new
+		return
+	end
+	@fields=GlossaryUtils.new.build_template_fields(@data,@lang_codes)
+	case params[:commit]
+	when "Thay đổi"
+		update_it(glossary)
+	else
+	end
+	if @fields.size==0
+		warn("Tự điển chưa được cấu hình đúng")
+	end
+  end
+  def update_it(glossary)
+	## @fields 
+	changed=false
+	params.each{|f,v|
+		next if f[0] != "#"
+		if v != @data[f]
+			changed= true
+		end
+
+		if v != @data[f]
+			changed= true
+			@data[f]=v
+		end
+	}
+	return if not changed
+	updater= GlossaryUpdater.new(glossary,@data)
   end
   
   

@@ -1,5 +1,6 @@
 require_relative 'dict_service'
 require 'json'
+require "unicode_utils/casefold"
 
 class GlossaryDictService < DictService 
   def initialize(cfg=nil)
@@ -53,6 +54,17 @@ class GlossaryDictService < DictService
     results.each(){|r|
 	indices[r.item_id]=r
     }
+    if @search_mode!='search_contain'
+        search_key = UnicodeUtils.casefold(to_search)
+	indices.each{|item,r|
+		if UnicodeUtils.casefold(r['key_words'])!=search_key
+			printf("remove this %s\n",r['key_words'])
+			indices.delete(item)
+		else
+			printf("take this %s\n",r['key_words'])
+		end
+	}
+    end
     #######
     item_ids = ""
     indices.each{|item_id,r|

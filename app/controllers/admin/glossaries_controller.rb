@@ -5,60 +5,8 @@ class AdminPagesController < ApplicationController
 ################################################################################
 
   #####################################################################
-  
   def build_head(data)
-	printf("NEW BUILD HEAD\n")
 	return GlossaryUtils.new.build_template_fields(data,@lang_codes)
-  end
-  def old_build_head(data)
-    fields = Hash.new
-	return fields if data==nil
-	head=Hash.new
-	terms=Hash.new
-	explains=Hash.new
-	anothers=Hash.new
-	data.each{|tag,v|
-		pos = tag.index(":")
-        	if pos == nil
-			tag_key=tag
-			tag_lang=""
-		else
-			tag_key=tag[0,pos]
-			tag_lang= tag[pos+1,2]
-			tag_lang= "" if tag_lang==nil
-		end
-		next if tag_key[0,1]!="#"
-		
-		tag_lang=@lang_codes[tag_lang]
-		if tag_lang==nil
-			tag_lang = ""
-		else
-			tag_lang = "["+tag_lang+"]"
-		end
-		case tag_key
-		when "#TERM"
-			terms[tag]="Từ ngữ " + tag_lang
-		when "#EXPLAIN"
-			explains[tag]="Giải thích " + tag_lang
-		when "#CATEGORY"
-			anothers[tag]="Lĩnh vực " + tag_lang
-        when "#GRAMMAR"
-			anothers[tag]="Từ loại " + tag_lang
-        else
-			anothers[tag]=tag_key + tag_lang
-        end
-	}
-	fields = Hash.new
-	terms.each{|t,v|
-		fields[t]=v
-	}
-	explains.each{|t,v|
-		fields[t]=v
-	}
-	anothers.each{|t,v|
-		fields[t]=v
-	}
-	return fields
   end
   #################################################################
   def get_records(item_ids)
@@ -270,6 +218,7 @@ class AdminPagesController < ApplicationController
 		glossary=Glossary.new
 		glossary.dict_id=params[:dict_id].upcase
 		updater= GlossaryUpdater.new(glossary,@data)
+		params[:id]=glossary.id
 	else
 	
 	end
