@@ -1,10 +1,15 @@
+
+<style>
+label {
+    display: block;
+    text-indent: 1em;
+}
+</style>
+
+
 <script>
 
-function lang_change(){
-	console.log("changed");
-	document.getElementById("lang_changed").value="1";
-	document.getElementById("lookup").submit();
-}
+
 function clickme(s){
 	console.log(s)
 	document.getElementById("to_search").value=s
@@ -13,56 +18,6 @@ function clickme(s){
 }
 
 </script>
-
-<%=hidden_field_tag "lang_changed" , "0" %>
-
-<!-------- DICTIONARIES-SELECT  ------------------------------------->
-<!--- SELECT - DICTS -------------------------------------------->
-<% all_dicts="" %>
-<div class="input-group input-group-sm">
-<p class="form-control"></p>
-  <span class="input-group-addon" id="basic-addon2">
-	<div class="button-group">
-		<button type="button" class="fa fa-book dropdown-toggle" data-toggle="dropdown" >
-		</button>		
-<div class="dropdown-menu">
-<div class="panel panel-default">
-<div class="panel-heading">Chọn tự điển [nếu cần thiết]</div>		
-<div class="panel-body">
-
-<!---DROP LIST ------------------------------------------------------------------------->
-				<div class="checkbox">
-					<label><input type="checkbox" name='all' id='all' value="ON"
-								<% if @selected_dicts.length>0 %>
-									CHECKED
-								<% end %>
-								onchange="check_all('all')"
-					>Tất cả
-					</label>
-				</div>
-<% @dict_list.each(){|n,inf| %>
-<% all_dicts << n << ";" %>
-				<div class="checkbox">
-					<label><input type="checkbox" value="ON"
-						name="<%="CHK"+inf["dict_sys_name"]%>"
-						id="<%=inf["dict_sys_name"]%>"
-						<% if @selected_dicts.has_key?(inf["dict_sys_name"]) %>
-							CHECKED
-							<% end %>
-					><%=inf["dict_name"]%>
-					</label>
-				</div>
-
-<% } %>
-</div> <!--- panel body --->
-</div> <!----panel ---->
-</div> <!--- dropdown-menu --->
-</div> <!----button-group --->
-</div> <!----input-group --->
-<%=hidden_field_tag 'all_dicts',all_dicts %>
-<!---END DROP LIST ------------------------------------------------------------------------->
-<!---END SELECT - DICTS -------------------------------------------->
-
 
 
 
@@ -88,14 +43,12 @@ function clickme(s){
     <%= select_tag(
 	"src_lang", options_for_select(src_lang_opt,params[:src_lang]), 
 	{ "selected" => params[:src_lang],
-	  "class" =>"form-control" ,
-	  "onchange" => "lang_change();"} ) %>
+	  "class" =>"form-control" } ) %>
   <span class="input-group-addon" id="basic-addon2"><i class="fa fa-arrow-right"></i></span>
     <%= select_tag(
 	"tgt_lang", options_for_select(tgt_lang_opt,params[:tgt_lang]), 
 	{ "selected" => params[:tgt_lang],
-	  "class" =>"form-control" ,
-	  "onchange" => "lang_change();"} ) %>
+	  "class" =>"form-control" } ) %>
 </div>
 <!-------- REF_LANG ------------------------------------->
 <div class="input-group input-group-sm">
@@ -103,21 +56,38 @@ function clickme(s){
     <%= select_tag(
 	"ref_lang", options_for_select(ref_lang_opt,params[:ref_lang]), 
 	{ "selected" => params[:ref_lang],
-	  "class" =>"form-control" ,
-	  "onchange" => "lang_change();"} ) %>
+	  "class" =>"form-control" } ) %>
 </div>
 
-<!-------- REF_LANG ------------------------------------->
+<!-------- DOMAIN ------------------------------------->
+<div class="input-group input-group-sm">
+
+<span class="input-group-addon" id="basic-addon2">LĨNH VỰC</span>
+<div>
+<% @domain_list.each(){|domain,domain_name| %>
+<%  chk_name="CHK_"+domain %>
+	<div class="checkbox">
+		<label><input type="checkbox" value="ON"
+		name="<%=chk_name%>"
+		id="<%=chk_name%>"
+		<% if params[chk_name] != nil %>
+			CHECKED
+		<% end %>
+		><%=domain_name%>
+		</label>
+	</div>
+<% } %>
+</div>
+</div>
+
+<!-------- SEARCH-MODE ------------------------------------->
 <div class="input-group input-group-sm">
   <span class="input-group-addon" id="basic-addon2">Cách tìm</span>
     <%= select_tag(
 	"search_mode", options_for_select(@search_opts,params[:search_mode]), 
 	{ "selected" => params[:search_mode],
-	  "class" =>"form-control" ,
-	  "onchange" => "lang_change();"} ) %>
+	  "class" =>"form-control" } ) %>
 </div>
-
-
 
 <!-------- SEARCH  ------------------------------------->
 <div class="input-group input-group-sm">

@@ -65,6 +65,14 @@ $(document).ready(function(){
   <span class="input-group-addon" id="basic-addon2">Ngôn ngữ đích</span>
 </div>
 
+<div class="input-group">
+  <input type="text" class="form-control" 
+        id="domains" name="domains"
+	placeholder='Nhập [GENERAL,NAT-SCI-TECH,SOC-SCI]..' 
+	value="<%=params[:domains]%>" 
+	aria-describedby="basic-addon2">
+  <span class="input-group-addon" id="basic-addon2">Lĩnh vực</span>
+</div>
 
 <div class="input-group">
  <%= select_tag(

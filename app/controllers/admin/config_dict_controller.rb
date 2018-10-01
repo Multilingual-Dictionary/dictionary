@@ -60,6 +60,7 @@ class AdminPagesController < ApplicationController
 		params[:dict_name]=@dict_config.dict_name
 		params[:lang]=@dict_config.lang
 		params[:xlate_lang]=@dict_config.xlate_lang
+		params[:domains]=@dict_config.domains
 		params[:protocol]=@dict_config.protocol
 		params[:desc]=@dict_config.desc
 		params[:cfg]=@dict_config.cfg
@@ -139,6 +140,7 @@ class AdminPagesController < ApplicationController
 			end
 			@dict_config.dict_sys_name=params[:dict_sys_name].strip
 			@dict_config.dict_name=params[:dict_name].strip
+			@dict_config.domains=params[:domains].upcase.strip
 			@dict_config.protocol=params[:protocol].strip
 			@dict_config.priority=params[:priority].strip
 			@dict_config.desc=params[:desc].strip

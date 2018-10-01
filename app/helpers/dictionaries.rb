@@ -40,6 +40,7 @@ class Dictionaries
           "dict_name" => inf.dict_name,
           "protocol" => inf.protocol,
           "url" => inf.url,
+          "domains" => inf.domains,
           "ext_cfg" => ext_cfg,
           "src_languages" => to_set_of(inf.lang),
           "tgt_languages" => to_set_of(inf.xlate_lang)
@@ -343,6 +344,32 @@ class Dictionaries
 	   end
      end
      return process_result(ret)
+  end
+  ##
+  ##  lookup by domains
+  ##
+  def lookup_by_domains( to_search,source_lang,target_lang,reference_lang,domains)
+	##printf("BY DOMAINS %s\n",domains.inspect())
+	dicts = ""
+        @dict_infos.each{|name,inf|
+		select=false
+		domains.each{|domain|
+			if domain==inf["domains"]
+				select = true
+				break
+			end
+		}
+		if select
+			printf("select this %s\n",inf["dict_sys_name"])
+			dicts << "," if dicts!=""
+			dicts << inf["dict_sys_name"]
+		else	
+			printf("ignore this %s\n",inf["dict_sys_name"])
+		end
+	}
+	printf("dicts %s\n",dicts)
+  	return  lookup_dictionaries( to_search,source_lang,target_lang,reference_lang,dicts)
+
   end
   
   #################################################################

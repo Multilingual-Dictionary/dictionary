@@ -1,15 +1,6 @@
 class DictPagesController < ApplicationController
 
 def dict_lookup
-
-	@search_opts = [ ['Tìm từ chính xác','search_exact'],
-				   ['Tìm mục có chứa từ','search_contain'] ]
-	@dictionaries=Dictionaries.new(DictConfig.where("priority>0").order(priority: :desc))
-	@key_words = []
-	@key_words_list = []
-	@result = []
-	@sorted_results=Hash.new
-	
 	### SET DEFAUL PARAMS 
 
 	params[:src_lang]='DE' if params[:src_lang] == nil
@@ -18,55 +9,61 @@ def dict_lookup
 	params[:to_search]='' if params[:to_search] == nil
 	params[:search_mode]='search_exact' if params[:search_mode] == nil
 
-
 	@cur_mode="lookup"
 	if params[:lang_changed] == nil or  params[:lang_changed] == "1"
 	    @cur_mode=""
 	end
 	
-	@dict_list=Hash.new
-	@dictionaries.dict_infos.each{|n,inf|
-	   next if not inf["src_languages"].include?(params[:src_lang])
-	   if inf["tgt_languages"].include?(params[:tgt_lang]) or
-	      params[:ref_lang]=="ALL" or 
-              inf["tgt_languages"].include?(params[:ref_lang])         
-   	     	@dict_list[inf["dict_sys_name"]]=inf
-           end		  
+	### DOMAINS
+	
+	@domain_list={
+		"GENERAL" => "Tổng quát",
+		"NAT-SCI-TECH" => "Khoa học tự nhiên-kỹ thuật",
+		"SOC-SCI" => "Khoa học xã hội-nhân văn"
 	}
-	@selected_dicts=Hash.new
-	@dict_list.each{|n,inf|
-		if @cur_mode=='lookup'
-	      @selected_dicts[n]=1 if params["CHK"+inf["dict_sys_name"]] != nil
-		else
-		  @selected_dicts[n]=1
-	    end
+	domains=[]
+	@domain_list.each{|domain,domain_name|
+		chk_name="CHK_"+domain
+		printf("[%s][%s]\n",chk_name,params["CHK_"+domain])
+		if params["CHK_"+domain] != nil
+			domains << domain
+			printf("ADD [%s]\n",domain)
+		end
 	}
-	##printf("..%s,%s\n",@cur_mode,params[:to_search])
-	return if @cur_mode!='lookup' or params[:to_search] ==""
+	if domains.size==0
+		params["CHK_NAT-SCI"]="ON"
+		domains << "NAT-SCI"
+	end
 
+	printf("domains %s\n",domains.inspect())
+	
+	### SEARCH-OPTIONS
+	
+	@search_opts = [ ['Tìm từ chính xác','search_exact'],
+				     ['Tìm mục có chứa từ','search_contain'] ]
+					 
 
-	use_dicts=""
-	@selected_dicts.each{|name,v|
-	   use_dicts << "," if use_dicts != ""
-	   use_dicts << name
-	}
-	##printf("LOOKUP-- %s,%s\n",params[:to_search],use_dicts)
-	return if use_dicts==""
+	@dictionaries=Dictionaries.new(DictConfig.where("priority>0").order(priority: :desc))
+	@key_words = []
+	@key_words_list = []
+	@result = []
+	@sorted_results=Hash.new
+	
 	if params[:commit]=="Tìm từ khóa" and params[:search_key] != "" 
 	  params[:search_mode] = "search_exact" 
 	  params[:to_search] = params[:search_key] 
 	end
-	##printf("LOOKUP %s,%s\n",params[:to_search],use_dicts)
+	
 	@dictionaries.set_search_mode(params[:search_mode])
 	@dictionaries.set_search_key(params[:to_search])
 
 	#### LOOKUP NOW!!!
-	@result = @dictionaries.lookup_dictionaries(
+	@result = @dictionaries.lookup_by_domains(
 		params[:to_search],
 		params[:src_lang],
 		params[:tgt_lang].dup,
 		params[:ref_lang],
-		use_dicts)
+		domains)
 
 	#### SORT RESULTS 
 
