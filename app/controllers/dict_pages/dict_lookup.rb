@@ -31,8 +31,8 @@ def dict_lookup
 		end
 	}
 	if domains.size==0
-		params["CHK_NAT-SCI"]="ON"
-		domains << "NAT-SCI"
+		params["CHK_NAT-SCI-TECH"]="ON"
+		domains << "NAT-SCI-TECH"
 	end
 
 	printf("domains %s\n",domains.inspect())
