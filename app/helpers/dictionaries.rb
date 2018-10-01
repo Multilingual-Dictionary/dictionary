@@ -360,11 +360,8 @@ class Dictionaries
 			end
 		}
 		if select
-			printf("select this %s\n",inf["dict_sys_name"])
 			dicts << "," if dicts!=""
 			dicts << inf["dict_sys_name"]
-		else	
-			printf("ignore this %s\n",inf["dict_sys_name"])
 		end
 	}
 	printf("dicts %s\n",dicts)
