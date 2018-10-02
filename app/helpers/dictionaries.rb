@@ -283,30 +283,27 @@ class Dictionaries
     ### handle target-language
     
     num_tgt_lang = 0
-    if @search_mode=='search_exact'
-      ## exact! use reference languages
-      tgt_lang=""
-      if reference_lang=="ALL"
+    tgt_lang=""
+    if reference_lang=="ALL"
         @tgt_lang_supported.each{|l,n|
 	        tgt_lang << "," if tgt_lang != ""
 		tgt_lang << l
     		num_tgt_lang = num_tgt_lang + 1
+printf("tgt1 LANG %s\n",tgt_lang)
         }
-      else
+    else
     	num_tgt_lang = 1
         tgt_lang = target_lang
         langs = {target_lang=>target_lang} 
         reference_lang.split(",").each{|l|
           next if langs.has_key?(l)
           tgt_lang << "," << l
+printf("tgt2 LANG %s\n",tgt_lang)
 	  langs[l] = l
           num_tgt_lang = num_tgt_lang + 1
         }
-       end
-     else
-       ### search contains ,, we ignore reference languages !
-        tgt_lang = target_lang
-     end
+    end
+printf("TGT LANG %s\n",tgt_lang)
      
      ### lookup now 
 

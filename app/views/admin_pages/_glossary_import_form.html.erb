@@ -2,7 +2,7 @@
 <% @lang_config.each{|f,v| %>
 	<%= hidden_field_tag(f,v) %>
 <% } %>
-<%= hidden_field_tag("DATA_START",params["DATA_START"]) if params["DATA_START"]!=nil  %>
+
 <% data_ready= true if @fields != nil and @sample_datas != nil %>
 
 <div class="input-group input-group-sm">
@@ -11,12 +11,20 @@
 	</select>
 	<span class="input-group-addon" id="basic-addon2">Chọn tự điển</span>
 </div>
+<div class="input-group input-group-sm">
+<span class="input-group-addon" id="basic-addon2">Chọn File</span>
+<input type="file" id="imp_file"  name="imp_file" class="form-control form-control-file" >
+<span class="input-group-addon" id="basic-addon2">Dữ liệu bắt đầu ở hàng thứ:</span>
+<input type="text" class="form-control" id="DATA_START" name="DATA_START"
+	placeholder='' 
+	value="<%=params[:DATA_START]%>" 
+	aria-describedby="basic-addon2">
+</div>
+
+
+
 
 <div class="input-group">
-
-
-	<input type="file" id="imp_file"  name="imp_file" class="form_control" >
-
 	<%= submit_tag "Đọc file", {"class"=>"form-control btn btn-default btn-sm"} %>
     <%= if data_ready 
 	       submit_tag "Nhập file", {"class"=>"form-control btn btn-default btn-sm"}

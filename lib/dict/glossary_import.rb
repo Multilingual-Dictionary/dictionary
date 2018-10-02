@@ -32,7 +32,7 @@ end
 class GlossaryData
 	attr_accessor :dict_id,:item_id,:data
 	
-	def initialize(dict_id,tags,item_data)
+	def initialize(dict_id,tags,item_data,category=nil)
 		md5 = Digest::MD5.new
 		md5 << dict_id.upcase
 		@dict_id = dict_id
@@ -45,6 +45,10 @@ class GlossaryData
 			@data[k]=v 
 			md5 << v.upcase
 		}
+		if category!=nil
+			@data["#CATEGORY"]=category
+			md5 << category.upcase
+		end
 		@item_id = md5.hexdigest
 	end
 end
@@ -53,7 +57,7 @@ class GlossaryImport
 	def initialize(cfg=nil,callback=nil)
 		@dict_name=""
 		@author=""
-		@category=""
+		@category=nil
 		@year=""
 		if cfg!=nil 
 			@client = Mysql2::Client.new(
@@ -199,11 +203,13 @@ class GlossaryImport
 	end
 	### detect if is our format?
 	def detect_our_format()
+printf("DETECT OUR\n")
 		i = -1
 		coldefs=nil
 		@workbook.table.each {|r|
 			i += 1
 			first=get_tag(r[0])
+printf("FIRST %s\n",first)
 			if first=="#COLDEFS"
 				coldefs=first
 				break
@@ -215,6 +221,7 @@ class GlossaryImport
 				@author=get_value(r[1])
 			when "#FIELD"
 				@category=get_value(r[1])
+printf("IS FIELD %s\n",@category)
 			when "#CATEGORY"
 				@category=get_value(r[1])
 			when "#DOMAIN"
@@ -223,6 +230,7 @@ class GlossaryImport
 				@year=get_value(r[1])
 			end
 		}
+printf("CA %s\n",@category)
 		return nil if coldefs==nil
 		defs = @workbook.table[i+1]
 		j = -1  
@@ -248,9 +256,9 @@ class GlossaryImport
 				d[k]=get_value(r[col.to_i])
 			}
 			datas << d
-			break if count >= 4
+			break if count >= 20
 		end
-		format["DATA_START"]=i+2
+		format["DATA_START"]=i+3
 		format["SOME_DATAS"]=datas
 		return format
 	end
@@ -277,7 +285,8 @@ class GlossaryImport
 			format[k]=c.to_i
 		}
 		if fmt["DATA_START"] != nil
-			i_row= fmt["DATA_START"].to_i
+			i_row= fmt["DATA_START"].to_i-1
+			i_row= 0 if i_row < 0 
 		else
 			i_row=0
 		end
@@ -295,10 +304,10 @@ class GlossaryImport
 				d[k]=get_value(r[col.to_i])
 			}
 			datas << d
-			break if count >= 4
+			break if count >=  20
 		end
 		if fmt["DATA_START"] == nil
-			format["DATA_START"] = 0
+			format["DATA_START"] = 1
 		else
 			format["DATA_START"] = fmt["DATA_START"]
 		end
@@ -306,16 +315,19 @@ class GlossaryImport
 		return format
 	end
 	def import(file,params,fmt=nil)
+printf("%s\n",file)
 		res = read_file(file)
 		return res if res !=nil
 		num_rows=@workbook.num_rows
 		if num_rows <= 0
+printf("num rows 0\n")
 			@callback.error("read-file",sprintf("empty file ! %s",file))
 			@callback.done("read-file")
 			@callback.finish()
 			return
 		end
 		@format=detect_format()
+##printf("%s\n",@format.inspect())
 		## if format in file , use it
 		if @format==nil
 			## not in file
@@ -337,9 +349,13 @@ class GlossaryImport
 
 		@dict_id=params["dict_id"].upcase.strip
 		tags = Hash.new
+		printf("CATEOGY %s\n",@category)
 		@format.each{|k,col|
 			next if k[0] != "#"
 			tags[k]=col.to_i
+			if k.index("#CATEGORY")!=nil
+				@category=nil
+			end
 		}
 		## import now
 		@callback.start("importing",num_rows)
@@ -361,7 +377,7 @@ class GlossaryImport
 				if r[0] != nil
 					next if r[0][0,1]=="#"
 				end
-				data = GlossaryData.new(@dict_id,tags,r)
+				data = GlossaryData.new(@dict_id,tags,r,@category)
 				recs[data.item_id]=data
 				if recs.length>=100
 					import_records(recs)
