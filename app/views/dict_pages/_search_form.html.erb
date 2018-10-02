@@ -17,6 +17,22 @@ function clickme(s){
 	document.getElementById("lookup").submit();
 }
 
+
+function src_lang_change(){
+	console.log("CHANGED");
+	document.getElementById("cur_src_lang").innerHTML= document.getElementById("src_lang").value;
+}
+
+$(document).ready(function(){
+    $("#swap_lang").click(function(){
+			var src_lang= document.getElementById("src_lang").value;
+			document.getElementById("src_lang").value=document.getElementById("tgt_lang").value;
+			document.getElementById("tgt_lang").value=src_lang;
+			document.getElementById("to_search").value="";
+			console.log(document.getElementById("to_search").value);
+			document.getElementById("cur_src_lang").innerHTML=document.getElementById("src_lang").value;
+    });
+});
 </script>
 
 
@@ -43,8 +59,9 @@ function clickme(s){
     <%= select_tag(
 	"src_lang", options_for_select(src_lang_opt,params[:src_lang]), 
 	{ "selected" => params[:src_lang],
-	  "class" =>"form-control" } ) %>
-  <span class="input-group-addon" id="basic-addon2"><i class="fa fa-arrow-right"></i></span>
+	  "class" =>"form-control" ,
+	  "onchange" => "src_lang_change();" } ) %>
+  <span class="input-group-addon" id="basic-addon2"><a class="fa fa-exchange" id="swap_lang"  ></a></span>
     <%= select_tag(
 	"tgt_lang", options_for_select(tgt_lang_opt,params[:tgt_lang]), 
 	{ "selected" => params[:tgt_lang],
@@ -97,7 +114,8 @@ function clickme(s){
 	value="<%=params[:to_search]%>" 
 	aria-describedby="basic-addon2">
   <span class="input-group-addon" id="basic-addon2">
-		<button class="fa fa-search" name="submit_a" type="submit_a" value="submit-true">
+		<span class="badge badge-secondary" id="cur_src_lang" ><%=params[:src_lang]%></span>
+		<button class="fa fa-search" >
         </button>
   </span>
 </div>
