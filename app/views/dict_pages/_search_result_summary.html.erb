@@ -35,6 +35,16 @@
 
 
 <!--------------------------------------------------------->
+
+<%if @result.size==0 and params[:to_search] != "" %>
+
+<p>Không tìm thấy kết quả cho: </p>
+<p><b><%=params[:to_search]%></b></p>
+<p>[<%=@dictionaries.src_lang_supported[params[:src_lang]]%>]</p>
+
+<% end %>
+
+
 <% @summary["translated"].each{|lang,trans| %>
 <%   if trans.length>0 %>
 
@@ -50,7 +60,7 @@
 	   <span class="clearfix">
 			<p style="float: left;" class="dict_text"><%=r["xlate"]%></p>
 			<div class="dropdown" style="float: right">
-			<button class="dropbtn"><%=r["dict"].size.to_s %><span class="fa fa-book"></span></button>
+			<button class="dropbtn"><%=r["dict"].size.to_s%> <span class="fa fa-book"></span></button>
 					<div class="dropdown-content">
 <%					r["dict"].each{|d| %>
 						<a href="<%='#dict'+@dictionaries.dict_num(d).to_s%>"><%=@dictionaries.dict_name(d)%></a>
