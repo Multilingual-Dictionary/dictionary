@@ -20,7 +20,11 @@
 		  </p>
     <% entry[:text].each{|t|  %>
     <% t = t.gsub(";","; ").gsub(",",", ") %>  
-        <p class="dict_text"><%=t%></p>
+		<%if t.index("<html>") != nil %>
+			<%= t.html_safe %>
+		<%else%>
+			<p class="dict_text"><%=t%></p>
+		<% end %>
     <% }
       }	%>
   </div>

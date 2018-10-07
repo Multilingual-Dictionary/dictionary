@@ -8,6 +8,9 @@ def dict_lookup
 	params[:ref_lang]='ALL' if params[:ref_lang] == nil
 	params[:to_search]='' if params[:to_search] == nil
 	params[:search_mode]='search_exact' if params[:search_mode] == nil
+	if params[:to_search].size > 60
+		params[:to_search]=params[:to_search][0,60]
+	end
 
 	@cur_mode="lookup"
 	if params[:lang_changed] == nil or  params[:lang_changed] == "1"

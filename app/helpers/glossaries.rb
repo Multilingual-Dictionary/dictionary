@@ -116,6 +116,8 @@ class GlossaryUtils
 			anothers[tag]="Lĩnh vực " + tag_lang
         when "#GRAMMAR"
 			anothers[tag]="Từ loại " + tag_lang
+		when "#HTML"
+			anothers[tag]="HTML"
         else
 			anothers[tag]=tag_key + tag_lang
         end

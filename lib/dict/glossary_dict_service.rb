@@ -102,6 +102,7 @@ class GlossaryDictService < DictService
       ##printf("RESULT %s\n",r.inspect())
       xlated_word= Hash.new
       txt = []
+      html_txt = []
       attr = ""
       ##
       ## parse json-data
@@ -133,13 +134,15 @@ class GlossaryDictService < DictService
         case tag_key
         when "#TERM"
 		##printf("is term\n")
-      		txt << "["+tag_lang+"] "+ value
+      		txt << "["+tag_lang+"] "+ value if value!=""
         when "#CATEGORY"
-		attr << "/" + value
+		attr << "/" + value if value!=""
         when "#GRAMMAR"
-		attr << "/" + value
+		attr << "/" + value if value!=""
+        when "#HTML"
+      		html_txt << "<html>"+ value + "</html>" if value!=""
         else
-      		txt << "["+tag_lang+"] "+ value
+      		txt << "["+tag_lang+"] "+ value if value!=""
         end
       }
       attr << "/" if attr != ""
@@ -149,7 +152,11 @@ class GlossaryDictService < DictService
       infos[:key_words]=key_words
       infos[:key_lang]=key_lang
       infos[:xlated_word]=xlated[r.item_id]
-      add_entry(r.dict_id,key,txt,infos)
+      if html_txt.size!=0
+        add_entry(r.dict_id,key,html_txt,infos)
+      else
+        add_entry(r.dict_id,key,txt,infos)
+      end
     }
     return result()
     end
