@@ -1,7 +1,3 @@
-require 'optparse'
-
-	OptionParser.new do |opts|
-		opts.on("-f") do |v|
-			printf("FILE %s\n",v)
-		end
-	end
+abc="abc-defx'ijka\"aa cc"
+printf("%s\n",abc)
+printf("[%s]\n",abc.gsub(/['\-\"]/," "))

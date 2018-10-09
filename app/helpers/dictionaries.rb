@@ -5,9 +5,19 @@ require "./lib/dict/google_dict_service"
 require 'whitesimilarity'
 
 class Dictionaries
-  attr_accessor :lang_codes,:src_lang_supported,:tgt_lang_supported,:dict_infos
+  attr_accessor :lang_codes,:src_lang_supported,:tgt_lang_supported,:dict_infos,:sql
   
   def initialize(dict_infos)
+
+
+    db_config= YAML::load(File.open('config/database.yml'))
+    @sql= {
+           "host" => "localhost",
+           "username" => db_config[Rails.env]["username"],
+           "password" =>db_config[Rails.env]["password"],
+           "database" =>db_config[Rails.env]["database"]
+          }
+printf("INIT SQL %s\n",@sql.inspect())
     @search_mode='search_exact'
     @search_key=nil
     @src_lang_supported=Hash.new
@@ -240,7 +250,8 @@ class Dictionaries
    return service.lookup(to_search,dict_name)
   end
   def lookup_glossary(to_search,dict_infos,src_lang,tgt_lang,dict_name=nil)
-      service= GlossaryDictService.new(dict_infos)
+printf("SQL %s\n",@sql.inspect())
+      service= GlossaryDictService.new(@sql)
       service.set_search_mode(@search_mode)
       service.set_search_key(to_search)
       service.set_languages(src_lang,tgt_lang)

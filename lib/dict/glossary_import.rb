@@ -4,6 +4,7 @@ require 'json'
 require 'roo'
 require 'roo-xls'
 require_relative 'table_file'
+require_relative 'glossary'
 
 class GlossaryImportCallback
 	def initialize()
@@ -53,7 +54,7 @@ class GlossaryData
 	end
 end
 class GlossaryImport
-	attr_accessor :dict_name,:author,:category,:year
+	attr_accessor :dict_name,:author,:category,:year,:glossary
 	def initialize(cfg=nil,callback=nil)
 		@dict_name=""
 		@author=""
@@ -66,6 +67,7 @@ class GlossaryImport
 			    :password => cfg["password"] , 
 			    :database => cfg["database"])
 		end
+		@glossary=GlossaryLib.new(cfg)
 		if callback != nil
 			@callback=callback
 		else
@@ -99,7 +101,7 @@ class GlossaryImport
         	key_words=remove_notes(key_words,"{","}")
         	key_words=remove_notes(key_words,"[","]")
 		return if key_words==""
-		key_words.gsub(/;/,",").split(',').each{|key|
+		key_words.split(';').each{|key|
 			####printf("KEY %s\n",key)
 			key.gsub!("|",",")
 			key.strip!
@@ -109,14 +111,21 @@ class GlossaryImport
 						"key very long! ignored!%s\n",key))
 				next
 			end
-			@index << ",\n" if @index.length>0
 			##printf("ADD KEY (%s)(%s)\n",lang,key)
-			@index << sprintf("('%s','%s','%s','%s','%d',now(),now())\n",
-					@client.escape(@dict_id),
+			splitted=@glossary.split_key(key)
+			next if splitted.size==0
+			normalized=@glossary.normalize(key)
+			splitted.each{|k,s|
+				@index << ",\n" if @index.length>0
+				@index << sprintf("('%s','%s','%s','%s','%s','%s','%d')\n",
+					@glossary.client.escape(@dict_id),
 					lang,
 					@item_id,
-					@client.escape(key),
+					@glossary.client.escape(k),
+					@glossary.client.escape(normalized),
+					@glossary.client.escape(key),
 					key.length)
+			}
 		}
 		##printf("QUERY %s\n",@index)
 	end
@@ -173,9 +182,13 @@ class GlossaryImport
 		}
 		if @index.length > 0
 			res = @client.query(
-			  	"insert into glossary_indices(dict_id,lang,item_id,key_words,key_len,created_at,updated_at)values\n"+@index)
+  	"insert into glossary_indices(dict_id,lang,item_id,key_word,key_words,original_key_words,key_len)values\n"+@index)
 		end
 	end
+
+
+
+
 	def read_file(file)
 		@callback.start("read-file",0)
 		@workbook = TableFile.new(file)
@@ -203,17 +216,16 @@ class GlossaryImport
 	end
 	### detect if is our format?
 	def detect_our_format()
-printf("DETECT OUR\n")
 		i = -1
 		coldefs=nil
 		@workbook.table.each {|r|
 			i += 1
 			first=get_tag(r[0])
-printf("FIRST %s\n",first)
 			if first=="#COLDEFS"
 				coldefs=first
 				break
 			end
+			break if i > 50
 			case first 
 			when "#DICTNAME"
 				@dict_name=get_value(r[1])
@@ -221,7 +233,6 @@ printf("FIRST %s\n",first)
 				@author=get_value(r[1])
 			when "#FIELD"
 				@category=get_value(r[1])
-printf("IS FIELD %s\n",@category)
 			when "#CATEGORY"
 				@category=get_value(r[1])
 			when "#DOMAIN"
@@ -230,7 +241,6 @@ printf("IS FIELD %s\n",@category)
 				@year=get_value(r[1])
 			end
 		}
-printf("CA %s\n",@category)
 		return nil if coldefs==nil
 		defs = @workbook.table[i+1]
 		j = -1  
