@@ -3,81 +3,16 @@
 ################################################################################
 class GlossaryUpdater
   def initialize(glossary,data)
-    @dict_id=glossary.dict_id
-	@index = ""
-	## build Hash & Json
-	md5 = Digest::MD5.new
-    md5 << @dict_id.upcase
-	data.each{|tag,v|
-		v = "" if  v==nil
-        v.strip!
-		md5 << v.upcase
-    }
-    @item_id= md5.hexdigest
-	json = JSON.generate(data)
-	## build indices
-	data.each{|k,v|
-		next if k.index("TERM:")==nil
-        add_index(k[6,2],v) if v !=""
-	}
-	glossary.data=json
-	old_item_id=glossary.item_id
-	glossary.item_id=@item_id
-	insert_indices= "insert into glossary_indices "+
-	                "(dict_id,lang,item_id,key_words,key_len,created_at," +
-					"updated_at)values\n" +
-					@index
-					
-
-	
-	conn = ActiveRecord::Base.connection
-    res = conn.select_all(
-		sprintf("delete from glossary_indices where item_id='%s'\n",old_item_id))
-	conn.select_all(insert_indices)
-	glossary=nil if glossary.id=="" or glossary.id=="0"
-	glossary.save
-  end
-  def remove_notes(txt,open,close)
-	is_in = false
-	res = ""
-	txt.each_char{|c|
-		if c==open
-			is_in = true
-			next
-		end
-		if c == close
-			is_in = false
-			next
-		end
-		if not is_in
-			res << c
-		end
-	}
-	return res
- end
- def add_index(lang,key_words)
-    ##printf("add index %s,%s,%s,%s\n",lang,key_words,@dict_id,@item_id)
-	key_words=remove_notes(key_words,"(",")")
-	key_words=remove_notes(key_words,"{","}")
-	key_words=remove_notes(key_words,"[","]")
-	return if key_words==""
-	conn = ActiveRecord::Base.connection		
-	key_words.gsub(/;/,",").split(',').each{|key|
-		####printf("KEY %s\n",key)
-		key.strip!
-		next if key==""
-		if key.length>250
-			next
-		end
-		@index << ",\n" if @index.length>0
-
-        @index << sprintf("(%s,'%s','%s',%s,'%d',now(),now())\n",
-			conn.quote(@dict_id),
-            lang,
-            @item_id,
-            conn.quote(key),
-            key.length)
-	}
+	db_config= YAML::load(File.open('config/database.yml'))
+	glossary_lib= GlossaryLib.new(
+                      {
+                        "host" => "localhost",
+                        "username" => db_config[Rails.env]["username"],
+                        "password" =>db_config[Rails.env]["password"],
+                        "database" =>db_config[Rails.env]["database"]
+                      })
+	glossary.id=glossary_lib.update(glossary.dict_id,glossary.id,data)
+	return 
   end
 end
 

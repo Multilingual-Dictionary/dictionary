@@ -33,9 +33,7 @@ end
 class GlossaryData
 	attr_accessor :dict_id,:item_id,:data
 	
-	def initialize(dict_id,tags,item_data,category=nil)
-		md5 = Digest::MD5.new
-		md5 << dict_id.upcase
+	def initialize(glossary_lib,dict_id,tags,item_data,category=nil)
 		@dict_id = dict_id
 		@item_id = ''
 		@data = Hash.new
@@ -44,15 +42,14 @@ class GlossaryData
 			v = "" if  v==nil
 			v.strip!
 			@data[k]=v 
-			md5 << v.upcase
 		}
 		if category!=nil
 			@data["#CATEGORY"]=category
-			md5 << category.upcase
 		end
-		@item_id = md5.hexdigest
+		@item_id = glossary_lib.hash_dict_entry(dict_id,@data)
 	end
 end
+
 class GlossaryImport
 	attr_accessor :dict_name,:author,:category,:year,:glossary
 	def initialize(cfg=nil,callback=nil)
@@ -76,65 +73,6 @@ class GlossaryImport
 	end
 	def is_numeric(txt)
 		return txt.to_s.match(/\A[+-]?\d+?(_?\d+)*(\.\d+e?\d*)?\Z/) == nil ? false : true
-	end
-	def remove_notes(txt,open,close)
-		is_in = false
-		res = ""
-		txt.each_char{|c|
-			if c==open
-				is_in = true
-				next
-			end
-			if c == close
-				is_in = false
-				next
-			end
-			if not is_in
-				res << c
-			end
-		}
-   		return res
-	end
-	def add_index(lang,key_words)
-		##printf("add index %s,%s,%s,%s\n",lang,key_words,@dict_id,@item_id)
-        	key_words=remove_notes(key_words,"(",")")
-        	key_words=remove_notes(key_words,"{","}")
-        	key_words=remove_notes(key_words,"[","]")
-		return if key_words==""
-		key_words.split(';').each{|key|
-			####printf("KEY %s\n",key)
-			key.gsub!("|",",")
-			key.strip!
-			next if key==""
-			if key.length>250
-				@callback.warn("index-file",sprintf(
-						"key very long! ignored!%s\n",key))
-				next
-			end
-			##printf("ADD KEY (%s)(%s)\n",lang,key)
-			splitted=@glossary.split_key(key)
-			next if splitted.size==0
-			normalized=@glossary.normalize(key)
-			splitted.each{|k,s|
-				@index << ",\n" if @index.length>0
-				@index << sprintf("('%s','%s','%s','%s','%s','%s','%d')\n",
-					@glossary.client.escape(@dict_id),
-					lang,
-					@item_id,
-					@glossary.client.escape(k),
-					@glossary.client.escape(normalized),
-					@glossary.client.escape(key),
-					key.length)
-			}
-		}
-		##printf("QUERY %s\n",@index)
-	end
-	def index_keys(r)
-		@item_id=r.item_id
-		r.data.each{|k,v|
-			next if k.index("TERM:")==nil
-			add_index(k[6,2],v) if v !=""
-		}
 	end
 	###
  	###	Import array of records
@@ -176,18 +114,18 @@ class GlossaryImport
 		##
 		## index now
 		##
-		@index=""
+
+		@glossary.index_init(@dict_id)
 		recs.each{|dg,r|
-			index_keys(r)
+			@glossary.index_entry(r.item_id,r.data)
 		}
-		if @index.length > 0
-			res = @client.query(
-  	"insert into glossary_indices(dict_id,lang,item_id,key_word,key_words,original_key_words,key_len)values\n"+@index)
-		end
+		@glossary.index_write()
+
 	end
 
-
-
+	##
+	##  read file in
+	##
 
 	def read_file(file)
 		@callback.start("read-file",0)
@@ -325,19 +263,16 @@ class GlossaryImport
 		return format
 	end
 	def import(file,params,fmt=nil)
-printf("%s\n",file)
 		res = read_file(file)
 		return res if res !=nil
 		num_rows=@workbook.num_rows
 		if num_rows <= 0
-printf("num rows 0\n")
 			@callback.error("read-file",sprintf("empty file ! %s",file))
 			@callback.done("read-file")
 			@callback.finish()
 			return
 		end
 		@format=detect_format()
-##printf("%s\n",@format.inspect())
 		## if format in file , use it
 		if @format==nil
 			## not in file
@@ -387,7 +322,7 @@ printf("num rows 0\n")
 				if r[0] != nil
 					next if r[0][0,1]=="#"
 				end
-				data = GlossaryData.new(@dict_id,tags,r,@category)
+				data = GlossaryData.new(@glossary,@dict_id,tags,r,@category)
 				recs[data.item_id]=data
 				if recs.length>=100
 					import_records(recs)
