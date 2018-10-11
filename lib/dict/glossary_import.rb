@@ -320,7 +320,8 @@ class GlossaryImport
 					@callback.sofar("importing",count)
 				end
 				if r[0] != nil
-					next if r[0][0,1]=="#"
+					v0 =get_value(r[0])
+					next if v0[0,1]=="#"
 				end
 				data = GlossaryData.new(@glossary,@dict_id,tags,r,@category)
 				recs[data.item_id]=data
