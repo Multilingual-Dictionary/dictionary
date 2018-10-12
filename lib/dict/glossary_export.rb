@@ -268,7 +268,7 @@ class GlossaryExport
 				line << tag +"\t"
 			end
 		}
-		line << "\n"
+		line << "ENTRY_ID\tUPDATE\n"
 		@callback.write(line)
 		
 		#####################################
@@ -280,7 +280,7 @@ class GlossaryExport
 			##printf("OFS %d\n",ofs)
 			data=""
 			res = @client.query(sprintf(
-				"select data from glossaries where dict_id='%s' limit %d,1000",
+				"select data,item_id from glossaries where dict_id='%s' limit %d,1000",
 			 		@client.escape(dict_id),
 					ofs))
 			count = 0
@@ -299,6 +299,9 @@ class GlossaryExport
 						line << d[tag] +"\t"
 					end
 				}
+				if r["item_id"] != nil
+					line << r["item_id"]
+				end
 				lines << line + "\n"
 			}
 			@callback.write(lines) 
