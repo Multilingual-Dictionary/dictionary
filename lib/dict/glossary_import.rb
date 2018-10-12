@@ -32,20 +32,26 @@ end
 
 class GlossaryData
 	attr_accessor :dict_id,:item_id,:data
-	
-	def initialize(glossary_lib,dict_id,tags,item_data,category=nil)
-		@dict_id = dict_id
-		@item_id = ''
-		@data = Hash.new
-		tags.each{|k,col|
-			v = item_data[col.to_i].to_s
-			v = "" if  v==nil
-			v.strip!
-			@data[k]=v 
-		}
-		if category!=nil
-			@data["#CATEGORY"]=category
+	def initialize(glossary_lib=nil,dict_id=nil,tags=nil,item_data=nil,category=nil)
+		if glossary_lib != nil
+			@dict_id = dict_id
+			@item_id = ''
+			@data = Hash.new
+			tags.each{|k,col|
+				v = item_data[col.to_i].to_s
+				v = "" if  v==nil
+				v.strip!
+				@data[k]=v 
+			}
+			if category!=nil
+				@data["#CATEGORY"]=category
+			end
+			@item_id = glossary_lib.hash_dict_entry(dict_id,@data)
 		end
+	end
+	def setup_with_json(glossary_lib,dict_id,data)
+		@dict_id = dict_id
+		@data = data
 		@item_id = glossary_lib.hash_dict_entry(dict_id,@data)
 	end
 end
@@ -90,7 +96,6 @@ class GlossaryImport
 		query="select item_id from glossaries where item_id in ("+d+")"
 		res = @client.query(query)
 		res.each{|r|
-			##printf("r %s\n",r.inspect())
 			v = recs.delete(r["item_id"])  ## we dont need to import this!
 		}
 		return if recs.length==0
@@ -262,7 +267,45 @@ class GlossaryImport
 		format["SOME_DATAS"]=datas
 		return format
 	end
+	def json_parse(data)
+		begin
+			ret=JSON.parse(data)
+		rescue
+			return nil
+		end
+	end
+	def import_json(file,params)
+		@dict_id=params["dict_id"].upcase.strip
+		begin
+			f = File.open(file)
+			recs = Hash.new
+			count = 0
+			while line=f.gets()
+				count = count + 1
+				d = json_parse(line)
+				next if d == nil
+				data = GlossaryData.new()
+				data.setup_with_json(@glossary,@dict_id,d)
+				recs[data.item_id]=data
+				if recs.length>=1000
+					import_records(recs)
+					recs.clear()
+				end
+			end
+			if recs.length>0
+				import_records(recs)
+				@callback.sofar("importing",count)
+			end
+		rescue Exception => e
+			# @callback.error("importing",sprintf("import error %s",e))
+		end
+		@callback.done("importing")
+		@callback.finish()
+	end
 	def import(file,params,fmt=nil)
+		if params["format"] != nil and params["format"] == "json"
+			return import_json(file,params)
+		end
 		res = read_file(file)
 		return res if res !=nil
 		num_rows=@workbook.num_rows
