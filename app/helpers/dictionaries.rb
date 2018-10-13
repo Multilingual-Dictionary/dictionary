@@ -17,16 +17,16 @@ class Dictionaries
            "password" =>db_config[Rails.env]["password"],
            "database" =>db_config[Rails.env]["database"]
           }
-printf("INIT SQL %s\n",@sql.inspect())
+
     @search_mode='search_exact'
     @search_key=nil
     @src_lang_supported=Hash.new
     @tgt_lang_supported=Hash.new
 	@lang_codes = 
-		{"VI"=>"Tiếng Việt",
-		 "EN"=>"Tiếng Anh",
-		 "DE"=>"Tiếng Đức",
-	     "FR"=>"Tiếng Pháp"}
+		{"VI"=>"Việt",
+		 "EN"=>"Anh",
+		 "DE"=>"Đức",
+	     "FR"=>"Pháp"}
     @dict_infos=Hash.new
    
     dict_num=0
@@ -250,7 +250,6 @@ printf("INIT SQL %s\n",@sql.inspect())
    return service.lookup(to_search,dict_name)
   end
   def lookup_glossary(to_search,dict_infos,src_lang,tgt_lang,dict_name=nil)
-printf("SQL %s\n",@sql.inspect())
       service= GlossaryDictService.new(@sql)
       service.set_search_mode(@search_mode)
       service.set_search_key(to_search)
@@ -300,19 +299,19 @@ printf("SQL %s\n",@sql.inspect())
 	        tgt_lang << "," if tgt_lang != ""
 		tgt_lang << l
     		num_tgt_lang = num_tgt_lang + 1
-printf("tgt1 LANG %s\n",tgt_lang)
         }
     else
     	num_tgt_lang = 1
         tgt_lang = target_lang
-        langs = {target_lang=>target_lang} 
-        reference_lang.split(",").each{|l|
-          next if langs.has_key?(l)
-          tgt_lang << "," << l
-printf("tgt2 LANG %s\n",tgt_lang)
-	  langs[l] = l
-          num_tgt_lang = num_tgt_lang + 1
-        }
+		if reference_lang!="NONE"
+			langs = {target_lang=>target_lang}	
+			reference_lang.split(",").each{|l|
+				next if langs.has_key?(l)
+				tgt_lang << "," << l
+				langs[l] = l
+				num_tgt_lang = num_tgt_lang + 1
+			}
+		end
     end
 printf("TGT LANG %s\n",tgt_lang)
      

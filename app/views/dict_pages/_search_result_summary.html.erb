@@ -3,7 +3,7 @@
 
 <style>
 .dropbtn {
-    background-color: gray;
+    background-color:  #669900;
     color: white;
     padding: 1px;
     font-size: 10px;
@@ -32,7 +32,11 @@
 .dropdown:hover .dropbtn {background-color: #3e8e41;}
 
 </style>
-
+<script>
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();   
+});
+</script>
 
 <!--------------------------------------------------------->
 
@@ -54,11 +58,31 @@
 	<p class="dict_label"><%=@dictionaries.lang_codes[lang]%></p>
 	</div>
   <div class="panel-body">
+  
+  
 <%   trans.each{|key,res| %>
        <p class="dict_key"><%=key%></p>
 <%     res.each{|r| %>
 	   <span class="clearfix">
 			<p style="float: left;" class="dict_text"><%=r["xlate"]%></p>
+<% if lang != params[:tgt_lang] %>
+<% lookup = {"abc"=>"def",
+			 "ijk"=>"hello",
+			 "src_lang"=>lang,
+			 "tgt_lang"=>params[:tgt_lang],
+			 "to_search"=>r["xlate"],
+			 "search_mode"=>params["search_mode"]
+			}
+%>
+
+
+			<% tool_tip = r["xlate"] + " > tiếng " + @dictionaries.lang_codes[params[:tgt_lang]] %>
+			<a href="<%=dict_lookup_path(lookup)%>"
+			    data-toggle="tooltip" title="<%=tool_tip%>"
+				style="float: right"><span class="fa fa-search"></span>
+				
+			</a>
+<% end %>
 			<div class="dropdown" style="float: right">
 			<button class="dropbtn"><%=r["dict"].size.to_s%> <span class="fa fa-book"></span></button>
 					<div class="dropdown-content">

@@ -46,7 +46,8 @@ $(document).ready(function(){
    @dictionaries.src_lang_supported.each{|k,v|
       src_lang_opt << [v,k]
    }
-   ref_lang_opt << ["Mặc định","ALL"]
+   ref_lang_opt << ["Tất cả","ALL"]
+   ref_lang_opt << ["Không tham khảo","NONE"]
    @dictionaries.tgt_lang_supported.each{|k,v|
       tgt_lang_opt << [v,k]
 	  ref_lang_opt << [v,k]
@@ -108,13 +109,15 @@ $(document).ready(function(){
 
 <!-------- SEARCH  ------------------------------------->
 <div class="input-group input-group-sm">
+  <span class="input-group-addon" id="basic-addon2">
+	<span class="badge badge-secondary" id="cur_src_lang" ><%=params[:src_lang]%></span>
+  </span>
   <input type="text" class="form-control" 
         id="to_search" name="to_search"
 	placeholder='Nhập từ cần tra ...' 
 	value="<%=params[:to_search]%>" 
 	aria-describedby="basic-addon2">
   <span class="input-group-addon" id="basic-addon2">
-		<span class="badge badge-secondary" id="cur_src_lang" ><%=params[:src_lang]%></span>
 		<button class="fa fa-search" >
         </button>
   </span>

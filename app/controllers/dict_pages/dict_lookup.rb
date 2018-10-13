@@ -7,7 +7,7 @@ def dict_lookup
 	params[:tgt_lang]='VI' if params[:tgt_lang] == nil
 	params[:ref_lang]='ALL' if params[:ref_lang] == nil
 	params[:to_search]='' if params[:to_search] == nil
-	params[:search_mode]='search_exact' if params[:search_mode] == nil
+	params[:search_mode]='search_contain' if params[:search_mode] == nil
 	if params[:to_search].size > 60
 		params[:to_search]=params[:to_search][0,60]
 	end
@@ -118,9 +118,16 @@ def dict_lookup
 	summary["translated"][lang]=Hash.new
 	trans[lang].each{|x|
 		key = x["key"].downcase
+		if lang==params[:src_lang] and
+		   (UnicodeUtils.casefold(x["key"]).gsub(/\p{^Alnum}/,"")==
+		    UnicodeUtils.casefold(x["xlate"]).gsub(/\p{^Alnum}/,""))
+		   next
+		end
+		key = x["key"].downcase
 		if summary["translated"][lang][key]==nil
 			summary["translated"][lang][key]=[]
 		end
+		
 		summary["translated"][lang][key]<<
 			{"xlate"=>x["xlate"],"dict"=>x["dict"]}
 		if  xlate_count != nil 
