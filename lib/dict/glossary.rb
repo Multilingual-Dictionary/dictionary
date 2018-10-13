@@ -133,7 +133,7 @@ class GlossaryLib
 			end
 		}
 		##printf("QUERY [%s]\n",query)
-		res =  @client.query(query+ "limit 100")
+		res =  @client.query(query+ "limit 25")
 		items = ""
                	res.each{|r|
 			items << "," if items != ""
