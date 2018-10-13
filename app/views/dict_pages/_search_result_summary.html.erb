@@ -65,6 +65,7 @@ $(document).ready(function(){
 <%     res.each{|r| %>
 	   <span class="clearfix">
 			<p style="float: left;" class="dict_text"><%=r["xlate"]%></p>
+		<div style="float: right;" >
 <% if lang != params[:tgt_lang] %>
 <% lookup = {"abc"=>"def",
 			 "ijk"=>"hello",
@@ -78,12 +79,11 @@ $(document).ready(function(){
 
 			<% tool_tip = r["xlate"] + " > tiếng " + @dictionaries.lang_codes[params[:tgt_lang]] %>
 			<a href="<%=dict_lookup_path(lookup)%>"
-			    data-toggle="tooltip" title="<%=tool_tip%>"
-				style="float: right"><span class="fa fa-search"></span>
-				
+			    data-toggle="tooltip" title="<%=tool_tip%>" ><span class="fa fa-search"></span>
 			</a>
+			 &nbsp;
 <% end %>
-			<div class="dropdown" style="float: right">
+			<div class="dropdown">
 			<button class="dropbtn"><%=r["dict"].size.to_s%> <span class="fa fa-book"></span></button>
 					<div class="dropdown-content">
 <%					r["dict"].each{|d| %>
@@ -91,6 +91,7 @@ $(document).ready(function(){
 <%					} %>	
 					</div>
 			</div>
+		</div>
 		</span>
 	   
 	   
