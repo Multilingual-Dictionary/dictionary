@@ -122,7 +122,7 @@ class GlossaryLib
 
 		query = ""
 		splitted.each{|k,s|
-			q = sprintf("select item_id from %s where lang='%s' and key_word like '%s' order by key_len \n",
+			q = sprintf("select item_id from %s where lang='%s' and key_word like '%s' \n",
 				'glossary_indices',
 				lang,
 				@client.escape(k)+"%")
@@ -133,12 +133,13 @@ class GlossaryLib
 			end
 		}
 		##printf("QUERY [%s]\n",query)
-		res =  @client.query(query+ "limit 25")
+		res =  @client.query(query+ "order by key_len limit 50")
 		items = ""
                	res.each{|r|
 			items << "," if items != ""
 			items << "'" + r['item_id'] + "'"
                	}
+		##printf("items %s\n",items.inspect())
 		if items == ""
 			return indices
 		end
