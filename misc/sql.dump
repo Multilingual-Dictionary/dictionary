@@ -1,0 +1,249 @@
+-- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
+--
+-- Host: localhost    Database: dictionary_development
+-- ------------------------------------------------------
+-- Server version	5.7.22-0ubuntu0.16.04.1
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `ar_internal_metadata`
+--
+
+DROP TABLE IF EXISTS `ar_internal_metadata`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ar_internal_metadata` (
+  `key` varchar(255) NOT NULL,
+  `value` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `data_files`
+--
+
+DROP TABLE IF EXISTS `data_files`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `data_files` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `data_type` varchar(255) DEFAULT NULL,
+  `notes` varchar(255) DEFAULT NULL,
+  `filename` varchar(255) DEFAULT NULL,
+  `job_id` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `davkhkt_dicts`
+--
+
+DROP TABLE IF EXISTS `davkhkt_dicts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `davkhkt_dicts` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `key_words` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `wtype` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `category` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `english` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `viet` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `delayed_jobs`
+--
+
+DROP TABLE IF EXISTS `delayed_jobs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `delayed_jobs` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `priority` int(11) NOT NULL DEFAULT '0',
+  `attempts` int(11) NOT NULL DEFAULT '0',
+  `handler` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_error` text COLLATE utf8mb4_unicode_ci,
+  `run_at` datetime DEFAULT NULL,
+  `locked_at` datetime DEFAULT NULL,
+  `failed_at` datetime DEFAULT NULL,
+  `locked_by` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `queue` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `progress_stage` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `progress_current` int(11) DEFAULT '0',
+  `progress_max` int(11) DEFAULT '0',
+  `record_type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `record_id` int(11) DEFAULT NULL,
+  `handler_class` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `delayed_jobs_priority` (`priority`,`run_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dict_configs`
+--
+
+DROP TABLE IF EXISTS `dict_configs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dict_configs` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `dict_sys_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `dict_name` mediumtext COLLATE utf8mb4_unicode_ci,
+  `lang` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `xlate_lang` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `desc` mediumtext COLLATE utf8mb4_unicode_ci,
+  `protocol` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `syntax` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ext_infos` mediumtext COLLATE utf8mb4_unicode_ci,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `cfg` text COLLATE utf8mb4_unicode_ci,
+  `priority` int(11) DEFAULT '1',
+  `domains` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dict_jobs`
+--
+
+DROP TABLE IF EXISTS `dict_jobs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dict_jobs` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `job_id` varchar(255) DEFAULT NULL,
+  `job_name` varchar(255) DEFAULT NULL,
+  `in_data` text,
+  `out_data` longtext,
+  `stage` varchar(255) DEFAULT NULL,
+  `percent` int(11) DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `message` varchar(255) DEFAULT NULL,
+  `notes` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `job_id` (`job_id`),
+  KEY `job_name` (`job_name`),
+  KEY `created_at` (`created_at`),
+  KEY `status` (`status`)
+) ENGINE=InnoDB AUTO_INCREMENT=358 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `glossaries`
+--
+
+DROP TABLE IF EXISTS `glossaries`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `glossaries` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `dict_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `item_id` varchar(32) DEFAULT NULL,
+  `data` text,
+  PRIMARY KEY (`id`),
+  KEY `dict_id_idx` (`dict_id`),
+  KEY `item_id_idx` (`item_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=88016 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `glossary_indices`
+--
+
+DROP TABLE IF EXISTS `glossary_indices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `glossary_indices` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `dict_id` varchar(32) DEFAULT NULL,
+  `lang` varchar(8) DEFAULT NULL,
+  `key_word` varchar(64) DEFAULT NULL,
+  `key_words` varchar(255) DEFAULT NULL,
+  `original_key_words` varchar(255) DEFAULT NULL,
+  `key_len` smallint(6) DEFAULT NULL,
+  `item_id` varchar(32) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `key_words_idx` (`key_words`),
+  KEY `key_word_idx` (`key_word`),
+  KEY `lang_idx` (`lang`),
+  KEY `dict_id_idx` (`dict_id`),
+  KEY `key_len_idx` (`key_len`),
+  KEY `key_li` (`key_words`,`key_len`),
+  KEY `item_id_idx` (`item_id`),
+  KEY `dict_key_lang` (`dict_id`,`lang`,`key_word`,`key_words`)
+) ENGINE=InnoDB AUTO_INCREMENT=698996 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `schema_migrations`
+--
+
+DROP TABLE IF EXISTS `schema_migrations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `schema_migrations` (
+  `version` varchar(255) NOT NULL,
+  PRIMARY KEY (`version`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `role` varchar(255) DEFAULT NULL,
+  `password_digest` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2018-10-15 22:32:14
