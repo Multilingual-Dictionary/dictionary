@@ -18,7 +18,7 @@ def dict_lookup
 	end
 	
 	### DOMAINS
-	
+if false
 	@domain_list={
 		"GENERAL" => "Tổng quát",
 		"NAT-SCI-TECH" => "Khoa học tự nhiên-kỹ thuật",
@@ -37,6 +37,9 @@ def dict_lookup
 		params["CHK_NAT-SCI-TECH"]="ON"
 		domains << "NAT-SCI-TECH"
 	end
+else
+	domains= ["GENERAL","NAT-SCI-TECH","SOC-SCI"] 
+end
 
 	printf("domains %s\n",domains.inspect())
 	

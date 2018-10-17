@@ -67,8 +67,7 @@ $(document).ready(function(){
 			<p style="float: left;" class="dict_text"><%=r["xlate"]%></p>
 		<div style="float: right;" >
 <% if lang != params[:tgt_lang] %>
-<% lookup = {"abc"=>"def",
-			 "ijk"=>"hello",
+<% lookup = {
 			 "src_lang"=>lang,
 			 "tgt_lang"=>params[:tgt_lang],
 			 "to_search"=>r["xlate"],
