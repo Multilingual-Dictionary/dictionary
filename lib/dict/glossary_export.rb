@@ -40,7 +40,7 @@ class GlossaryExport
 	########################################################################
 
 	def count()
-		sql  = "select count(key_words) as cnt from glossary_indices where "
+		sql  = "select count(original_key_words) as cnt from glossary_indices where "
 		sql  << sprintf("lang ='%s' and ",@src_lang)
 		sql  << sprintf("dict_id in(%s)",@dicts)
 		res = @client.query(sql)
@@ -56,14 +56,14 @@ class GlossaryExport
 		total = 0
 		loop do
 			##printf("OFS %d\n",ofs)
-			sql  = "select distinct key_words from glossary_indices where "
+			sql  = "select distinct original_key_words from glossary_indices where "
 			sql  << sprintf("lang ='%s' and ",@src_lang)
 			sql  << sprintf("dict_id in(%s) ",@dicts)
 			sql  << sprintf("limit %d,50000",ofs)
 			res = @client.query(sql)
 			count = 0
 			res.each{|r|
-				key_words << r["key_words"]
+				key_words << r["original_key_words"]
 				count = count + 1
 				total = total + 1
 			}
@@ -87,15 +87,15 @@ class GlossaryExport
 			   	"dicts"=>Hash.new
 				}
 		}
-		sql  = "select key_words,item_id from glossary_indices where "
+		sql  = "select original_key_words,item_id from glossary_indices where "
 		sql  << sprintf("lang ='%s' and ",@src_lang)
 		sql  << sprintf("dict_id in(%s) and ",@dicts)
-		sql  << sprintf("key_words in(%s) ",ks)
+		sql  << sprintf("original_key_words in(%s) ",ks)
 		res = @client.query(sql)
 		all_item_id=Hash.new
 		all_item_id_set=""
 		res.each{|r|
-			k = r["key_words"].upcase
+			k = r["original_key_words"].upcase
 			next if all_keys[k]==nil
 			item_id = r["item_id"]
 			all_item_id[item_id]=k
@@ -103,7 +103,7 @@ class GlossaryExport
 			all_item_id_set<<"," if all_item_id_set.length!=0
 			all_item_id_set<<"'"<<item_id<<"'"
 		}
-		sql  = "select key_words,item_id,dict_id from glossary_indices where "
+		sql  = "select original_key_words,item_id,dict_id from glossary_indices where "
 		sql  << sprintf("lang ='%s' and ",@tgt_lang)
 		sql  << sprintf("dict_id in(%s) and ",@dicts)
 		sql  << sprintf("item_id in(%s) ",all_item_id_set)
@@ -111,7 +111,7 @@ class GlossaryExport
 		res.each{|r|
 			item_id = r["item_id"]
 			k = all_item_id[item_id]
-			translated = r["key_words"]
+			translated = r["original_key_words"]
 			all_keys[k]["translated"][translated]=translated
 			all_keys[k]["dicts"][r["dict_id"]]=r["dict_id"]
 		}
@@ -130,7 +130,7 @@ class GlossaryExport
 	end
 	def export_terms(src_lang,tgt_lang,dicts)
 		
-		##printf("%s,%s,%s\n",src_lang,tgt_lang,dicts)
+		##printf("EXP TERM %s,%s,%s\n",src_lang,tgt_lang,dicts)
 		@src_lang = src_lang
 		@tgt_lang = tgt_lang
 		##printf("%s\n",dicts.split(",").inspect())
@@ -143,7 +143,6 @@ class GlossaryExport
 		}
 		##printf("%s,%s,%s\n",@src_lang,@tgt_lang,@dicts)
 		count = count()
-		##printf("count %s\n",count)
 		
 		if count==0
 		        ### NO KEY

@@ -8,5 +8,5 @@ exp=GlossaryExport.new(
 		 "database" => "dictionary_development"
 		},
 		cb)
-#exp.export_terms(ARGV[0],ARGV[1],ARGV[2])
-exp.export_glossary(ARGV[0])
+exp.export_terms(ARGV[0],ARGV[1],ARGV[2])
+#exp.export_glossary(ARGV[0])
