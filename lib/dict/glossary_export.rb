@@ -295,13 +295,13 @@ class GlossaryExport
 						line <<"\t"
 						next
 					else
-						line << d[tag] +"\t"
+						line << d[tag].gsub("\t"," ") +"\t"
 					end
 				}
 				if r["item_id"] != nil
 					line << r["item_id"]
 				end
-				lines << line + "\n"
+				lines <<  line.gsub("\n",".").gsub("\r",".") + "\n"
 			}
 			@callback.write(lines) 
 			total += count
