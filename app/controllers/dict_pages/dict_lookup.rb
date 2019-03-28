@@ -27,10 +27,10 @@ if false
 	domains=[]
 	@domain_list.each{|domain,domain_name|
 		chk_name="CHK_"+domain
-		printf("[%s][%s]\n",chk_name,params["CHK_"+domain])
+		##printf("[%s][%s]\n",chk_name,params["CHK_"+domain])
 		if params["CHK_"+domain] != nil
 			domains << domain
-			printf("ADD [%s]\n",domain)
+			##printf("ADD [%s]\n",domain)
 		end
 	}
 	if domains.size==0
@@ -41,7 +41,6 @@ else
 	domains= ["GENERAL","NAT-SCI-TECH","SOC-SCI"] 
 end
 
-	printf("domains %s\n",domains.inspect())
 	
 	### SEARCH-OPTIONS
 	
@@ -78,6 +77,7 @@ end
 	if params[:src_lang] ==params[:tgt_lang]
 		user_want_explanation= true
 	end
+	##printf("RESULT %s\n",@result.inspect())
 	@result.each{|r|
 		cnt = 1
 		lang_tag="["+params[:tgt_lang].upcase+"]"
@@ -149,6 +149,7 @@ end
 		return summary
 	end
 	trans =  @dictionaries.get_translated_words(result)
+
   	build_summary_for_language(trans,params[:tgt_lang],summary,xlate_count)
 	if params[:ref_lang]=="ALL" 
 		@dictionaries.lang_codes.each{|lang,lang_txt|

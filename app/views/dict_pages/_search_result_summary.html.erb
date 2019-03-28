@@ -62,9 +62,18 @@ $(document).ready(function(){
   
 <%   trans.each{|key,res| %>
        <p class="dict_key"><%=key%></p>
-<%     res.each{|r| %>
+<%     res.each{|r| 
+         reliable=true
+	 if r["dict"].size > 1
+            reliable=true
+            text_style = "dict_text"
+         else
+            reliable=false
+            text_style = "dict_text_2"
+         end
+%>
 	   <span class="clearfix">
-			<p style="float: left;" class="dict_text"><%=r["xlate"]%></p>
+			<p style="float: left;" class="<%=text_style%>"><%=r["xlate"]%></p>
 		<div style="float: right;" >
 <% if lang != params[:tgt_lang] %>
 <% lookup = {
@@ -88,6 +97,9 @@ $(document).ready(function(){
 <%					r["dict"].each{|d| %>
 						<a href="<%='#dict'+@dictionaries.dict_num(d).to_s%>"><%=@dictionaries.dict_name(d)%></a>
 <%					} %>	
+<% if reliable==false %>
+					Từ này chỉ có tính tham khảo!
+<% end %>
 					</div>
 			</div>
 		</div>

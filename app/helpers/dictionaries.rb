@@ -53,7 +53,8 @@ class Dictionaries
           "domains" => inf.domains,
           "ext_cfg" => ext_cfg,
           "src_languages" => to_set_of(inf.lang),
-          "tgt_languages" => to_set_of(inf.xlate_lang)
+          "tgt_languages" => to_set_of(inf.xlate_lang),
+          "priority" => inf.priority
         }
     }
     @dict_infos.each{|n,inf|
@@ -313,7 +314,6 @@ class Dictionaries
 			}
 		end
     end
-printf("TGT LANG %s\n",tgt_lang)
      
      ### lookup now 
 
@@ -371,7 +371,6 @@ printf("TGT LANG %s\n",tgt_lang)
 			dicts << inf["dict_sys_name"]
 		end
 	}
-	printf("dicts %s\n",dicts)
   	return  lookup_dictionaries( to_search,source_lang,target_lang,reference_lang,dicts)
 
   end
@@ -406,6 +405,12 @@ printf("TGT LANG %s\n",tgt_lang)
     translated=Hash.new
     return translated if result==nil
     result.each(){|r|
+      dn = r[:dict_name].upcase
+      if @dict_infos[dn]!=nil
+        prior = @dict_infos[dn]["priority"].to_i
+      else
+        prior = 0
+      end
       r[:entries].each{|entry|
         next if entry[:infos] == nil
         next if entry[:infos][:xlated_word]==nil
@@ -421,7 +426,8 @@ printf("TGT LANG %s\n",tgt_lang)
                  "xlate"  =>x,
                  "dict"   => [r[:dict_name]],
                  "simi"   => entry[:infos][:key_similarity],
-				 "key"   => entry[:infos][:key_words]
+		 "key"    => entry[:infos][:key_words],
+		 "score"  => prior 
                }
             else
               exists=false
@@ -435,6 +441,9 @@ printf("TGT LANG %s\n",tgt_lang)
 	            translated[lang][x_u]["simi"]= simi if translated[lang][x_u]["simi"] < simi
                 translated[lang][x_u]["simi"] += entry[:infos][:key_similarity]
                 translated[lang][x_u]["dict"] << r[:dict_name]
+                if translated[lang][x_u]["score"] < prior
+                   translated[lang][x_u]["score"] = prior
+		end
               end
             end
           }
