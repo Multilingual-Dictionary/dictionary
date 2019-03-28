@@ -132,7 +132,7 @@ end
 		end
 		
 		summary["translated"][lang][key]<<
-			{"xlate"=>x["xlate"],"dict"=>x["dict"]}
+			{"xlate"=>x["xlate"],"dict"=>x["dict"],"score"=>x["score"]}
 		if  xlate_count != nil 
 			x["dict"].each{|d|
 				xlate_count[d] += 1 
@@ -149,6 +149,7 @@ end
 		return summary
 	end
 	trans =  @dictionaries.get_translated_words(result)
+	##printf("trans %s\n",trans.inspect())
 
   	build_summary_for_language(trans,params[:tgt_lang],summary,xlate_count)
 	if params[:ref_lang]=="ALL" 
@@ -162,6 +163,7 @@ end
 			build_summary_for_language(trans,lang,summary)
 		}
 	end
+	##printf("SUM %s\n",summary.inspect())
 	return summary
   end
 end

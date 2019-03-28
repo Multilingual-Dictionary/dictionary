@@ -64,10 +64,8 @@ $(document).ready(function(){
        <p class="dict_key"><%=key%></p>
 <%     res.each{|r| 
          reliable=true
-	 if r["dict"].size > 1
-            reliable=true
-            text_style = "dict_text"
-         else
+		 text_style = "dict_text"
+	     if r["dict"].size==1 and r["score"]<10
             reliable=false
             text_style = "dict_text_2"
          end
