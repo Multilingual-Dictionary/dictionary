@@ -95,6 +95,8 @@ class GlossaryDictService < DictService
 					attr << "/" + value if value!=""
 				when "#HTML"
 					html_txt << "<html>"+ value + "</html>" if value!=""
+				when "#EXAMPLES"
+					txt << "[Thí dụ]" + value if value!=""
 				else
 					txt << "["+tag_lang+"] "+ value if value!=""
 				end
