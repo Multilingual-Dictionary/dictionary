@@ -3,6 +3,11 @@
 ##
 require_relative "glossary_import.rb"
 
+host=	ENV["DB_HOST"]
+username=ENV["DB_USER"]
+password=ENV["DB_PASSWORD"]
+database=ENV["DB_DBASE"]
+
 host=	"localhost" if host==nil
 username="root" if username==nil
 password="letien1512" if password==nil
