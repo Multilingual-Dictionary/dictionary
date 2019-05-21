@@ -86,6 +86,8 @@ class GlossaryImport
 	def import_records(recs)
 
 		##printf("IMPORT %s \n",recs.length)
+		##printf("IMPORT_DATA %s \n",recs.inspect())
+
 		d = "''"
 		recs.each{|dg,r|
 			d << ",'"+dg+"'"

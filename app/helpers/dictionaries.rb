@@ -359,17 +359,18 @@ class Dictionaries
 	##printf("BY DOMAINS %s\n",domains.inspect())
 	dicts = ""
         @dict_infos.each{|name,inf|
-		select=false
-		domains.each{|domain|
-			if domain==inf["domains"]
-				select = true
-				break
-			end
-		}
-		if select
+		# for now , ignore "domain"-search!
+		#select=false
+		#domains.each{|domain|
+		#	if domain==inf["domains"]
+		#		select = true
+		#		break
+		#	end
+		#}
+		#if select
 			dicts << "," if dicts!=""
 			dicts << inf["dict_sys_name"]
-		end
+		#end
 	}
   	return  lookup_dictionaries( to_search,source_lang,target_lang,reference_lang,dicts)
 

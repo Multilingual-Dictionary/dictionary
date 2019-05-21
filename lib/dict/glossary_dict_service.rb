@@ -7,7 +7,153 @@ class GlossaryDictService < DictService
 
 	def initialize(cfg=nil)
 		@glossary=GlossaryLib.new(cfg)
+		@entries=Hash.new
   	end
+
+	def debug(s)
+		##File.write("./debug.txt",s,mode:"a")
+	end
+
+	##
+	##  add entry -> buffer
+	##
+
+	def add_entry_to_buffer(key_words,key_lang,xlated,entry)
+		dict_id=entry['dict_id']
+		## debug(sprintf("add_entry id(%s),lang(%s),[%s]\n",dict_id,key_lang,key_words))
+		##
+		## parse json-data
+		##
+		begin
+			entry_data=JSON.parse(entry['data'])
+		rescue
+			##printf("Data Error![%s]\n",entry['data'])
+			return 
+		end
+		grammar=entry_data["#GRAMMAR"]
+		grammar="" if grammar==nil
+		category=entry_data["#CATEGORY"]
+		category="" if category==nil
+		entry_num=entry_data["#ENTRY_NUM"]
+		entry_num="" if entry_num==nil
+		hash_key=  dict_id + key_words + key_lang + grammar
+		@entries[hash_key]=Hash.new if @entries[hash_key]==nil
+		@entries[hash_key][entry_num]=
+				{"dict_id"=>dict_id,
+				"key_words"=>key_words,
+				"grammar"=>grammar,
+				"category"=>category,
+				"key_lang"=>key_lang,
+				"xlated_word"=>xlated,
+				"entry_data"=>entry_data}
+	end
+
+	##
+	##  flush entries in buffer
+	##
+	def do_add_entry(dict_id,key_words,html_txt,infos)
+		##debug(sprintf("ADD DICT(%s)KEYW(%s)TXT(%s)INF(%s)\n",dict_id,key_words,html_txt,infos))
+		debug(sprintf("ADD DICT(%s)KEYW(%s)\nTXT(%s)\n",dict_id,key_words,html_txt))
+		add_entry(dict_id,key_words,[html_txt],infos)
+	end
+	##
+	##  Build html text ( for display )
+	##
+	def build_text(entry_data,key_lang,num)
+
+		if entry_data["#HTML"]!=nil
+			### this guy already has HTML text .. dont need to build
+			return entry_data["#HTML"]
+		end
+
+		i = 1
+		html_txt = ""
+
+		####### For tag TERM:LANG
+		txt=""
+		entry_data.each{|tag,value|
+			next if tag[0,5]!="#TERM"
+			next if tag[6,2]==key_lang  ## dont show key if it is in source language
+			txt << value 
+		}
+		html_txt << '<p class="dict_text">'
+		if num != "0" 
+			html_txt << sprintf("<b>%s. </b>",num)
+		end
+		html_txt << txt
+		html_txt << '</p>'
+		####### For tag EXPLAIN:LANG
+		txt=""
+		entry_data.each{|tag,value|
+			next if tag[0,8]!="#EXPLAIN"
+			next if tag[9,2]==key_lang  ## dont show key if it is in source language
+			txt << value 
+		}
+		if txt != ""
+			html_txt << '<p class="dict_text">'
+			html_txt << txt
+			html_txt << '</p>'
+		end
+		####### For tag EXAMPLES:LANG
+		txt = ""
+		entry_data.each{|tag,value|
+			next if tag[0,9]!="#EXAMPLES"
+			next if tag[10,2]==key_lang  ## dont show key if it is in source language
+			txt << value 
+		}
+		if txt != ""
+			html_txt << '<p class="dict_text" ><i>'
+			html_txt << txt
+			html_txt << '</i></p>'
+		end
+		html_txt << "</i></p>"
+		return html_txt
+	end	
+	##
+	##  flush entries in buffer
+	##
+	def flush_buffer()
+		@entries.each{|h,e|
+			infos=Hash.new
+			infos[:xlated_word]=Hash.new
+			dict_id=""
+			key_words=""
+			grammar=""
+			category=""
+			html_txt=""
+			if e.size > 1
+				i = 1 
+			else
+				i = 0 
+			end
+			e.sort.to_h.each{|entry_num,entry|
+				dict_id=entry['dict_id'] if dict_id==""
+				key_words=entry['key_words'] if key_words==""
+				grammar=entry['grammar'] if grammar==""
+				category=entry['category'] if grammar==""
+				infos[:key_words]=entry['key_words']
+				infos[:key_lang]=entry['key_lang']
+				entry['xlated_word'].each{|lang,words|
+					infos[:xlated_word][lang]=Hash.new if infos[:xlated_word][lang]==nil
+					words.each{|w|
+						infos[:xlated_word][lang][w]=w
+					}
+				}
+				debug(sprintf("entrydata %s\n",entry['entry_data'].inspect()))
+				html_txt << build_text(entry['entry_data'],entry["key_lang"],i.to_s)
+				i = i + 1 
+			}
+			infos[:xlated_word].each{|lang,x|
+				infos[:xlated_word][lang]= x.keys
+			}
+			attr = ""
+			attr << "/" << grammar if grammar != ""
+			attr << "/" << category if category != ""
+			key_words << " " << attr + "/" if attr != ""
+			do_add_entry(dict_id,key_words,"<html>"+html_txt+"</html>",infos)
+		}
+		debug(sprintf("ENDFLUSH\n"))
+	end
 
 	##
 	##  LOOKUP ( to_search .. )
@@ -16,7 +162,9 @@ class GlossaryDictService < DictService
 	def lookup(to_search,dict_id="")
 
 		lookup_init()
+		@entries=Hash.new  
     
+		## search! this returns indices matched
 
 		indices = @glossary.search_indices(to_search,dict_id,@src_lang,@search_mode)
 
@@ -25,11 +173,13 @@ class GlossaryDictService < DictService
 			item_ids << "," if  item_ids != ""
 			item_ids << "'" << item_id << "'"
 		}
-    		### nothing found!
+    		## nothing found!
 		return result() if item_ids == ""
 
 
+		###
 		### For the item_ids search for all translated-keywords related
+		###
 
 		results = @glossary.client.query(sprintf(
 			"select * from glossary_indices where item_id in (%s) ",item_ids))
@@ -45,75 +195,23 @@ class GlossaryDictService < DictService
 		}
 		### now we have all translated-keywords in xlated!
 
-		printf("XLATED %s\n",xlated.inspect())
 
-
+		###
 		### For the item_ids search for all dictionary-entries related
+		###
 		
 		results = @glossary.client.query(sprintf(
 			"select * from glossaries where item_id in (%s) ",item_ids))
+
 		results.each(){|r|	 ### each dictionary-entry
-			##printf("RESULT %s\n",r.inspect())
-			xlated_word= Hash.new
-			txt = []
-			html_txt = []
-			attr = ""
-			##
-			## parse json-data
-			##
-			begin
-				entry_data=JSON.parse(r['data'])
-			rescue
-				entry_data=Hash.new ## empty ! just in case!
-			end
-			##printf("ENTRY %s\n",entry_data.inspect())
-			## key-words of this entry 
-			key_words = indices[r['item_id']]['key_words']
-			key_lang = indices[r['item_id']]['lang']
-			printf("KEY %s,%s\n",key_words,key_lang)
-			##
-			## get xlated and another informations from entry_data
-			##
-			entry_data.each{|tag,value|
-				##printf("TAG %s,VALUE %s\n",tag,value)
-				pos = tag.index(":")
-				if pos == nil
-					tag_key=tag
-					tag_lang=""
-				else
-					tag_key=tag[0,pos]
-					tag_lang=tag[pos+1,2]
-				end
-				##printf("TAG [%s][%s]\n",tag_key,tag_lang)
-				case tag_key
-				when "#TERM"
-					##printf("is term\n")
-					txt << "["+tag_lang+"] "+ value if value!=""
-				when "#CATEGORY"
-					attr << "/" + value if value!=""
-				when "#GRAMMAR"
-					attr << "/" + value if value!=""
-				when "#HTML"
-					html_txt << "<html>"+ value + "</html>" if value!=""
-				when "#EXAMPLES"
-					txt << "[Thí dụ]" + value if value!=""
-				else
-					txt << "["+tag_lang+"] "+ value if value!=""
-				end
-			}
-			attr << "/" if attr != ""
-			key = key_words	
-			key << " " << attr if attr != ""
-			infos=Hash.new
-			infos[:key_words]=key_words
-			infos[:key_lang]=key_lang
-			infos[:xlated_word]=xlated[r['item_id']]
-			if html_txt.size!=0
-				add_entry(r['dict_id'],key,html_txt,infos)
-			else
-				add_entry(r['dict_id'],key,txt,infos)
-			end
+			## add -> buffer for post processing
+			add_entry_to_buffer(
+				indices[r['item_id']]['key_words'],
+				indices[r['item_id']]['lang'],
+				xlated[r['item_id']],
+				r)
 		}
+		flush_buffer()	## flush buffer ( this build results! )
 		return result()
 		end
 end 

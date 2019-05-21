@@ -132,7 +132,6 @@ class GlossaryLib
 				query = q + " and item_id in (" + query +")" + "\n"
 			end
 		}
-		##printf("QUERY [%s]\n",query)
 		res =  @client.query(query+ "order by key_len limit 50")
 		items = ""
                	res.each{|r|
