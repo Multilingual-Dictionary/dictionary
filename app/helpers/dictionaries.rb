@@ -251,7 +251,7 @@ class Dictionaries
    return service.lookup(to_search,dict_name)
   end
   def lookup_glossary(to_search,dict_infos,src_lang,tgt_lang,dict_name=nil)
-      service= GlossaryDictService.new(@sql)
+      service= GlossaryDictService.new(@sql,@dict_infos)
       service.set_search_mode(@search_mode)
       service.set_search_key(to_search)
       service.set_languages(src_lang,tgt_lang)

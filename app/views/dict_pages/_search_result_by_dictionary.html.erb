@@ -12,12 +12,16 @@
 		attr= entry[:infos][:key_attr]
         attr= "" if attr==nil %>
 
-		  <p class="dict_key">
-		     <%=entry[:infos][:key_words]%>
-	<% if entry[:infos][:key_attr] != nil %>
+	<p class="dict_key">
+	     <% if entry[:infos][:dict_entry_key] == nil %>
+	         <%=entry[:infos][:key_words]%>
+	         <% if entry[:infos][:key_attr] != nil %>
 			 &nbsp;<i><%=attr%></i>
-	<% end %>
-		  </p>
+	         <% end %>
+	     <% else %>
+	         <%=entry[:infos][:dict_entry_key].html_safe%>
+	     <% end  %>
+	</p>
     <% entry[:text].each{|t|  %>
     <% t = t.gsub(";","; ").gsub(",",", ") %>  
 		<%if t.index("<html>") != nil %>

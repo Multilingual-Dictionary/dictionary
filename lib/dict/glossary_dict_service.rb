@@ -5,13 +5,66 @@ require "unicode_utils/casefold"
 
 class GlossaryDictService < DictService 
 
-	def initialize(cfg=nil)
+	def initialize(cfg=nil,dict_cfgs=nil)
 		@glossary=GlossaryLib.new(cfg)
 		@entries=Hash.new
+		@dict_configs=dict_cfgs
+		@primary_lang=Hash.new
+		@multi_ling=Hash.new
+		
   	end
 
 	def debug(s)
 		##File.write("./debug.txt",s,mode:"a")
+	end
+
+	##
+	##  get primary language of the dictionary
+	##  [ from dict_configs ]
+	##
+
+	def primary_lang(dict_id)
+		l = @primary_lang[dict_id]
+		return l if l!=nil
+		l = ""
+		cfg = @dict_configs[dict_id]
+		if cfg == nil or cfg["ext_cfg"] == nil or cfg["ext_cfg"]["languages"]==nil
+			@primary_lang[dict_id]=""
+			return ""
+		end
+		l = cfg["ext_cfg"]["languages"]["PRIMARY_LANGUAGE"]
+		l = "" if l == nil
+		@primary_lang[dict_id]=l
+		return l
+	end
+
+
+	##
+	##  is this dict multi_lingual
+	##  [ from dict_configs ]
+	##
+
+	def is_multilingual (dict_id)
+		it_is = @multi_ling[dict_id]
+		return it_is if it_is!=nil
+		it_is = false
+		cfg = @dict_configs[dict_id]
+		if cfg == nil 
+			@multi_ling[dict_id]=it_is
+			return it_is
+		end
+		supported=Hash.new
+		["src_languages","tgt_languages"].each{|st|
+			next if cfg[st]==nil
+			cfg[st].each{|l|
+				supported[l]=l
+			}
+		}
+		if supported.size>2
+			it_is = true
+		end
+		@multi_ling[dict_id]=it_is
+		return it_is
 	end
 
 	##
@@ -20,7 +73,7 @@ class GlossaryDictService < DictService
 
 	def add_entry_to_buffer(key_words,key_lang,xlated,entry)
 		dict_id=entry['dict_id']
-		## debug(sprintf("add_entry id(%s),lang(%s),[%s]\n",dict_id,key_lang,key_words))
+		##debug(sprintf("add_entry id(%s),lang(%s),[%s]\n",dict_id,key_lang,key_words))
 		##
 		## parse json-data
 		##
@@ -49,22 +102,17 @@ class GlossaryDictService < DictService
 	end
 
 	##
-	##  flush entries in buffer
-	##
-	def do_add_entry(dict_id,key_words,html_txt,infos)
-		##debug(sprintf("ADD DICT(%s)KEYW(%s)TXT(%s)INF(%s)\n",dict_id,key_words,html_txt,infos))
-		debug(sprintf("ADD DICT(%s)KEYW(%s)\nTXT(%s)\n",dict_id,key_words,html_txt))
-		add_entry(dict_id,key_words,[html_txt],infos)
-	end
-	##
 	##  Build html text ( for display )
 	##
-	def build_text(entry_data,key_lang,num)
+
+	def build_text(dict_id,entry_data,key_lang,num)
 
 		if entry_data["#HTML"]!=nil
 			### this guy already has HTML text .. dont need to build
 			return entry_data["#HTML"]
 		end
+		multi_lingual= is_multilingual(dict_id)
+		primary_lang=primary_lang(dict_id)
 
 		i = 1
 		html_txt = ""
@@ -73,8 +121,10 @@ class GlossaryDictService < DictService
 		txt=""
 		entry_data.each{|tag,value|
 			next if tag[0,5]!="#TERM"
-			next if tag[6,2]==key_lang  ## dont show key if it is in source language
+			next if tag[6,2]==primary_lang  ## dont show key if it is in source language
+			txt << "[" + tag[6,2] + "] " if multi_lingual
 			txt << value 
+			txt << "<br/>"
 		}
 		html_txt << '<p class="dict_text">'
 		if num != "0" 
@@ -86,7 +136,7 @@ class GlossaryDictService < DictService
 		txt=""
 		entry_data.each{|tag,value|
 			next if tag[0,8]!="#EXPLAIN"
-			next if tag[9,2]==key_lang  ## dont show key if it is in source language
+			txt << "[" + tag[6,2] + "] " if multi_lingual
 			txt << value 
 		}
 		if txt != ""
@@ -98,7 +148,7 @@ class GlossaryDictService < DictService
 		txt = ""
 		entry_data.each{|tag,value|
 			next if tag[0,9]!="#EXAMPLES"
-			next if tag[10,2]==key_lang  ## dont show key if it is in source language
+			txt << "[" + tag[6,2] + "] " if multi_lingual
 			txt << value 
 		}
 		if txt != ""
@@ -110,49 +160,85 @@ class GlossaryDictService < DictService
 		return html_txt
 	end	
 	##
+	##  add entry->base-class ( for building the final result )
+	##
+	def do_add_entry(entry,html_txt,infos)
+		##debug(sprintf("ADD DICT ENTRY(%s)\nINF(%s)\n",entry.inspect(),infos.inspect()))
+
+		key_words=entry['key_words']
+
+		infos[:key_words]=key_words
+		infos[:key_lang]=entry['key_lang']
+
+
+		attr = ""
+		["grammar","category"].each{|tag|
+			attr << "/" << entry[tag] if entry[tag] != ""
+		}
+		attr << "/" if attr != ""
+		primary_lang=primary_lang(entry['dict_id'])
+		key_term=""
+		if primary_lang != "" and infos[:xlated_word] != nil
+			infos[:xlated_word][primary_lang].each{|w|
+				key_term << "," if key_term !=  ""
+				key_term << w 
+			}
+		end
+
+		infos[:key_attr]=attr
+		infos[:attributes]=attr
+		key_txt = '<p class="dict_key_1">'
+		key_txt << "<b>"
+		if key_term==""
+			key_txt << key_words
+		else
+			key_txt << key_term
+		end
+		key_txt << "</b>"
+		if attr != ""
+			key_txt << ' <i>' + attr + '</i>' 
+		end
+		key_txt << '</p>'
+
+		infos[:dict_entry_key]= key_txt
+		add_entry(entry['dict_id'],
+			  key_words,
+			  [html_txt],
+			  infos)
+	end
+	##
 	##  flush entries in buffer
 	##
 	def flush_buffer()
 		@entries.each{|h,e|
 			infos=Hash.new
 			infos[:xlated_word]=Hash.new
-			dict_id=""
-			key_words=""
-			grammar=""
-			category=""
 			html_txt=""
 			if e.size > 1
 				i = 1 
 			else
 				i = 0 
 			end
-			e.sort.to_h.each{|entry_num,entry|
-				dict_id=entry['dict_id'] if dict_id==""
-				key_words=entry['key_words'] if key_words==""
-				grammar=entry['grammar'] if grammar==""
-				category=entry['category'] if grammar==""
-				infos[:key_words]=entry['key_words']
-				infos[:key_lang]=entry['key_lang']
+			sorted=e.sort.to_h
+			first_entry=sorted.first[1]
+			sorted.each{|entry_num,entry|
+				## collects all xlated and build html text
 				entry['xlated_word'].each{|lang,words|
 					infos[:xlated_word][lang]=Hash.new if infos[:xlated_word][lang]==nil
 					words.each{|w|
 						infos[:xlated_word][lang][w]=w
 					}
 				}
-				debug(sprintf("entrydata %s\n",entry['entry_data'].inspect()))
-				html_txt << build_text(entry['entry_data'],entry["key_lang"],i.to_s)
+				html_txt << build_text(entry['dict_id'],entry['entry_data'],entry["key_lang"],i.to_s)
 				i = i + 1 
 			}
 			infos[:xlated_word].each{|lang,x|
 				infos[:xlated_word][lang]= x.keys
 			}
-			attr = ""
-			attr << "/" << grammar if grammar != ""
-			attr << "/" << category if category != ""
-			key_words << " " << attr + "/" if attr != ""
-			do_add_entry(dict_id,key_words,"<html>"+html_txt+"</html>",infos)
+			do_add_entry(first_entry,
+				     "<html>"+html_txt+"</html>",
+				     infos)
 		}
-		debug(sprintf("ENDFLUSH\n"))
 	end
 
 	##
@@ -213,5 +299,5 @@ class GlossaryDictService < DictService
 		}
 		flush_buffer()	## flush buffer ( this build results! )
 		return result()
-		end
+	end
 end 
