@@ -178,7 +178,7 @@ class GlossaryDictService < DictService
 		attr << "/" if attr != ""
 		primary_lang=primary_lang(entry['dict_id'])
 		key_term=""
-		if primary_lang != "" and infos[:xlated_word] != nil
+		if primary_lang != "" and infos[:xlated_word] != nil and infos[:xlated_word][primary_lang]=nil
 			infos[:xlated_word][primary_lang].each{|w|
 				key_term << "," if key_term !=  ""
 				key_term << w 
