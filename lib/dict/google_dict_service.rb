@@ -28,7 +28,7 @@ class GoogleDictService < DictService
     end
     txt=[]
     tgt_lang.split(",").each{|to_lang|
-       printf("%s FROM %s TO %s\n",to_search,from_lang,to_lang)
+       ##printf("%s FROM %s TO %s\n",to_search,from_lang,to_lang)
        to_lang.strip
        next if to_lang==""
        next if to_lang == from_lang

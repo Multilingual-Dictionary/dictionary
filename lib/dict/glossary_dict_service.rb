@@ -11,11 +11,12 @@ class GlossaryDictService < DictService
 		@dict_configs=dict_cfgs
 		@primary_lang=Hash.new
 		@multi_ling=Hash.new
+		@to_search=Hash.new
 		
   	end
 
 	def debug(s)
-		##File.write("./debug.txt",s,mode:"a")
+		File.write("./debug.txt",s,mode:"a")
 	end
 
 	##
@@ -83,6 +84,7 @@ class GlossaryDictService < DictService
 			##printf("Data Error![%s]\n",entry['data'])
 			return 
 		end
+		##debug(sprintf("ENTRYDATA [%s]\n",entry_data.inspect()))
 		grammar=entry_data["#GRAMMAR"]
 		grammar="" if grammar==nil
 		category=entry_data["#CATEGORY"]
@@ -136,7 +138,7 @@ class GlossaryDictService < DictService
 		txt=""
 		entry_data.each{|tag,value|
 			next if tag[0,8]!="#EXPLAIN"
-			txt << "[" + tag[6,2] + "] " if multi_lingual
+			txt << "[" + tag[9,2] + "] " if multi_lingual
 			txt << value 
 		}
 		if txt != ""
@@ -148,7 +150,7 @@ class GlossaryDictService < DictService
 		txt = ""
 		entry_data.each{|tag,value|
 			next if tag[0,9]!="#EXAMPLES"
-			txt << "[" + tag[6,2] + "] " if multi_lingual
+			txt << "[" + tag[10,2] + "] " if multi_lingual
 			txt << value 
 		}
 		if txt != ""
@@ -160,13 +162,42 @@ class GlossaryDictService < DictService
 		return html_txt
 	end	
 	##
+	##  Build html text ( for case TMX data )
+	##
+	def build_tmx_text(dict_id,entry_data,key_lang,num)
+		html_txt = ""
+		html_txt << '<p class="dict_text">'
+		if num != "0" 
+			html_txt << sprintf("<b>%s. </b>",num)
+		end
+		entry_data.each{|tag,value|
+			next if tag[0,7]!="#PHRASE"
+			if tag[8,2]==key_lang 
+				html_txt << value 
+			end
+		}
+		html_txt << '</p>'
+		html_txt << '<p class="dict_text">'
+		html_txt << '<i>'
+		entry_data.each{|tag,value|
+			next if tag[0,7]!="#PHRASE"
+			if tag[8,2]!=key_lang 
+				html_txt << value 
+			end
+		}
+		html_txt << '</i>'
+		html_txt << '</p>'
+		return html_txt
+	end	
+		
+	##
 	##  add entry->base-class ( for building the final result )
 	##
 	def do_add_entry(entry,html_txt,infos)
-		##debug(sprintf("ADD DICT ENTRY(%s)\nINF(%s)\n",entry.inspect(),infos.inspect()))
+		debug(sprintf("ADD DICT ENTRY(%s)\nINF(%s)\n",entry.inspect(),infos.inspect()))
 
-		key_words=entry['key_words']
-
+		
+		key_words= entry['key_words']
 		infos[:key_words]=key_words
 		infos[:key_lang]=entry['key_lang']
 
@@ -178,7 +209,7 @@ class GlossaryDictService < DictService
 		attr << "/" if attr != ""
 		primary_lang=primary_lang(entry['dict_id'])
 		key_term=""
-		if primary_lang != "" and infos[:xlated_word] != nil and infos[:xlated_word][primary_lang]=nil
+		if primary_lang != "" and infos[:xlated_word] != nil and infos[:xlated_word][primary_lang]!=nil
 			infos[:xlated_word][primary_lang].each{|w|
 				key_term << "," if key_term !=  ""
 				key_term << w 
@@ -190,7 +221,11 @@ class GlossaryDictService < DictService
 		key_txt = '<p class="dict_key_1">'
 		key_txt << "<b>"
 		if key_term==""
-			key_txt << key_words
+			if key_words.index("$phrase$")!= nil
+				key_txt << @to_search
+			else
+				key_txt << key_words
+			end
 		else
 			key_txt << key_term
 		end
@@ -205,6 +240,7 @@ class GlossaryDictService < DictService
 			  key_words,
 			  [html_txt],
 			  infos)
+		##debug(sprintf("INFOS-FINAL\n %s\n",infos.inspect()))
 	end
 	##
 	##  flush entries in buffer
@@ -221,20 +257,38 @@ class GlossaryDictService < DictService
 			end
 			sorted=e.sort.to_h
 			first_entry=sorted.first[1]
-			sorted.each{|entry_num,entry|
-				## collects all xlated and build html text
-				entry['xlated_word'].each{|lang,words|
-					infos[:xlated_word][lang]=Hash.new if infos[:xlated_word][lang]==nil
-					words.each{|w|
-						infos[:xlated_word][lang][w]=w
+			examples=[]
+			if first_entry["key_words"].index("$phrase$") != nil
+				## Special case TMX 
+				sorted.each{|entry_num,entry|
+					html_txt << build_tmx_text(entry['dict_id'],entry['entry_data'],entry["key_lang"],i.to_s)
+					i = i + 1 
+					ex = Hash.new
+					entry['entry_data'].each{|tag,value|
+						next if tag[0,7]!="#PHRASE"
+						ex[tag[8,2]]=value
 					}
+					examples << ex
 				}
-				html_txt << build_text(entry['dict_id'],entry['entry_data'],entry["key_lang"],i.to_s)
-				i = i + 1 
-			}
-			infos[:xlated_word].each{|lang,x|
-				infos[:xlated_word][lang]= x.keys
-			}
+			else
+				## normal case : regular dictionary entry
+				sorted.each{|entry_num,entry|
+					## collects all xlated and build html text
+					entry['xlated_word'].each{|lang,words|
+						infos[:xlated_word][lang]=Hash.new if infos[:xlated_word][lang]==nil
+						words.each{|w|
+							infos[:xlated_word][lang][w]=w
+						}
+					}
+					html_txt << build_text(entry['dict_id'],entry['entry_data'],entry["key_lang"],i.to_s)
+					i = i + 1 
+				}
+				infos[:xlated_word].each{|lang,x|
+					### eliminate duplicated keys!
+					infos[:xlated_word][lang]= x.keys
+				}
+			end
+			infos[:examples]=examples
 			do_add_entry(first_entry,
 				     "<html>"+html_txt+"</html>",
 				     infos)
@@ -247,11 +301,24 @@ class GlossaryDictService < DictService
 
 	def lookup(to_search,dict_id="")
 
+		@to_search=to_search
 		lookup_init()
 		@entries=Hash.new  
-    
-		## search! this returns indices matched
+		
+		### select glossaries
+		glossary_ids=[]
+		tmx_ids=[]
+    		dict_id.split(",").each{|id|
+			cfg = @dict_configs[id]
+			if cfg!=nil and cfg["type"]=="tmx"
+				tmx_ids << id
+			else
+				glossary_ids << id
+			end
+    		}
+		@glossary.select_glossaries(glossary_ids,tmx_ids)
 
+		## search! this returns indices matched
 		indices = @glossary.search_indices(to_search,dict_id,@src_lang,@search_mode)
 
 		item_ids = ""
@@ -277,6 +344,8 @@ class GlossaryDictService < DictService
 			if not xlated[r['item_id']].has_key?(r['lang'])
 				 xlated[r['item_id']][r['lang']]=[]
 			end
+			next if r['original_key_words'].index("$phrase$") != nil  ## ignore! not a real! 
+
 			xlated[r['item_id']][r['lang']]<<r['original_key_words']
 		}
 		### now we have all translated-keywords in xlated!

@@ -42,6 +42,12 @@ class Dictionaries
       else
         ext_cfg = Hash.new
       end
+
+      if ext_cfg["type"] != nil
+	type = ext_cfg["type"]
+      else
+        type = ""
+      end
  
       @dict_infos[inf.dict_sys_name.upcase]=
         {
@@ -52,6 +58,7 @@ class Dictionaries
           "url" => inf.url,
           "domains" => inf.domains,
           "ext_cfg" => ext_cfg,
+          "type" => type,
           "src_languages" => to_set_of(inf.lang),
           "tgt_languages" => to_set_of(inf.xlate_lang),
           "priority" => inf.priority
@@ -115,6 +122,11 @@ class Dictionaries
     inf =  @dict_infos[sys_name.upcase]
     return inf["dict_num"] if inf != nil
     return 0
+  end
+  def dict_type(sys_name)
+    inf =  @dict_infos[sys_name.upcase]
+    return inf["type"] if inf != nil
+    return ""
   end
   ###################################################################
   ###########    PROCESS RESULT  ####################################
@@ -386,6 +398,12 @@ class Dictionaries
     result.each(){|r|
       r[:entries].each{|entry|
 	    key=entry[:infos][:key_words]
+	    if key.index("$phrase$")!=nil
+		## this is not a key! we use this pattern to 
+		## mark : this is a phrase!
+		## ignore this!
+		next
+	    end
 	    k_up=key.upcase
 	    next if k.has_key?(k_up)
 	    k[k_up]=1

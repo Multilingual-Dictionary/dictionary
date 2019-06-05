@@ -41,6 +41,11 @@ class AdminPagesController < ApplicationController
 				tgt_lang[lang]=1
 				next
 			end
+			if tag[0,9]=="#PHRASE:"
+				lang=tag[8,2].upcase
+				tgt_lang[lang]=1
+				next
+			end
 		}
 		s = ""
 		src_lang.each{|l,v|

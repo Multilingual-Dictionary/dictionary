@@ -2,6 +2,7 @@
 <html>
   <body>
 <% @sorted_results.each{|n,res| %>
+<%    next if @dictionaries.dict_type(res[:dict_name])=="tmx" %>
 <div class="panel panel-default">
   <div class="panel-heading">
     <a name="<%='dict'+@dictionaries.dict_num(res[:dict_name]).to_s%>"></a>

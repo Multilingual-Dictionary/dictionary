@@ -23,7 +23,7 @@ class DictService
 	end
 	def set_search_mode(mode)
 		@search_mode=mode
-		puts ( "DICT SERVICE MODE "+ @search_mode)
+		##puts ( "DICT SERVICE MODE "+ @search_mode)
 	end
 	def set_parser(name)
 		@parser= DictResultParser.new(name)

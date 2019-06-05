@@ -1,5 +1,9 @@
 class DictPagesController < ApplicationController
 
+def debug(s)
+	##File.write("./debug.txt",s,mode:"a")
+end
+
 def dict_lookup
 	### SET DEFAUL PARAMS 
 
@@ -19,6 +23,7 @@ def dict_lookup
 	
 	### DOMAINS
 if false
+	### IGNORE THIS FOR NOW
 	@domain_list={
 		"GENERAL" => "Tổng quát",
 		"NAT-SCI-TECH" => "Khoa học tự nhiên-kỹ thuật",
@@ -77,7 +82,7 @@ end
 	if params[:src_lang] ==params[:tgt_lang]
 		user_want_explanation= true
 	end
-	##printf("RESULT %s\n",@result.inspect())
+	##debug(sprintf("RESULT %s\n",@result.inspect()))
 	@result.each{|r|
 		cnt = 1
 		lang_tag="["+params[:tgt_lang].upcase+"]"
@@ -111,59 +116,82 @@ end
 	}
 
 	@key_words_list =  @dictionaries.get_key_words(@result)
+	
 
   end
 
-  def build_summary_for_language(trans,lang,summary,xlate_count=nil)
-	if trans[lang]==nil
-		return
-	end
-	summary["translated"][lang]=Hash.new
-	trans[lang].each{|x|
-		key = x["key"].downcase
-		if lang==params[:src_lang] and
-		   (UnicodeUtils.casefold(x["key"]).gsub(/\p{^Alnum}/,"")==
-		    UnicodeUtils.casefold(x["xlate"]).gsub(/\p{^Alnum}/,""))
-		   next
-		end
-		key = x["key"].downcase
-		if summary["translated"][lang][key]==nil
-			summary["translated"][lang][key]=[]
-		end
+  def build_summary_for_language(trans,dict_results,lang,summary,xlate_count=nil)
+
+	summary["summary_for_lang"][lang]=Hash.new
+	summary["summary_for_lang"][lang]["translated"]=Hash.new
+	summary["summary_for_lang"][lang]["examples"]=Hash.new
+
+	if trans[lang]!=nil
+		trans[lang].each{|x|
+			key = x["key"].downcase
+			if lang==params[:src_lang] and
+		   		(UnicodeUtils.casefold(x["key"]).gsub(/\p{^Alnum}/,"")==
+		    		UnicodeUtils.casefold(x["xlate"]).gsub(/\p{^Alnum}/,""))
+		   	next
+			end
+			key = x["key"].downcase
+			if summary["summary_for_lang"][lang]["translated"][key]==nil
+				summary["summary_for_lang"][lang]["translated"][key]=[]
+			end
 		
-		summary["translated"][lang][key]<<
-			{"xlate"=>x["xlate"],"dict"=>x["dict"],"score"=>x["score"]}
-		if  xlate_count != nil 
-			x["dict"].each{|d|
-				xlate_count[d] += 1 
-			}
-		end
+			summary["summary_for_lang"][lang]["translated"][key]<<
+				{"xlate"=>x["xlate"],"dict"=>x["dict"],"score"=>x["score"]}
+			if  xlate_count != nil 
+				x["dict"].each{|d|
+					xlate_count[d] += 1 
+				}
+			end
+		}
+	end
+	###
+	return if dict_results==nil
+	dict_results.each{|r|
+		r[:entries].each{|e|
+			if e[:infos][:examples] != nil
+				e[:infos][:examples].each{|ex|
+					if ex[lang] != nil and ex[params[:src_lang]] != nil
+						if summary["summary_for_lang"][lang]["examples"][r[:dict_name]]==nil
+							summary["summary_for_lang"][lang]["examples"][r[:dict_name]]=[]
+						end
+						summary["summary_for_lang"][lang]["examples"][r[:dict_name]]<<
+									{ 
+									      :ex_src  => ex[params[:src_lang]],
+									      :ex_tgt  => ex[lang]
+									}
+					end
+				}
+			end
+		}
 	}
   end
   def build_summary(result,xlate_count)
 	summary=Hash.new
 	summary["message"]=""
-	summary["translated"]=Hash.new
+	summary["summary_for_lang"]=Hash.new
 	if result.length==0
 		summary["message"]="NOT FOUND"
 		return summary
 	end
 	trans =  @dictionaries.get_translated_words(result)
-	##printf("trans %s\n",trans.inspect())
 
-  	build_summary_for_language(trans,params[:tgt_lang],summary,xlate_count)
+  	build_summary_for_language(trans,result,params[:tgt_lang],summary,xlate_count)
 	if params[:ref_lang]=="ALL" 
 		@dictionaries.lang_codes.each{|lang,lang_txt|
 			next if lang==params[:tgt_lang]
-			build_summary_for_language(trans,lang,summary)
+			build_summary_for_language(trans,nil,lang,summary)
 		}
 	else
 		params[:ref_lang].split(",").each{|lang|
 			next if lang==params[:tgt_lang]
-			build_summary_for_language(trans,lang,summary)
+			build_summary_for_language(trans,nil,lang,summary)
 		}
 	end
-	##printf("SUM %s\n",summary.inspect())
+	debug(sprintf("SUM %s\n",summary.inspect()))
 	return summary
   end
 end

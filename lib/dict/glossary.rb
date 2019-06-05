@@ -3,16 +3,20 @@
 #########################################################################################
 
 require "unicode_utils/casefold"
+require 'whitesimilarity'
 
 class GlossaryLib
 	attr_accessor :client
+
+	def debug(s)
+		##File.write("./debug.txt",s,mode:"a")
+	end
 
 	#########################################################################################
 	##	INIT
 	#########################################################################################
 
 	def initialize(cfg=nil)
-		##printf("INIT %s\n",cfg.inspect())
 		if cfg!=nil
 			@client = Mysql2::Client.new(
 		    		:host => cfg["host"],
@@ -37,7 +41,7 @@ class GlossaryLib
 	end
 
 	##
-	##  split key ( for indexing) 
+	##  split key->token ( for indexing) 
 	##    [ split words => [word,word,...]
 	##
 
@@ -78,48 +82,130 @@ class GlossaryLib
 		return md5.hexdigest
 	end
 
+	##
+	## init ignored words
+	##
+
+	def init_ignored_words()
+		return if @ignored != nil
+	    @ignored=Hash.new
+       [  "die","der","und","in","zu","den","das","nicht","von","sie",
+		  "ist","des","sich","mit","dem","dass","er","es","ein","ich",
+	      "auf","so","eine","auch","als","an","nach","wie","im","für",
+		  "man","aber","aus","durch","wenn","nur","war","noch","werden",
+		  "bei","hat","wir","was","wird","sein","einen","welche","sind",
+		  "oder","zur","um","haben","einer","mir","über","ihm","diese",
+		  "einem","ihr","uns","da","zum","kann","doch","vor","dieser",
+		  "mich","ihn","du","hatte","seine","mehr","am","denn","nun",	
+		  "unter","sehr","selbst","schon","hier","bis","habe","ihre","dann",	
+		  "ihnen","seiner","alle","wieder","meine","gegen","vom","ganz",	
+		  "einzelnen","wo","muss","ohne","eines","können","sei","ja",
+		  "wurde","jetzt","immer","seinen","wohl","dieses","ihren","würde",
+		  "diesen","sondern","weil","welcher","nichts","diesem","alles",
+		  "waren","will","viel","mein","also","soll","worden","lassen",	
+		  "dies","machen","ihrer","weiter","Leben","recht","etwas","keine",	
+		  "seinem","ob","dir","allen","großen","Weise","müssen","welches",	
+		  "wäre","erst","einmal","Mann","hätte","zwei","dich","allein","während",	
+		  "anders","kein","damit","gar","euch","sollte","konnte","ersten",
+		  "deren","zwischen","wollen","denen","dessen","sagen","bin","gut",
+		  "darauf","wurden","weiß","gewesen",	"Seite","bald","weit","große",
+		  "solche","hatten","eben","andern",	"beiden","macht","sehen",
+		  "ganze","anderen","lange","wer","ihrem",
+		  "zwar","gemacht","dort","kommen","heute","werde","derselben",
+		  "ganzen","lässt","vielleicht","meiner"].each{|w|
+			@ignored[w.downcase]=1
+		}
+	end
+	def ignore_key(w)
+		init_ignored_words() if @ignored == nil
+		return true if @ignored[w.downcase]!=nil
+		return true if w.index(/[0-9]/) != nil
+		return false
+	end
+	#########################################################################################
+	#	SELECT GLOSSARIES
+	#########################################################################################
+	def select_glossaries(glossary_ids,tmx_ids)
+		@glossary_ids = glossary_ids
+		@tmx_ids = tmx_ids
+	end
+	def dict_id_set ( dict_ids)
+		dict_set="''"
+		dict_ids.each{|dict_id|
+			dict_id.each{|id|
+      				dict_set << ",'"+@client.escape(id)+"'"
+			}
+		}
+		return dict_set
+	end
 	#########################################################################################
 	#	SEARCH INDICES
 	#########################################################################################
 
 	def search_indices(key,dict_id,lang,search_mode)
-		indices = Hash.new
 		splitted=split_key(key)
 		normalized=normalize(key)
 		if splitted.size==0
-			return indices
+			return Hash.new ## empty
 		end
-		dict_cond=""
-    		dict_id.split(",").each{|d|
-      			dict_cond << "," if dict_cond!=""
-      			dict_cond << "'"+@client.escape(d)+"'"
-    		}
-		dict_cond = sprintf("dict_id in (%s) ",dict_cond) if dict_cond != ""
-		cond = " 1 "
-		if dict_cond != ""
-			cond << "\n and ( " + dict_cond + ") "
-		end
-
-		###
-		###  query dbase with this condition
-
 		if search_mode != 'search_contain'
 			#### SEARCH-EXACT
-			query= sprintf("select original_key_words,item_id from glossary_indices where %s ",cond)
-			query <<  " and " + sprintf( "lang = '%s' ",lang)
-                        query <<  " and " + sprintf( "key_words = '%s' ",@client.escape(normalized))
-			res =  @client.query(query)
-                	res.each{|r|
-                        	indices[r['item_id']]={
-						"lang" => lang,
-						"key_words"=>r['original_key_words']
-						}
-                	}
+			indices= search_exact(normalized,[@glossary_ids],lang)
+		else
+			###  SEARCH - CONTAIN
+			indices= search_contains( splitted, [@glossary_ids], lang)
+		end
+		###  SEARCH TMX
+		if @tmx_ids.size==0
 			return indices
 		end
-
-		###  SEARCH - CONTAIN
-
+		search_keys=Hash.new
+		##debug(sprintf("SPLITTED %s\n",splitted.inspect()))
+		splitted.each{|k,s|
+			next if ignore_key(k)
+			search_keys[k]=s
+		}
+		##debug(sprintf("SEARCH %s\n",search_keys.inspect()))
+		if search_keys.size>0
+			tmx_indices = search_contains(search_keys, [@tmx_ids], lang)
+			##debug(sprintf("TMX-RES %s\n",tmx_indices.inspect()))
+			tmx_indices.each{|item_id,v|
+				idx= v["key_words"].index("$phrase$")
+				if idx != nil
+					v["key_words"]=v["key_words"][idx,v["key_words"].length]
+				end
+				##debug(sprintf("%d,KEY %s\n",idx+8,v["key_words"]))
+				keys_found=split_key(v["key_words"])
+				##debug(sprintf("KEYFOUND %s\n",keys_found.inspect()))
+				if key_is_valid(search_keys,keys_found)
+					indices[item_id]=v
+					##debug(sprintf("KEY %s OK\n",keys_found.inspect()))
+				else
+					##debug(sprintf("KEY %s INVALID\n",keys_found.inspect()))
+				end
+			}
+		end
+		return indices
+	end
+	def search_exact(normalized_keywords,dict_ids,lang)
+		indices = Hash.new
+		cond = sprintf("1 and dict_id in(%s)",dict_id_set(dict_ids))
+		##debug(sprintf("COND %s\n",cond))
+		query= sprintf("select original_key_words,item_id from glossary_indices where %s ",cond)
+		query <<  " and " + sprintf( "lang = '%s' ",lang)
+                query <<  " and " + sprintf( "key_words = '%s' ",@client.escape(normalized_keywords))
+		##debug(sprintf("QUERY %s\n",query))
+		res =  @client.query(query)
+               	res.each{|r|
+                       	indices[r['item_id']]={
+				"lang" => lang,
+				"key_words"=>r['original_key_words']
+			}
+               	}
+		return indices
+	end
+	def search_contains(splitted,dict_ids,lang)
+		indices = Hash.new
 		query = ""
 		splitted.each{|k,s|
 			q = sprintf("select item_id from %s where lang='%s' and key_word like '%s' \n",
@@ -132,7 +218,10 @@ class GlossaryLib
 				query = q + " and item_id in (" + query +")" + "\n"
 			end
 		}
-		res =  @client.query(query+ "order by key_len limit 50")
+		res =  @client.query(sprintf(
+				"select item_id from glossary_indices where item_id in(%s) and dict_id in(%s) order by key_len limit 50",
+				query ,
+				dict_id_set(dict_ids)))
 		items = ""
                	res.each{|r|
 			items << "," if items != ""
@@ -156,6 +245,27 @@ class GlossaryLib
                	}
 		return indices
 	end
+	##
+	##
+	##
+	def key_is_valid(search_keys,keys_found)
+		search_keys.each{|sk,sksize|
+			matched=false
+			keys_found.each{|kf,kfsize|
+				simi = WhiteSimilarity.similarity(sk,kf)
+				##debug(sprintf("SIMI[%s][%s]%s\n",sk,kf,simi))
+				if simi >= 0.8
+					##debug(sprintf("MATCHED[%s][%s]%s\n",sk,kf,simi))
+					matched=true
+					break
+				end
+			}
+			if matched == false
+				return false
+			end
+		}
+		return true
+	end
 
 	#########################################################################################
 	#	INDEXING
@@ -178,8 +288,42 @@ class GlossaryLib
 		}
    		return res
 	end
+	def add_phrase_index(lang,phrase)
+		##debug(sprintf("add phrase_index %s,%s,%s,%s\n",lang,phrase,@dict_id,@item_id))
+        	phrase=remove_notes(phrase,"(",")")
+        	phrase=remove_notes(phrase,"{","}")
+        	phrase=remove_notes(phrase,"[","]")
+		return if phrase==""
+		splitted=split_key(phrase)
+		return if splitted.size==0
+		if phrase.length>250
+			phrase=phrase[0,250]
+		end
+		##debug(sprintf("ADD KEY (%s)(%s)\n",lang,phrase))
+		normalized=normalize(phrase)
+		phrase = "$phrase$"+ phrase
+		if phrase.length>250
+			phrase=phrase[0,250]
+		end
+		splitted.each{|k,s|
+			if ignore_key(k)
+				printf("IGNORE (%s)\n",k)
+				next
+			end
+			@index << ",\n" if @index.length>0
+			@index << sprintf("('%s','%s','%s','%s','%s','%s','%d')\n",
+				@client.escape(@dict_id),
+				lang,
+				@item_id,
+				@client.escape(k),
+				@client.escape(normalized),
+				@client.escape(phrase),
+				phrase.length)
+		}
+		##printf("QUERY %s\n",@index)
+	end
 	def add_index(lang,key_words)
-		##printf("add index %s,%s,%s,%s\n",lang,key_words,@dict_id,@item_id)
+		##debug(sprintf("add index %s,%s,%s,%s\n",lang,key_words,@dict_id,@item_id))
         	key_words=remove_notes(key_words,"(",")")
         	key_words=remove_notes(key_words,"{","}")
         	key_words=remove_notes(key_words,"[","]")
@@ -224,8 +368,15 @@ class GlossaryLib
 	def index_entry(item_id,data)
 		@item_id=item_id
 		data.each{|k,v|
-			next if k.index("TERM:")==nil
-			add_index(k[6,2],v) if v !=""
+			next if v == ""
+			if k.index("TERM:")!=nil
+				add_index(k[6,2],v)
+				next
+			end
+			if k.index("PHRASE:")!=nil
+				add_phrase_index(k[8,2],v)
+				next
+			end
 		}
 	end
 
