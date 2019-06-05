@@ -1,0 +1,47 @@
+<%   translated.each{|key,res| %>
+       <p class="dict_key"><%=key%></p>
+<%     res.each{|r| 
+         reliable=true
+		 text_style = "dict_text"
+	     if r["dict"].size==1 and r["score"]<10
+            reliable=false
+            text_style = "dict_text_2"
+         end
+%>
+	   <span class="clearfix">
+		   <p style="float: left;" class="<%=text_style%>"><%=r["xlate"]%></p>
+		<div style="float: right;" >
+<% if lang != params[:tgt_lang] %> <!--- build lookup tooltip --->
+	<% lookup = 	{
+			 "src_lang"=>lang,
+			 "tgt_lang"=>params[:tgt_lang],
+			 "to_search"=>r["xlate"],
+			 "search_mode"=>params["search_mode"]
+		}
+%>
+		<% tool_tip = r["xlate"] + " > tiếng " + @dictionaries.lang_codes[params[:tgt_lang]] %>
+		<a href="<%=dict_lookup_path(lookup)%>"
+		    data-toggle="tooltip" title="<%=tool_tip%>" ><span class="fa fa-search"></span>
+		</a>
+		 &nbsp;
+<% end %>	<!---- tooltip	------------------------------------->
+		<div class="dropdown">
+		<button class="dropbtn"><%=r["dict"].size.to_s%> <span class="fa fa-book"></span></button>
+			<div class="dropdown-content">
+<%				r["dict"].each{|d| %>
+					<a href="<%='#dict'+@dictionaries.dict_num(d).to_s%>"><%=@dictionaries.dict_name(d)%></a>
+<%				} %>	
+<% if reliable==false %>
+			Từ này chỉ có tính tham khảo!
+<% end %>
+					</div>
+			</div>
+		</div>
+		</span>
+	   
+	   
+	   
+	   
+	   
+<%     } %>			<!--res.each -->
+<%   } %>   			<!--trans.each -->

@@ -1,0 +1,8 @@
+<% examples.each {|dict_id, ex| %>
+    <% dict_name= @dictionaries.dict_name(dict_id) %>
+	<p class="dict_key" >Thí dụ [từ <%=dict_name%> ] </p>
+	<% ex.each{|example| %>
+	  <p class="dict_text"><%=example[:ex_src] %> </p>
+	  <p class="dict_text_indent"><i><%=example[:ex_tgt] %> </i></p>
+	<%}%>
+<%}%> <!-- each.examples --->
