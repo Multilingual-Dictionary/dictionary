@@ -3,12 +3,6 @@ require_relative 'glossary'
 require 'json'
 require "unicode_utils/casefold"
 
-class HiliCallBack
-	def initialize()
-	end
-
-
-end
 class GlossaryDictService < DictService 
 
 	def initialize(cfg=nil,dict_cfgs=nil)
@@ -117,7 +111,7 @@ class GlossaryDictService < DictService
 
 		if entry_data["#HTML"]!=nil
 			### this guy already has HTML text .. dont need to build
-			return entry_data["#HTML"]
+			return @hili.hilite(entry_data["#HTML"],is_html=true)
 		end
 		multi_lingual= is_multilingual(dict_id)
 		primary_lang=primary_lang(dict_id)
@@ -139,7 +133,7 @@ class GlossaryDictService < DictService
 				num_text = ""
 			end
 			html_txt << "[" + tag[6,2] + "] " if multi_lingual
-			html_txt << CGI::escapeHTML(value) 
+			html_txt << @hili.hilite(value) 
 			html_txt << '</p>'
 		}
 		####### For tag EXPLAIN:LANG
@@ -147,7 +141,7 @@ class GlossaryDictService < DictService
 			next if tag[0,8]!="#EXPLAIN"
 			html_txt << '<p class="dict_text">'
 			html_txt << "[" + tag[9,2] + "] " if multi_lingual
-			html_txt << CGI::escapeHTML(value) 
+			html_txt << @hili.hilite(value) 
 			html_txt << '</p>'
 		}
 		####### For tag EXAMPLES:LANG
@@ -155,7 +149,7 @@ class GlossaryDictService < DictService
 			next if tag[0,9]!="#EXAMPLES"
 			html_txt << '<p class="dict_text"><i>'
 			html_txt << "[" + tag[10,2] + "] " if multi_lingual
-			html_txt << CGI::escapeHTML(value) 
+			html_txt << @hili.hilite(value) 
 			html_txt << '</i></p>'
 		}
 		return html_txt
@@ -172,7 +166,7 @@ class GlossaryDictService < DictService
 		entry_data.each{|tag,value|
 			next if tag[0,7]!="#PHRASE"
 			if tag[8,2]==key_lang 
-				html_txt << value 
+				html_txt << @hili.hilite(value) 
 			end
 		}
 		html_txt << '</p>'
@@ -181,7 +175,7 @@ class GlossaryDictService < DictService
 		entry_data.each{|tag,value|
 			next if tag[0,7]!="#PHRASE"
 			if tag[8,2]!=key_lang 
-				html_txt << value 
+				html_txt << @hili.hilite(value) 
 			end
 		}
 		html_txt << '</i>'
@@ -193,7 +187,7 @@ class GlossaryDictService < DictService
 	##  add entry->base-class ( for building the final result )
 	##
 	def do_add_entry(entry,html_txt,infos)
-		debug(sprintf("ADD DICT ENTRY(%s)\nINF(%s)\n",entry.inspect(),infos.inspect()))
+		##debug(sprintf("ADD DICT ENTRY(%s)\nINF(%s)\n",entry.inspect(),infos.inspect()))
 
 		
 		key_words= entry['key_words']
@@ -338,19 +332,31 @@ class GlossaryDictService < DictService
 
 		results = @glossary.client.query(sprintf(
 			"select * from glossary_indices where item_id in (%s) ",item_ids))
-		xlated = Hash.new
+
+		###
+		###	extract all the "xlated"-key-words -> @xlated , 
+		###		and setup "hili"-obj ( for hiliting texts )
+		###
+
+		@xlated = Hash.new
+		@hili=HiliTextUnderline.new()
+		hili_words=[]
 		results.each(){|r|
-			if not xlated.has_key?(r['item_id'])
-				 xlated[r['item_id']]=Hash.new
+			if not @xlated.has_key?(r['item_id'])
+				 @xlated[r['item_id']]=Hash.new
 			end
-			if not xlated[r['item_id']].has_key?(r['lang'])
-				 xlated[r['item_id']][r['lang']]=[]
+			if not @xlated[r['item_id']].has_key?(r['lang'])
+				 @xlated[r['item_id']][r['lang']]=[]
 			end
 			next if r['original_key_words'].index("$phrase$") != nil  ## ignore! not a real! 
 
-			xlated[r['item_id']][r['lang']]<<r['original_key_words']
+			@xlated[r['item_id']][r['lang']]<<r['original_key_words']
+			hili_words<<r['original_key_words']
 		}
+		@hili.add_word_to_hilite(hili_words)
+
 		### now we have all translated-keywords in xlated!
+
 
 
 		###
@@ -365,7 +371,7 @@ class GlossaryDictService < DictService
 			add_entry_to_buffer(
 				indices[r['item_id']]['key_words'],
 				indices[r['item_id']]['lang'],
-				xlated[r['item_id']],
+				@xlated[r['item_id']],
 				r)
 		}
 		flush_buffer()	## flush buffer ( this build results! )

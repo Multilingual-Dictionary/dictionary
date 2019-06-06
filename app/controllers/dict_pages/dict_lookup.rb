@@ -82,6 +82,9 @@ end
 	xlate_count=Hash.new
 	user_want_explanation= false
 	if params[:src_lang] ==params[:tgt_lang]
+		##
+		## user want to search de->de , en->en , vi->vi !
+		##
 		user_want_explanation= true
 	end
 	##debug(sprintf("RESULT %s\n",@result.inspect()))
@@ -152,7 +155,7 @@ end
 	end
 	###
 	return if dict_results==nil
-	hili=HiliText.new(MyHilite.new)
+	hili=HiliTextUnderline.new()
 	hili.add_word_to_hilite(params[:to_search].split(" "))
 	dict_results.each{|r|
 		r[:entries].each{|e|
@@ -197,12 +200,4 @@ end
 	end
 	return summary
   end
-end
-
-class MyHilite
-
-	def hilite(w)
-		return "<u>" + CGI::escapeHTML(w) + "</u>"
-	end
-
 end

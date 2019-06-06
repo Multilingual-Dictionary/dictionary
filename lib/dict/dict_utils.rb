@@ -22,7 +22,7 @@ class HiliText
 		return true if max > 0.75 
 		return false
 	end
-	def hilite(txt)
+	def hilite(txt,is_html=false)
 		hili_text=""
 		n=txt.size
 		i=0
@@ -34,13 +34,21 @@ class HiliText
 				## special char
 				if word != ""
 					if to_hilite(word)
-						hili_text << @cb.hilite(word)
+						hili_text << @cb.hilite(word,is_html)
 					else
-						hili_text << CGI::escapeHTML(word)
+						if is_html
+							hili_text << word
+						else
+							hili_text << CGI::escapeHTML(word)
+						end
 					end
 					word = ""
 				end
-				hili_text << CGI::escapeHTML(c)
+				if is_html
+					hili_text << c
+				else
+					hili_text << CGI::escapeHTML(c)
+				end
 			else
 				## normal char
 				word << c
@@ -49,12 +57,49 @@ class HiliText
 		end
 		if word != ""
 			if to_hilite(word)
-				hili_text << @cb.hilite(word)
+				hili_text << @cb.hilite(word,is_html)
 			else
-				hili_text << CGI::escapeHTML(word)
+				if is_html
+					hili_text << word
+				else
+					hili_text << CGI::escapeHTML(word)
+				end
 			end
 		end
 		return hili_text
 	end
 end
+
+class HiliUnderline 
+	def hilite(word,is_html)
+		if is_html
+			return  "<u>"+word+"</u>"
+		else
+			return  "<u>"+CGI::escapeHTML(word)+"</u>"
+		end
+	end
+end
+
+class HiliTextUnderline < HiliText 
+	def initialize()
+		super(HiliUnderline.new)
+	end
+end
+class HiliBold 
+	def hilite(word)
+		if is_html
+			return  "<b>"+word+"</b>"
+		else
+			return  "<b>"+CGI::escapeHTML(word)+"</b>"
+		end
+	end
+end
+
+class HiliTextBold < HiliText 
+	def initialize()
+		super(HiliBold.new)
+	end
+end
+
+
 
