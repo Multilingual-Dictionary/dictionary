@@ -3,6 +3,12 @@ require_relative 'glossary'
 require 'json'
 require "unicode_utils/casefold"
 
+class HiliCallBack
+	def initialize()
+	end
+
+
+end
 class GlossaryDictService < DictService 
 
 	def initialize(cfg=nil,dict_cfgs=nil)
@@ -126,13 +132,12 @@ class GlossaryDictService < DictService
 			next if tag[6,2]==primary_lang  ## dont show key if it is in source language
 			txt << "[" + tag[6,2] + "] " if multi_lingual
 			txt << value 
-			txt << "<br/>"
 		}
 		html_txt << '<p class="dict_text">'
 		if num != "0" 
 			html_txt << sprintf("<b>%s. </b>",num)
 		end
-		html_txt << txt
+		html_txt << CGI::escapeHTML(txt)
 		html_txt << '</p>'
 		####### For tag EXPLAIN:LANG
 		txt=""
@@ -143,7 +148,7 @@ class GlossaryDictService < DictService
 		}
 		if txt != ""
 			html_txt << '<p class="dict_text">'
-			html_txt << txt
+			html_txt << CGI::escapeHTML(txt)
 			html_txt << '</p>'
 		end
 		####### For tag EXAMPLES:LANG
@@ -155,7 +160,7 @@ class GlossaryDictService < DictService
 		}
 		if txt != ""
 			html_txt << '<p class="dict_text" ><i>'
-			html_txt << txt
+			html_txt << CGI::escapeHTML(txt)
 			html_txt << '</i></p>'
 		end
 		html_txt << "</i></p>"
@@ -310,7 +315,7 @@ class GlossaryDictService < DictService
 		tmx_ids=[]
     		dict_id.split(",").each{|id|
 			cfg = @dict_configs[id]
-			if cfg!=nil and cfg["type"]=="tmx"
+			if cfg!=nil and cfg["type"].downcase=="tmx"
 				tmx_ids << id
 			else
 				glossary_ids << id

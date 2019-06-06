@@ -1,3 +1,5 @@
+require "./lib/dict/dict_utils"
+
 class DictPagesController < ApplicationController
 
 def debug(s)
@@ -150,6 +152,8 @@ end
 	end
 	###
 	return if dict_results==nil
+	hili=HiliText.new(MyHilite.new)
+	hili.add_word_to_hilite(params[:to_search].split(" "))
 	dict_results.each{|r|
 		r[:entries].each{|e|
 			if e[:infos][:examples] != nil
@@ -159,10 +163,10 @@ end
 							summary["summary_for_lang"][lang]["examples"][r[:dict_name]]=[]
 						end
 						summary["summary_for_lang"][lang]["examples"][r[:dict_name]]<<
-									{ 
-									      :ex_src  => ex[params[:src_lang]],
-									      :ex_tgt  => ex[lang]
-									}
+							{ 
+							      :ex_src  => hili.hilite(ex[params[:src_lang]]),
+							      :ex_tgt  => hili.hilite(ex[lang])
+							}
 					end
 				}
 			end
@@ -191,7 +195,14 @@ end
 			build_summary_for_language(trans,nil,lang,summary)
 		}
 	end
-	debug(sprintf("SUM %s\n",summary.inspect()))
 	return summary
   end
+end
+
+class MyHilite
+
+	def hilite(w)
+		return "<u>" + CGI::escapeHTML(w) + "</u>"
+	end
+
 end
