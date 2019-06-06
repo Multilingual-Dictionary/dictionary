@@ -22,7 +22,7 @@ class GlossaryDictService < DictService
   	end
 
 	def debug(s)
-		File.write("./debug.txt",s,mode:"a")
+		##File.write("./debug.txt",s,mode:"a")
 	end
 
 	##
@@ -126,44 +126,38 @@ class GlossaryDictService < DictService
 		html_txt = ""
 
 		####### For tag TERM:LANG
-		txt=""
+		num_text=""
+		if num != "0" 
+			num_text=sprintf("<b>%s. </b>",num)
+		end
 		entry_data.each{|tag,value|
 			next if tag[0,5]!="#TERM"
 			next if tag[6,2]==primary_lang  ## dont show key if it is in source language
-			txt << "[" + tag[6,2] + "] " if multi_lingual
-			txt << value 
+			html_txt << '<p class="dict_text">'
+			if num_text != ""
+				html_txt << num_text
+				num_text = ""
+			end
+			html_txt << "[" + tag[6,2] + "] " if multi_lingual
+			html_txt << CGI::escapeHTML(value) 
+			html_txt << '</p>'
 		}
-		html_txt << '<p class="dict_text">'
-		if num != "0" 
-			html_txt << sprintf("<b>%s. </b>",num)
-		end
-		html_txt << CGI::escapeHTML(txt)
-		html_txt << '</p>'
 		####### For tag EXPLAIN:LANG
-		txt=""
 		entry_data.each{|tag,value|
 			next if tag[0,8]!="#EXPLAIN"
-			txt << "[" + tag[9,2] + "] " if multi_lingual
-			txt << value 
-		}
-		if txt != ""
 			html_txt << '<p class="dict_text">'
-			html_txt << CGI::escapeHTML(txt)
+			html_text << "[" + tag[9,2] + "] " if multi_lingual
+			html_txt << CGI::escapeHTML(value) 
 			html_txt << '</p>'
-		end
+		}
 		####### For tag EXAMPLES:LANG
-		txt = ""
 		entry_data.each{|tag,value|
 			next if tag[0,9]!="#EXAMPLES"
-			txt << "[" + tag[10,2] + "] " if multi_lingual
-			txt << value 
-		}
-		if txt != ""
-			html_txt << '<p class="dict_text" ><i>'
-			html_txt << CGI::escapeHTML(txt)
+			html_txt << '<p class="dict_text"><i>'
+			html_txt << "[" + tag[10,2] + "] " if multi_lingual
+			html_txt << CGI::escapeHTML(value) 
 			html_txt << '</i></p>'
-		end
-		html_txt << "</i></p>"
+		}
 		return html_txt
 	end	
 	##
@@ -213,6 +207,9 @@ class GlossaryDictService < DictService
 		}
 		attr << "/" if attr != ""
 		primary_lang=primary_lang(entry['dict_id'])
+		if primary_lang==""
+			primary_lang=entry['key_lang']
+		end
 		key_term=""
 		if primary_lang != "" and infos[:xlated_word] != nil and infos[:xlated_word][primary_lang]!=nil
 			infos[:xlated_word][primary_lang].each{|w|
