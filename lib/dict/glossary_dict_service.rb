@@ -146,7 +146,7 @@ class GlossaryDictService < DictService
 		entry_data.each{|tag,value|
 			next if tag[0,8]!="#EXPLAIN"
 			html_txt << '<p class="dict_text">'
-			html_text << "[" + tag[9,2] + "] " if multi_lingual
+			html_txt << "[" + tag[9,2] + "] " if multi_lingual
 			html_txt << CGI::escapeHTML(value) 
 			html_txt << '</p>'
 		}
