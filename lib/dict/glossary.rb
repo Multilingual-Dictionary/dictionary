@@ -167,7 +167,7 @@ class GlossaryLib
 		}
 		##debug(sprintf("SEARCH %s\n",search_keys.inspect()))
 		if search_keys.size>0
-			tmx_indices = search_contains(search_keys, [@tmx_ids], lang)
+			tmx_indices = search_contains(search_keys, [@tmx_ids], lang,10)
 			##debug(sprintf("TMX-RES %s\n",tmx_indices.inspect()))
 			tmx_indices.each{|item_id,v|
 				idx= v["key_words"].index("$phrase$")
@@ -204,7 +204,7 @@ class GlossaryLib
                	}
 		return indices
 	end
-	def search_contains(splitted,dict_ids,lang)
+	def search_contains(splitted,dict_ids,lang,lim=50)
 		indices = Hash.new
 		query = ""
 		splitted.each{|k,s|
@@ -219,9 +219,9 @@ class GlossaryLib
 			end
 		}
 		res =  @client.query(sprintf(
-				"select item_id from glossary_indices where item_id in(%s) and dict_id in(%s) order by key_len limit 50",
+				"select item_id from glossary_indices where item_id in(%s) and dict_id in(%s) order by key_len limit %d",
 				query ,
-				dict_id_set(dict_ids)))
+				dict_id_set(dict_ids),lim))
 		items = ""
                	res.each{|r|
 			items << "," if items != ""
