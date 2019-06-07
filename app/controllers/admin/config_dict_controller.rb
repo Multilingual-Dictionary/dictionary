@@ -41,9 +41,10 @@ class AdminPagesController < ApplicationController
 				tgt_lang[lang]=1
 				next
 			end
-			if tag[0,9]=="#PHRASE:"
+			if tag[0,8]=="#PHRASE:"
 				lang=tag[8,2].upcase
-				tgt_lang[lang]=1
+				src_lang[lang]=1 if src_term
+				tgt_lang[lang]=1 if tgt_term
 				next
 			end
 		}

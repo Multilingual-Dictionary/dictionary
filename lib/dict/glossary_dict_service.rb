@@ -108,13 +108,17 @@ class GlossaryDictService < DictService
 	##
 
 	def build_text(dict_id,entry_data,key_lang,num)
-
+		primary_lang=primary_lang(dict_id)
+		if primary_lang!=@src_lang
+			@hili.enable(true)
+		else
+			@hili.enable(false)
+		end
 		if entry_data["#HTML"]!=nil
 			### this guy already has HTML text .. dont need to build
 			return @hili.hilite(entry_data["#HTML"],is_html=true)
 		end
 		multi_lingual= is_multilingual(dict_id)
-		primary_lang=primary_lang(dict_id)
 
 		i = 1
 		html_txt = ""
@@ -158,6 +162,7 @@ class GlossaryDictService < DictService
 	##  Build html text ( for case TMX data )
 	##
 	def build_tmx_text(dict_id,entry_data,key_lang,num)
+		@hili.enable(true)
 		html_txt = ""
 		html_txt << '<p class="dict_text">'
 		if num != "0" 

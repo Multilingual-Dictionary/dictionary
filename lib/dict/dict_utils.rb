@@ -8,10 +8,14 @@ require 'whitesimilarity'
 class HiliText 
 	def initialize(cb)
 		@cb = cb
+		@enabled = true
 		@hl_words = []
 	end
 	def add_word_to_hilite(words)
 		@hl_words=words
+	end
+	def enable(enabled=true)
+		@enabled=enabled
 	end
 	def to_hilite(word)
 		max = 0.0
@@ -23,6 +27,14 @@ class HiliText
 		return false
 	end
 	def hilite(txt,is_html=false)
+		if @enabled == false
+			if is_html
+				return txt 
+			else
+				return CGI::escapeHTML(txt)
+			end
+		end
+
 		hili_text=""
 		n=txt.size
 		i=0
