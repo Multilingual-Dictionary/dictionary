@@ -328,7 +328,7 @@ class GlossaryLib
         	key_words=remove_notes(key_words,"{","}")
         	key_words=remove_notes(key_words,"[","]")
 		return if key_words==""
-		key_words.split(';').each{|key|
+		key_words.split(/[,;]/).each{|key|
 			####printf("KEY %s\n",key)
 			key.gsub!("|",",")
 			key.strip!

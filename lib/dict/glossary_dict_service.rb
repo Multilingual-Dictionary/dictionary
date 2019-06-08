@@ -91,7 +91,7 @@ class GlossaryDictService < DictService
 		category="" if category==nil
 		entry_num=entry_data["#ENTRY_NUM"]
 		entry_num="" if entry_num==nil
-		hash_key=  dict_id + key_words + key_lang + grammar
+		hash_key=  dict_id + key_words + key_lang + grammar + category
 		@entries[hash_key]=Hash.new if @entries[hash_key]==nil
 		@entries[hash_key][entry_num]=
 				{"dict_id"=>dict_id,
@@ -247,6 +247,7 @@ class GlossaryDictService < DictService
 	##  flush entries in buffer
 	##
 	def flush_buffer()
+		##debug(sprintf("flus %s\n",@entries.inspect()))
 		@entries.each{|h,e|
 			infos=Hash.new
 			infos[:xlated_word]=Hash.new
@@ -321,6 +322,7 @@ class GlossaryDictService < DictService
 
 		## search! this returns indices matched
 		indices = @glossary.search_indices(to_search,dict_id,@src_lang,@search_mode)
+		##debug(sprintf("INDICES %s\n",indices.inspect()))
 
 		item_ids = ""
 		indices.each{|item_id,r|
