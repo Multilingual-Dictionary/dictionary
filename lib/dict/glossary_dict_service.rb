@@ -109,7 +109,7 @@ class GlossaryDictService < DictService
 
 	def build_text(dict_id,entry_data,key_lang,num)
 		primary_lang=primary_lang(dict_id)
-		if primary_lang!=@src_lang
+		if primary_lang!=@src_lang and primary_lang!=""
 			@hili.enable(true)
 		else
 			@hili.enable(false)
