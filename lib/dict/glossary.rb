@@ -167,14 +167,14 @@ class GlossaryLib
 		}
 		##debug(sprintf("SEARCH %s\n",search_keys.inspect()))
 		if search_keys.size>0
-			tmx_indices = search_contains(search_keys, [@tmx_ids], lang,10)
+			tmx_indices = search_contains(search_keys, [@tmx_ids], lang,20)
 			##debug(sprintf("TMX-RES %s\n",tmx_indices.inspect()))
 			tmx_indices.each{|item_id,v|
 				idx= v["key_words"].index("$phrase$")
 				if idx != nil
 					v["key_words"]=v["key_words"][idx,v["key_words"].length]
 				end
-				##debug(sprintf("%d,KEY %s\n",idx+8,v["key_words"]))
+				##debug(sprintf("KEY %s\n",v["key_words"]))
 				keys_found=split_key(v["key_words"])
 				##debug(sprintf("KEYFOUND %s\n",keys_found.inspect()))
 				if key_is_valid(search_keys,keys_found)
@@ -254,7 +254,7 @@ class GlossaryLib
 			keys_found.each{|kf,kfsize|
 				simi = WhiteSimilarity.similarity(sk,kf)
 				##debug(sprintf("SIMI[%s][%s]%s\n",sk,kf,simi))
-				if simi >= 0.8
+				if simi >= 0.65
 					##debug(sprintf("MATCHED[%s][%s]%s\n",sk,kf,simi))
 					matched=true
 					break
