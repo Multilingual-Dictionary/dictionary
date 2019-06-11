@@ -310,7 +310,7 @@ class GlossaryDictService < DictService
 		### select glossaries
 		glossary_ids=[]
 		tmx_ids=[]
-    		dict_id.split(",").each{|id|
+    		dict_id.upcase.split(",").each{|id|
 			cfg = @dict_configs[id]
 			if cfg!=nil and cfg["type"].downcase=="tmx"
 				tmx_ids << id
@@ -321,7 +321,7 @@ class GlossaryDictService < DictService
 		@glossary.select_glossaries(glossary_ids,tmx_ids)
 
 		## search! this returns indices matched
-		indices = @glossary.search_indices(to_search,dict_id,@src_lang,@search_mode)
+		indices = @glossary.search_indices(to_search,@src_lang,@search_mode)
 		##debug(sprintf("INDICES %s\n",indices.inspect()))
 
 		item_ids = ""

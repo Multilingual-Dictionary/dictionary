@@ -104,7 +104,7 @@ class GlossaryLib
 	#	SEARCH INDICES
 	#########################################################################################
 
-	def search_indices(key,dict_id,lang,search_mode)
+	def search_indices(key,lang,search_mode)
 		splitted=split_key(key)
 		normalized=normalize(key)
 		if splitted.size==0
