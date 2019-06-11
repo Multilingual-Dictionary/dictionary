@@ -4,9 +4,10 @@
 
 require "unicode_utils/casefold"
 require 'whitesimilarity'
+require_relative 'frequent_words'
 
 class GlossaryLib
-	attr_accessor :client
+	attr_accessor :client,:frequent
 
 	def debug(s)
 		##File.write("./debug.txt",s,mode:"a")
@@ -26,6 +27,7 @@ class GlossaryLib
 		else
 			@client=nil
 		end
+		@frequent=FrequentWords.new 
 	end
 
 	#########################################################################################
@@ -82,46 +84,6 @@ class GlossaryLib
 		return md5.hexdigest
 	end
 
-	##
-	## init ignored words
-	##
-
-	def init_ignored_words()
-		return if @ignored != nil
-	    @ignored=Hash.new
-       [  "die","der","und","in","zu","den","das","nicht","von","sie",
-		  "ist","des","sich","mit","dem","dass","er","es","ein","ich",
-	      "auf","so","eine","auch","als","an","nach","wie","im","für",
-		  "man","aber","aus","durch","wenn","nur","war","noch","werden",
-		  "bei","hat","wir","was","wird","sein","einen","welche","sind",
-		  "oder","zur","um","haben","einer","mir","über","ihm","diese",
-		  "einem","ihr","uns","da","zum","kann","doch","vor","dieser",
-		  "mich","ihn","du","hatte","seine","mehr","am","denn","nun",	
-		  "unter","sehr","selbst","schon","hier","bis","habe","ihre","dann",	
-		  "ihnen","seiner","alle","wieder","meine","gegen","vom","ganz",	
-		  "einzelnen","wo","muss","ohne","eines","können","sei","ja",
-		  "wurde","jetzt","immer","seinen","wohl","dieses","ihren","würde",
-		  "diesen","sondern","weil","welcher","nichts","diesem","alles",
-		  "waren","will","viel","mein","also","soll","worden","lassen",	
-		  "dies","machen","ihrer","weiter","Leben","recht","etwas","keine",	
-		  "seinem","ob","dir","allen","großen","Weise","müssen","welches",	
-		  "wäre","erst","einmal","Mann","hätte","zwei","dich","allein","während",	
-		  "anders","kein","damit","gar","euch","sollte","konnte","ersten",
-		  "deren","zwischen","wollen","denen","dessen","sagen","bin","gut",
-		  "darauf","wurden","weiß","gewesen",	"Seite","bald","weit","große",
-		  "solche","hatten","eben","andern",	"beiden","macht","sehen",
-		  "ganze","anderen","lange","wer","ihrem",
-		  "zwar","gemacht","dort","kommen","heute","werde","derselben",
-		  "ganzen","lässt","vielleicht","meiner"].each{|w|
-			@ignored[w.downcase]=1
-		}
-	end
-	def ignore_key(w)
-		init_ignored_words() if @ignored == nil
-		return true if @ignored[w.downcase]!=nil
-		return true if w.index(/[0-9]/) != nil
-		return false
-	end
 	#########################################################################################
 	#	SELECT GLOSSARIES
 	#########################################################################################
@@ -162,7 +124,7 @@ class GlossaryLib
 		search_keys=Hash.new
 		##debug(sprintf("SPLITTED %s\n",splitted.inspect()))
 		splitted.each{|k,s|
-			next if ignore_key(k)
+			next if @frequent.too_frequent(k,lang)
 			search_keys[k]=s
 		}
 		##debug(sprintf("SEARCH %s\n",search_keys.inspect()))
@@ -306,7 +268,7 @@ class GlossaryLib
 			phrase=phrase[0,250]
 		end
 		splitted.each{|k,s|
-			if ignore_key(k)
+			if @frequent.too_frequent(k,lang)
 				printf("IGNORE (%s)\n",k)
 				next
 			end
