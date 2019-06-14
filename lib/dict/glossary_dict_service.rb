@@ -104,6 +104,53 @@ class GlossaryDictService < DictService
 	end
 
 	##
+	##  Examples
+	##
+
+	def get_examples(ex)
+		examples = []
+		begin
+			ex_data=JSON.parse(ex)
+			return [] if ex_data["examples"]==nil
+			ex_data["examples"].each{|example|
+				examples << example 
+			}
+		rescue
+			return []
+		end
+		return examples
+	end
+
+	def render_examples(ex)
+		html_txt = ""
+		begin
+			ex_data=JSON.parse(ex)
+			return "" if ex_data["examples"]==nil
+			html_txt << '<p class="dict_text">'
+			ex_data["examples"].each{|example|
+				example.each{|lang,e|
+					if lang == @src_lang
+						html_txt << '<i>'
+						html_txt << @hili.hilite(e) + " "
+						html_txt << '</i>'
+					end
+				}
+				example.each{|lang,e|
+					if lang != @src_lang
+						html_txt << " : " + @hili.hilite(e) + " "
+					end
+				}
+			}
+			html_txt << '</p>'
+		rescue
+			html_txt << '<p class="dict_text"><i>'
+			html_txt << @hili.hilite(ex) 
+			html_txt << '</i></p>'
+		end
+		return html_txt
+	end
+
+	##
 	##  Build html text ( for display )
 	##
 
@@ -151,10 +198,7 @@ class GlossaryDictService < DictService
 		####### For tag EXAMPLES:LANG
 		entry_data.each{|tag,value|
 			next if tag[0,9]!="#EXAMPLES"
-			html_txt << '<p class="dict_text"><i>'
-			html_txt << "[" + tag[10,2] + "] " if multi_lingual
-			html_txt << @hili.hilite(value) 
-			html_txt << '</i></p>'
+			html_txt << render_examples(value)
 		}
 		return html_txt
 	end	
@@ -284,6 +328,12 @@ class GlossaryDictService < DictService
 					}
 					html_txt << build_text(entry['dict_id'],entry['entry_data'],entry["key_lang"],i.to_s)
 					i = i + 1 
+					entry['entry_data'].each{|tag,value|
+						next if tag[0,9]!="#EXAMPLES"
+						get_examples(value).each{|ex|
+							examples << ex
+						}
+					}
 				}
 				infos[:xlated_word].each{|lang,x|
 					### eliminate duplicated keys!
