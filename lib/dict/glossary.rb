@@ -115,7 +115,10 @@ class GlossaryLib
 			indices= search_exact(normalized,[@glossary_ids],lang)
 		else
 			###  SEARCH - CONTAIN
-			indices= search_contains( splitted, [@glossary_ids], lang)
+			indices= search_exact(normalized,[@glossary_ids],lang)
+			search_contains( splitted, [@glossary_ids], lang).each{|k,v|
+				indices[k]=v	
+			}
 		end
 		###  SEARCH TMX
 		if @tmx_ids.size==0
