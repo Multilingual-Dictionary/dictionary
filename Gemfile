@@ -71,4 +71,4 @@ gem 'google-cloud-translate'
 gem 'sidekiq'
 gem 'sinatra'
 gem 'unicode_utils'
-
+gem 'rubyXL'
